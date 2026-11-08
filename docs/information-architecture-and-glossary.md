@@ -1,4 +1,4 @@
-# Holt: information architecture and glossary (v0.6, 8 Nov 2026)
+# Holt: information architecture and glossary (v0.7, 8 Nov 2026)
 
 Companion to `product-direction.md` and `v1-scope-and-domain-model.md`. This document covers four things:
 - where each thing lives
@@ -17,6 +17,10 @@ Companion to `product-direction.md` and `v1-scope-and-domain-model.md`. This doc
 **8 Nov 2026**
 - The mockups had their copy pass: active voice and glossary terms throughout (canvas v0.3).
 - Occasions and gifts (v1.x) live in Plan, inside the Gifts and occasions job. Glossary terms are below.
+
+**8 Nov 2026 (architecture review)**
+- New terms for the review's decisions: Set amount, Plan start, History, Move at the bank and Recovery code.
+- A bucket is now defined as the money a job keeps. The word on screen doesn't change.
 
 There are no open questions in this document.
 
@@ -76,7 +80,9 @@ Selecting a job opens a panel beside the list: its history by month, its estimat
 | Group, job, assignment | Plan | Overview, Transactions (job picker), Review |
 | Estimate | Plan (job panel), where you can override a month | Overview (12-month ribbon, marked ≈) |
 | The buffer | Plan | Overview ("How long could we last?") |
-| Bucket | Plan | — |
+| Bucket (the money a job keeps) | Plan (the job) | Plan (Where the money sits) |
+| Move at the bank | Plan (Where the money sits) | Transactions (marked done when an import shows it), Overview (reminders) |
+| Budget month | Plan | Monthly review |
 | Transaction, allocation | Transactions | Ask or find, any "show working" panel |
 | Import batch, format profile | Transactions → Imports | — |
 | Rule for sorting transactions | Settings → Rules (or create one from a transaction with "always do this") | Transactions (shows which rule applied) |
@@ -164,6 +170,7 @@ Norwegian terms marked **decided** are settled. The rest are proposals for a nat
 | Pay into another account | A job kind | Betal inn til en annen konto | |
 | Follow the bills | Plan a spend job at each month's estimate | Følg regningene | |
 | Even it out | Plan the same amount every month, with a bucket for the swings | Jevn det ut | |
+| Set amount | Plan a spend job at the family's own figure, repeated each month | Fast beløp | |
 | Estimate | The app's forecast for a future month, marked ≈ | Anslag | |
 | Target | The amount a save-up job aims for | Mål | |
 | Ready by | The date a save-up job aims for | Klart innen | |
@@ -172,6 +179,9 @@ Norwegian terms marked **decided** are settled. The rest are proposals for a nat
 | Over-assigned | More assigned than available | Overfordelt | |
 | Money available | What you can assign this month | Penger til fordeling | |
 | Next month's money | Money already received for next month | Neste måneds penger | Never counted as buffer |
+| Plan start | The first month Holt plans | Planstart | |
+| History | Transactions from before the plan start | Historikk | Used for estimates; never in Needs you |
+| Move at the bank | A transfer the plan needs the family to make at the bank | Overføring i banken | Holt never moves money itself |
 | Money in | Everything arriving in the shared accounts | Penger inn | |
 | Contribution | An adult's fixed monthly payment into the shared accounts | Fast innbetaling | Avoid "bidrag" (confusable with barnebidrag) |
 | Buffer | The household's safety money; a save-up job with a fixed role | Buffer | |
@@ -263,6 +273,7 @@ A bucket is money set aside inside an account. It is not a type of spending, and
 | Entered by you | A value you typed rather than one the app calculated | Lagt inn av deg | |
 | Next 12 months | The forecast ribbon | De neste 12 månedene | |
 | Backup · Restore | | Sikkerhetskopi · Gjenopprett | |
+| Recovery code | The code that opens a backup on any computer | Gjenopprettingskode | Kept apart from the backups |
 | Undo · Redo | | Angre · Gjør om | |
 
 ## Words the interface and the assistant avoid

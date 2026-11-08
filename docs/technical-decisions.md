@@ -1,4 +1,4 @@
-# Holt: technical decisions (v0.3, 8 Nov 2026)
+# Holt: technical decisions (v0.4, 8 Nov 2026)
 
 Companion to the other documents in `docs/`. Each decision states what was chosen, why, what it costs, and what would change it. Status is **Decided** unless marked otherwise. Short decision records live in `docs/decisions/`.
 
@@ -14,9 +14,9 @@ Companion to the other documents in `docs/`. Each decision states what was chose
 |---|---|---|---|
 | 1 | App shell | **Electron** (latest stable, 45.x in Nov 2026) | Decided |
 | 2 | UI layer | **React 19 + React Router (v8) in SPA data mode + Vite.** No HTTP server. | Decided |
-| 3 | Process architecture | Domain core in pure TypeScript; main process owns data, imports and AI; sandboxed renderer; typed IPC | Decided |
-| 4 | Storage | **SQLite**, encrypted with **better-sqlite3-multiple-ciphers** | Decided (spike 2 confirms the build) |
-| 5 | Encryption key | Desktop keyring via Secret Service (forced, see 5); passphrase as fallback; never `basic_text` | Decided |
+| 3 | Process architecture | Domain core in pure TypeScript that stores nothing: changes are commands, and figures are worked out from facts. Main process owns data, imports, AI and all network access; sandboxed renderer; typed IPC | Decided |
+| 4 | Storage | **SQLite**, encrypted with **better-sqlite3-multiple-ciphers**; plain SQL migrations, no ORM | Decided (spike 2 confirms the build) |
+| 5 | Encryption key | One data key in two copies: the desktop keyring (forced, see 5) for daily unlock, and a recovery code for backups; passphrase when there's no keyring; never `basic_text` | Decided |
 | 6 | Local AI | **OpenAI-compatible endpoint on localhost**: llama-server and LM Studio/llmster both supported; JSON-schema output | Decided |
 | 7 | Model | Qwen 3.8 27B by default on the 4090; bake-off against Gemma 4 26B-A4B | Proposed (spike 3) |
 | 8 | Themes and Caelestia | Tokens compiled to CSS variables; "Follow my desktop" watches Caelestia's `scheme.json` | Decided |
@@ -24,6 +24,9 @@ Companion to the other documents in `docs/`. Each decision states what was chose
 | 10 | Packaging | **AUR first**, AppImage second, Flatpak later | Decided |
 | 11 | Mobile access | **Neither dsh nor RustDesk.** Not in v1. Later: read-only view served by Holt over a private network | Decided (direction) |
 | 12 | Name | Repository `holt-budget`, app ID `ink.chiang.holt` | Decided |
+| 13 | Code and data | The public repository holds code and docs only. Household data stays in XDG folders; dev uses its own; real exports stay in `private/` | Decided |
+| 14 | Backups | Automatic, versioned and encrypted, to a folder you choose; your own sync tool may upload it | Decided |
+| 15 | Schemas | **Zod 4**: one definition per shape for model replies, IPC arguments and database rows | Decided |
 
 ---
 
@@ -68,23 +71,38 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
                     renderer (React)
 ```
 - **The renderer is sandboxed:** `contextIsolation`, `sandbox: true`, no Node integration, and a small typed IPC surface.
-- **Network is denied by default.** A strict CSP plus a `session.webRequest` filter block every request except the configured loopback model endpoint. No auto-updater (the package manager updates Holt), no telemetry, no remote fonts. A test fails the build if the app makes any other outbound request.
-- **All figures come from `core`.** The AI client can only return validated JSON: a filter, a proposal or words.
-- **Money:** integer øre held as JavaScript numbers, formatted with `Intl.NumberFormat('en-GB')` plus " kr".
+- **Network is denied by default.** A strict CSP and a `session.webRequest` filter block every request from the renderer. That filter only sees Chromium's traffic, from the renderer and from Electron's `net`. Node's own `fetch`, `http` and `net` in the main process bypass it, and that is where the model client and every main-process dependency run. So:
+  - all main-process HTTP goes through one function that uses `net.fetch` and refuses any address but 127.0.0.1 or ::1;
+  - a lint rule bans `node:http`, `node:https`, `node:net`, `undici` and the global `fetch` in `apps/desktop/src/main`, apart from that one function;
+  - the no-network test runs the packaged app in a network namespace with only loopback, and fails on any outbound connection attempt;
+  - the renderer's filter allows only the app's own files and, while developing, the dev server. Today it also allows loopback, which Milestone 1 removes.
+
+  No auto-updater (the package manager updates Holt), no telemetry, no remote fonts.
+- **All figures come from `core`.** The AI client can only return validated JSON: a filter, a proposal or words. Core stores nothing. It applies commands to facts and works out every figure with one pure function (see "Facts and figures" and "Changes are commands" in the domain model).
+- **Core types.** Dates are branded strings, `LocalDate` ("2026-11-08") and `Month` ("2026-11"), never `Date`, which can shift a day across time zones. Each kind of object has its own branded ID (UUIDv7 text), so a job's ID can't be passed where an account's belongs.
+- **Money:** integer øre held as JavaScript numbers. Display formatting belongs in the renderer's message layer (FormatJS), so Norwegian can show "68 048 kr". Core parses and does arithmetic only. `formatKroner` moves out of core when FormatJS arrives in Milestone 1.
+- **Bundling the main process.** electron-vite leaves `dependencies` out of the main and preload bundles. `@holt/core` and `@holt/importers` export TypeScript source, so `electron.vite.config.ts` lists them in `build.externalizeDeps.exclude` and they are bundled. Without that, the built main process would import TypeScript at runtime.
 
 ## 4. Storage: SQLite, encrypted
-- **One database file** in `~/.local/share/holt/`, in WAL mode, with versioned migrations.
+- **One database file** in `$XDG_DATA_HOME/holt/` (usually `~/.local/share/holt/`), in WAL mode. `pnpm dev` uses `holt-dev` instead, filled with synthetic data, so development never opens the family's database (§13).
+- **Migrations** are plain SQL files, applied in order and tracked with `PRAGMA user_version`. No ORM. Each table has a small typed module in the main process, and rows are parsed with Zod (§15) as they leave SQLite. A test compares each row schema with `PRAGMA table_info`, so a migration and its type can't drift apart.
 - **Library: better-sqlite3-multiple-ciphers** (MIT): fast, synchronous, page-level encryption (default ChaCha20-Poly1305, with a SQLCipher-compatible mode). Plain `node:sqlite` has no encryption, and node-sqlite3 was archived in July 2026. The fallback is @signalapp/sqlcipher.
-- **Backups** use SQLite's backup API to write an encrypted copy to the folder you choose. Restore is on the release checklist.
-- **Undo** is built on a change-record table, as in the domain model.
+- **Backups:** see §14.
+- **Undo** is built on the change-record table. Each record holds the command and every affected row before and after, as in the domain model.
 
 ## 5. The encryption key on Hyprland
 - **The catch:** Electron's `safeStorage` picks a key store by recognising the desktop environment. Hyprland isn't on its list, so it falls back to `basic_text` (a hard-coded password that protects nothing) **even when a keyring is running**.
+- **The keyring lives on the same disk.** gnome-keyring keeps its file in `~/.local/share/keyrings/`, and KWallet in `~/.local/share/kwalletd/`. If the disk fails, the keyring goes with the database. A key kept only in the keyring can't open a backup on a new machine.
 - **Holt's behaviour:**
-  1. At start-up, check whether `org.freedesktop.secrets` is on the session D-Bus (or KWallet is running).
-  2. If so, start Electron with `--password-store=gnome-libsecret` (or `kwallet6`) before the app is ready. Then confirm `safeStorage.getSelectedStorageBackend()` reports the keyring.
-  3. If no keyring is found, ask for a passphrase at launch and derive the key with Argon2id, with a printable recovery code made during Setup.
-  4. Never accept `basic_text`.
+  1. Setup creates one random 256-bit data key. It encrypts the database and every backup.
+  2. At start-up, check whether `org.freedesktop.secrets` is on the session D-Bus (or KWallet is running).
+  3. If so, start Electron with `--password-store=gnome-libsecret` (or `kwallet6`) before the app is ready. Then confirm `safeStorage.getSelectedStorageBackend()` reports the keyring. The keyring holds one copy of the data key, so Holt opens without a prompt.
+  4. If no keyring is found, ask for a passphrase at launch. An Argon2id key derived from it protects that copy instead.
+  5. Setup always shows a recovery code, keyring or not. An Argon2id key derived from it protects a second copy of the data key, and every backup carries that copy (§14). The family keeps the code in a password manager or on paper, never in the same cloud folder as the backups. Settings can make a new code. Backups made before then keep opening with the old one.
+  6. Never accept `basic_text`.
+- **Restoring on a new machine.** Install Holt, choose a backup and type the recovery code. The new machine's keyring then takes over the daily unlock.
+- **A synced keyring is a bonus, not a plan.** If the Secret Service is backed by a synced store, such as KeePassXC with a synced database, the keyring's copy also survives a lost disk. Holt works with that, but never relies on it.
+- **Argon2id implementation:** chosen in spike S2. Prefer one that doesn't add a second native module.
 - **Checks for any machine:**
   - Keyring visible to apps: `busctl --user list | grep org.freedesktop.secrets` should print a line.
   - Disk encryption: `lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINTS` shows `crypto_LUKS` and a `crypt` device above root (and home, if separate) when encrypted. `findmnt -no SOURCE /` printing `/dev/mapper/…` points the same way.
@@ -99,10 +117,12 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **A small adapter layer** covers the runtimes' differences. For example, llama-server takes the JSON schema directly in `response_format`, while LM Studio uses the OpenAI-style `json_schema` wrapper. Both constrain decoding so replies always parse. Holt still validates every reply, because a grammar guarantees syntax, not sense.
 - **What the model is used for, and what it isn't:**
   - *Suggesting a job for a transaction:* only after rules and "what did you choose last time for this counterparty" have failed.
-  - *Ask:* turning a question into a filter (JSON) that `core` runs and calculates.
+  - *Ask:* turning a question into a query in Holt's query language (JSON, defined in core by spike S5) that `core` runs and calculates.
   - *Words:* drafting the monthly review and notes from figures `core` calculated.
   - *Never:* producing a number.
 - **Prompts include only the rows a task needs**, at low temperature for structured tasks.
+- **One schema per reply shape.** Each task's reply is described by one Zod schema (§15). Holt converts it to JSON Schema with `z.toJSONSchema()` for the runtime's constrained decoding, and parses the reply with the same schema.
+- **Words never carry figures (rule 2).** When the model writes words (an Ask answer, the review draft, notes), it receives the calculated figures as named values and writes placeholders such as `{food.spent}`. The app fills each placeholder with the formatted figure. A validator rejects any reply with a digit outside a placeholder, retries once, then falls back to a plain template. Dates and counts come through placeholders too. Spike S3 measures how often the first reply passes.
 - **v1.x option:** a "managed" mode in which Holt runs `llama-server` itself, for users without a runtime.
 - **LM Studio's licence:** its app is not open source (the `lms` CLI is MIT). Holt supports it, but the docs present llama.cpp as the fully open route.
 
@@ -139,17 +159,44 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 
 ## 12. Testing and quality
 - **Vitest for `core`:** money rules, reconciliation, buckets, estimates (with golden files for the Electricity example), undo.
-- **Importer tests** against anonymised real exports from Bulder and SR-Bank.
+- **Property tests** with fast-check for the rules that are invariants: splits sum to the amount (rule 3), money available reconciles (4), buckets fit their account (6), and undo then redo gives the same figures (9).
+- **Importer tests** against synthetic files in each bank's exact format, generated by a script and committed. The same tests run against the family's real exports in `private/fixtures/` when that folder exists, and skip otherwise. Real exports are never committed, even anonymised, because amounts, dates and merchants still describe the family.
 - **Playwright for Electron** smoke tests on the main flows, with axe accessibility checks.
-- A **"no network" test** in CI.
+- A **"no network" test** in CI, in a loopback-only network namespace (§3).
+
+## 13. Code and data are separate
+The repository is public, and the household's data never enters it.
+- **Runtime data** lives in XDG folders outside the repository. The database, its WAL files and the protected key copies are in `$XDG_DATA_HOME/holt/`. Settings live in the encrypted database, so a backup carries them. The only settings outside it are the few needed before unlocking, such as the data folder's location and the unlock screen's theme, in `$XDG_CONFIG_HOME/holt/`.
+- **Development** uses `holt-dev` folders and synthetic data, so a half-finished migration can't touch the family's database.
+- **Real bank exports** stay in `private/fixtures/`, which is gitignored. The committed fixtures are synthetic.
+- **The first household's details** live in `private/household.md`. The public docs keep only the facts that explain a decision.
+- **Bank format profiles** that ship with Holt are code. Profiles the family creates are data.
+
+## 14. Backups
+- **Where.** A folder the family chooses. Holt only writes files there and makes no network call. If the family's own sync tool (Syncthing, Nextcloud or Proton Drive, for example) uploads that folder, the backups survive a lost disk, and Holt itself still sends nothing anywhere.
+- **When.** Automatically after each import and each approved review, and whenever the family asks.
+- **Versions.** Each backup is a new dated file, and Holt keeps the most recent ones (the number is a setting). A synced folder uploads a corrupted file as readily as a good one, so one overwritten file isn't enough.
+- **Written in one step.** Holt writes to a temporary file in the same folder and renames it into place, so a sync tool never uploads half a backup.
+- **Format.** An encrypted copy of the database made with SQLite's backup API, with a header holding the copy of the data key that the recovery code protects (§5).
+- **Restore** opens a backup with the recovery code. It is on the release checklist.
+
+## 15. Schemas: Zod 4
+One Zod schema per shape gives both the TypeScript type and the runtime check, at each boundary:
+- model replies, converted to JSON Schema with `z.toJSONSchema()` for constrained decoding, then parsed with the same schema;
+- IPC arguments, checked in the main process before a handler runs;
+- database rows, parsed as they leave SQLite.
+
+Inside core, code trusts these types and doesn't check them again.
 
 ---
 
 ## Spikes before committing (about one week)
-1. **Electron 45 on Hyprland with the 4090:** native Wayland, frameless window with CSD, fractional scaling, and a transparent window resized under tiling with Hyprland blur.
-2. **Encrypted SQLite in Electron 45:** prebuilt binaries for the current Electron ABI, WAL, the backup API, the keyring key via forced `gnome-libsecret`, and the passphrase fallback.
-3. **Model bake-off:** Qwen 3.8 27B against Gemma 4 26B-A4B on the family's own data, through both llama-server and llmster.
-4. **Bank exports:** real CSVs from Bulder and SpareBank 1 SR-Bank for January to October, to build format profiles and test fixtures.
+Run them in the order S1, S2, S4, S5, S3. S3 needs S4's data and S5's query language.
+1. **S1 Electron 45 on Hyprland with the 4090:** native Wayland, frameless window with CSD, fractional scaling, and a transparent window resized under tiling with Hyprland blur.
+2. **S2 Encrypted SQLite in Electron 45:** prebuilt binaries for the current Electron ABI, WAL, the backup API, the data key's two copies (the keyring via forced `gnome-libsecret`, and the recovery code), and the passphrase fallback. It must work in the packaged AppImage and pacman builds, not only in dev, because packaging is where native modules break. A backup must restore on a fresh user account with only the recovery code.
+3. **S3 Model bake-off:** Qwen 3.8 27B against Gemma 4 26B-A4B on the family's own data, through both llama-server and llmster. The family labels the 200 transactions first, and the data stays in `private/`.
+4. **S4 Bank exports:** real CSVs from Bulder and SpareBank 1 SR-Bank for January to October, kept in `private/fixtures/`. Build the format profiles, and a script that writes synthetic files in each format for the committed tests. Check whether each CSV carries a closing balance (rule 5), and whether SR-Bank exports the loan account or splits interest and principal.
+5. **S5 Ask query language v0:** the filters and aggregates that Ask turns a question into, as a Zod schema in core with a pure evaluator.
 
 ## Open questions
 1. Glass: review the frosted-glass experiment (9).
@@ -158,6 +205,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - [Tauri: Linux graphics issues (WebKitGTK and NVIDIA)](https://v2.tauri.app/develop/debug/linux-graphics/)
 - [Electron: How Electron went Wayland-native](https://electronjs.org/blog/tech-talk-wayland)
 - [Electron releases](https://releases.electronjs.org/)
+- [electron-vite: dependency handling](https://electron-vite.org/guide/dependency-handling)
 - [Electron: Custom window styles (transparent window limits)](https://electronjs.org/ru/docs/latest/tutorial/custom-window-styles)
 - [Electron: safeStorage](https://electronjs.org/docs/latest/api/safe-storage)
 - [Comparing encrypted SQLite libraries for Electron (2026)](https://codenote.net/en/posts/electron-encrypted-sqlite-libraries-comparison/)

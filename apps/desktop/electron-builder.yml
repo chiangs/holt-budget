@@ -1,7 +1,7 @@
 appId: ink.chiang.holt
 productName: Holt
 executableName: holt
-copyright: Copyright © 2026 The Holt authors
+copyright: Copyright © 2026 Stephen Chiang
 directories:
   output: release
 files:

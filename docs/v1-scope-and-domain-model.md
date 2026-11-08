@@ -1,4 +1,4 @@
-# Holt: v1 scope and domain model (v0.4, 8 Nov 2026)
+# Holt: v1 scope and domain model (v0.5, 8 Nov 2026)
 
 Companion to `product-direction.md`. Part 1 sets out what the first release includes and how we'll know it works. Part 2 describes the objects the app deals with and the rules that must always hold. It stays at the level of product behaviour; the technical choices are in `technical-decisions.md`.
 
@@ -22,16 +22,16 @@ One household (the first household, a family in Norway) runs its shared money th
 ## In v1
 | Area | Included |
 |---|---|
-| Setup | All seven steps. Step 6 ("bigger picture") can be skipped. The first import can bring in history from the start of the year (about 10 months), which the estimates use. |
+| Setup | All seven steps. Step 6 ("bigger picture") can be skipped. The first import can bring in history from the start of the year (about 10 months). Transactions before the plan's first month are history (decision 10). The estimates and recurring detection use them, and they never wait in "needs you". Setup ends with a backup folder and the recovery code (decision 14). |
 | Transactions (formerly Import) | CSV for Bulder and SpareBank 1 SR-Bank; OFX where a bank offers it; per-account "up to date" status; duplicate detection; balance check; undo a whole import; import reminders; Needs you, All and Imports tabs |
-| Plan | Groups, jobs (spend / save up / pay into another account), the buffer, buckets, unassigned money, the New job flow with "where it comes from", contributions per adult, children's accounts paid into, stages |
-| Plan: job panel | Select any job to open its history (actual spending by month) and its estimate for the next 12 months, with how the app worked it out. For variable costs, choose **Follow the bills** or **Even it out** with a bucket (decision 6). Apply and Undo. |
+| Plan | Groups, jobs (spend / save up / pay into another account), the buffer, buckets, unassigned money, the New job flow with "where it comes from", contributions per adult, children's accounts paid into, stages, moves at the bank, one-off and monthly (decision 11) |
+| Plan: job panel | Select any job to open its history (actual spending by month) and its estimate for the next 12 months, with how the app worked it out. For variable costs, choose **Follow the bills** or **Even it out** with a bucket (decision 6). Other spend jobs use the amount the family sets (decision 12). Apply and Undo. |
 | Monthly review | Assistant draft, calculated figures, decisions applied on approval, export as markdown |
 | Recurring costs | Detection, subscriptions shelf, cancel-and-watch loop, price-rise and new-charge flags, contract renewal reminders |
 | Overview | Vital signs (buffer runway, savings rate, loan to value, debt to income, net worth); build readiness (basic); 12-month view of large costs and estimated winter bills, with "≈" marking estimates that link to the job panel; assistant notes |
 | Ask or find | Find (plain search) and Ask (questions answered from the family's own data, showing how each answer was worked out) |
 | Settings | A list of settings with defaults, not a designed screen (see below) |
-| Backup | Encrypted backup to a folder the user chooses, and restore. Essential: local-only means the family's history otherwise depends on one disk. |
+| Backup | Encrypted backups to a folder you choose, made automatically after each import and each approved review, keeping older copies. If your own sync tool uploads that folder, the backups survive a lost disk. The recovery code opens them on any computer (decision 14). Essential: local-only means the family's history otherwise depends on one disk. |
 | Assistant | Autonomy levels 0–2 only (calculate, explain, propose) |
 
 ## Next (v1.x), in rough order
@@ -47,7 +47,7 @@ One household (the first household, a family in Norway) runs its shared money th
 Bank connections · mobile access (a read-only view served by Holt over a private network; see `technical-decisions.md`) · links to wishlist services such as Ønsk (no public API, and fetching from them would break the no-network rule) · a private space for each adult's own finances · Obsidian integration · detailed investment tracking · splitting electricity into usage (kWh) and price · multiple currencies · macOS.
 
 ## Non-goals
-No cloud services. No financial advice. No action without approval. No gamification (streaks, badges, confetti). No figures produced by the language model. No hard-coded rates (inflation, price rises): estimates come from the family's own imports.
+No cloud services. Holt never uploads anything, though you can back up to a folder that your own sync tool uploads. No financial advice. No action without approval. No gamification (streaks, badges, confetti). No figures produced by the language model. No hard-coded rates (inflation, price rises): estimates come from the family's own imports.
 
 ## Settings (v1 list)
 - **Household:** people, contributions, children's birth months, milestones.
@@ -58,7 +58,7 @@ No cloud services. No financial advice. No action without approval. No gamificat
 - **Reminders:** import, review, renewals; desktop notifications on or off.
 - **Appearance:** Hearth (default) / Instrument / Follow my desktop; light or dark follows the desktop; transparency (glass) on or off, off by default; language.
 - **Keyboard:** single-key shortcuts on or off; reassign any key.
-- **Data:** where data lives, backup and restore, export everything (CSV / markdown), delete everything.
+- **Data:** where data lives, the backup folder and how many copies to keep, restore, a new recovery code (older backups keep opening with the old one), export everything (CSV / markdown), delete everything.
 
 ---
 
@@ -84,6 +84,23 @@ No cloud services. No financial advice. No action without approval. No gamificat
    - **One bucket.** A single "Gifts and occasions" job, evened out (decision 6), funds every occasion. It replaces the "Christmas and gifts" job in the mockups.
    - **Gift-level detail.** Each gift records who it's for, the amount, the occasion and who it's from.
 
+**8 Nov 2026 (architecture review)**
+
+10. **History and the plan start.** The family picks the first month Holt plans. Transactions before it are history. The estimates and recurring detection use them, and rules and recurring series sort them in bulk, but none of them wait in "needs you". Without this, a first import of 10 months would mean thousands of decisions before the first plan. Setup splits each account's balance at the plan start into buckets and an unbucketed remainder.
+11. **Moves at the bank.** Holt never moves money. When the plan needs money in another account, it lists a move for the family to make at the bank, and an import that shows the transfer marks it done. There are two kinds:
+    - *one-off*, created by a plan change, such as seeding an evened-out bucket from Buffer;
+    - *monthly*, each account's share of the month's plan, such as "each payday, move 22,060 kr to Regninger".
+
+    Without them, every bucket in an account the contributions don't reach would fail the balance check each month with no explanation (rule 6).
+12. **Planning a spend job, and when its amounts stop moving.** Each spend job is planned one of three ways:
+    - *Set amount:* the family's own figure, repeated each month until they change it. This is the default for jobs such as Food.
+    - *Follow the bills:* each month's amount is that month's estimate.
+    - *Even it out:* as in decision 6.
+
+    Future months show projected amounts, which move with the estimates. When a month opens, its amounts become assignments, and after that only the family changes them. This is how "follow the bills" and "the app never changes the amount by itself" both hold.
+13. **Over at month end (refines decision 3).** A spend job's leftover money returns to unassigned at month end unless the job keeps its money (decision 2). A negative leftover stays on the job as "over" until the family resolves it at the review. It doesn't reduce next month's money on its own.
+14. **Backups and the recovery code.** Setup always makes a recovery code, even when a keyring is available, because the keyring sits on the same disk as the data. The keyring unlocks Holt day to day. The recovery code opens a backup on any other computer. The details are in `technical-decisions.md` §5 and §14.
+
 ## The objects at a glance
 
 ```mermaid
@@ -91,18 +108,20 @@ erDiagram
   HOUSEHOLD ||--o{ PERSON : has
   HOUSEHOLD ||--o{ ACCOUNT : has
   HOUSEHOLD ||--o{ GROUP : has
+  HOUSEHOLD ||--o{ BUDGET_MONTH : "plans in"
+  HOUSEHOLD ||--o{ ENTERED_VALUE : records
   HOUSEHOLD ||--o{ GIFT_RECIPIENT : "gives to"
   PERSON ||--o| CONTRIBUTION_AGREEMENT : "pays in (adults)"
   PERSON ||--o{ MILESTONE : "has (children)"
-  ACCOUNT ||--o{ BUCKET : "is split into"
   ACCOUNT ||--o{ TRANSACTION : records
-  ACCOUNT ||--o{ IMPORT_BATCH : "receives"
-  IMPORT_BATCH ||--o{ TRANSACTION : creates
+  ACCOUNT ||--o{ IMPORT_BATCH : receives
+  IMPORT_BATCH ||--o{ IMPORT_ROW : contains
+  IMPORT_ROW }|--o| TRANSACTION : backs
   GROUP ||--o{ JOB : contains
-  JOB ||--o{ ASSIGNMENT : "gets money each month"
-  JOB ||--o{ ESTIMATE : "is forecast by"
-  JOB ||--o| BUCKET : "keeps money in (save up, or evened out)"
+  ACCOUNT ||--o{ JOB : "holds the money of"
   JOB }o--o| ACCOUNT : "pays into (pay into)"
+  JOB ||--o{ ASSIGNMENT : "gets money each month"
+  BUDGET_MONTH ||--o{ ASSIGNMENT : holds
   JOB ||--o{ OCCASION : "funds (Gifts and occasions)"
   OCCASION ||--o{ GIFT : includes
   GIFT }o--|| GIFT_RECIPIENT : "is for"
@@ -111,30 +130,77 @@ erDiagram
   TRANSACTION ||--o{ ALLOCATION : "is split into"
   ALLOCATION }o--|| JOB : "counts against"
   TRANSACTION }o--o| RECURRING_SERIES : "belongs to"
+  ACCOUNT ||--o{ MOVE_AT_BANK : "is moved from"
+  ACCOUNT ||--o{ MOVE_AT_BANK : "is moved to"
+  TRANSACTION }o--o| MOVE_AT_BANK : completes
   RECURRING_SERIES }o--o| CONTRACT : "is governed by"
   REVIEW ||--o{ PROPOSAL : "contains decisions"
   PROPOSAL }o--o{ TRANSACTION : "cites as evidence"
+  CHANGE_RECORD }o--o| PROPOSAL : "applies when accepted"
 ```
 
+Buckets and estimates aren't in the diagram, because the app works them out instead of storing them (see "Facts and figures").
+
 ## Rules that must always hold
+Each rule names what keeps it true. Most of these mechanisms are still to build, and each lands with its milestone in `BACKLOG.md`.
+
 1. **Money is whole øre.** Amounts are stored as integers in øre and shown in kroner. No fractions, no rounding drift.
-2. **Figures are calculated, never written by the AI.** The language model can choose a filter, propose a change or draft words. Every number the family sees is calculated by the app, estimates included.
-3. **Every transaction in a shared account is accounted for.** It is income, a transfer, or split across one or more jobs, with the splits summing exactly to the amount. Anything else sits in "needs you", in plain view.
-4. **Every krone has a job, or is visibly unassigned.** For each month: money available = unassigned carried in + money received in the previous month (decision 1). Unassigned = money available − total assigned. A negative figure is shown as "over-assigned", never hidden or fixed silently.
-5. **Accounts reconcile with the bank.** The balance the app calculates must equal the closing balance in the latest import. A mismatch is flagged and explained; it is never adjusted automatically.
-6. **Buckets fit inside their account.** The buckets in an account plus its unbucketed remainder equal the account balance. The remainder cannot go below zero; if it would, the app flags that the buckets exceed the balance.
+   - Enforced by the branded `Ore` type in core. Its constructor rejects anything that isn't a safe integer.
+2. **Figures are calculated, never written by the AI.** The language model can choose a filter, propose a change or draft words. Every number the family sees is calculated by the app, estimates included. When the model writes words, it names each figure with a placeholder, and the app fills it in.
+   - Enforced by the reply validator, which rejects any digit outside a placeholder (`technical-decisions.md` §6).
+3. **Every transaction in a shared account is accounted for, from the plan start on.** It is income, a transfer, or split across one or more jobs, with the splits summing exactly to the amount. Anything else sits in "needs you", in plain view. Earlier transactions are history (decision 10).
+   - Enforced by the transaction's treatment type in core. A split can only be built from allocations that sum to the amount.
+4. **Every krone has a job, or is visibly unassigned.** For each month: money available = unassigned carried in + income whose funds month is this month, which is usually money received in the previous month (decision 1). Unassigned = money available − total assigned. A negative figure is shown as "over-assigned", never hidden or fixed silently.
+   - Enforced by core's single function for figures, with property tests.
+5. **Accounts reconcile with the bank.** The balance the app calculates must equal the closing balance in the latest import, or the balance the family typed when a file carries none. A mismatch is flagged and explained; it is never adjusted automatically.
+   - Enforced by the balance check on every import. No command writes an adjustment.
+6. **Buckets fit inside their account.** The buckets in an account plus its unbucketed remainder equal the account balance. The remainder cannot go below zero; if it would, the app flags that the buckets exceed the balance, and names any move at the bank still to do (decision 11).
+   - Enforced by core's single function for figures, with property tests.
 7. **Transfers are neither income nor spending.** Moving money between shared accounts changes nothing in the plan. Paying into an account the household pays into (a child's savings) counts as saving.
+   - Enforced by the treatment type. A transfer has no allocations, and a payment into a child's account is a split to a pay-into job.
 8. **Nothing changes without approval.** Assistant output is a proposal with evidence, a status and its origin. Only an accepted proposal changes data.
+   - Enforced by the command model. Assistant output is only ever stored as a proposal, and only accepting it saves its command.
 9. **Everything can be undone.** Every change is recorded; undo reverses it. A whole import can be undone as one unit.
+   - Enforced by change records that keep each row before and after, with a property test that undo then redo gives the same figures.
 10. **Entered values carry a date.** Figures entered by hand and reference settings show when they were last set or checked. After 12 months they are flagged for review.
+    - Enforced by the entered-value record, whose as-of date is required. One query finds every value older than 12 months.
 11. **Next month's money is not the buffer.** Money that has arrived for next month (decision 1) is shown as "next month's money". It never counts towards the buffer or the runway.
+    - Enforced by the funds month on each income. Core counts income only from that month.
 12. **Estimates are never actuals.** An estimate is always marked as one ("≈", "est."), always shows its method, and is replaced by the real amount once the transaction is imported. Plans compare against actuals, never against estimates.
+    - Enforced by storing no estimates. Core works them out each time, and only an override is stored, marked "entered by you".
 13. **Nothing leaves the machine.**
+    - Enforced by one loopback-only function for all main-process HTTP, a lint rule against other network modules, and a no-network test in a loopback-only network namespace (`technical-decisions.md` §3).
+
+## Facts and figures
+Holt stores facts and works out figures. Only facts are saved, and undo only ever restores facts:
+- transactions, import rows and allocations
+- jobs, assignments and budget months
+- entered values, including estimate overrides
+- one-off moves at the bank, and which moves are done
+- proposals and change records
+
+Everything else is a figure that one pure function in `packages/core` works out from the facts: bucket balances, unassigned and over-assigned money, money available, next month's money, the runway, estimates, contribution status, the calculated account balances, and each account's monthly move at the bank. A year of data is a few thousand rows, so working everything out again after each change should take milliseconds. Milestone 2 measures it. A monthly review keeps a frozen copy of its figures, which is how it shows that they changed after approval.
+
+## Changes are commands
+Every change is a command, whether the family makes it or accepts a proposal. "Assign 3,050 kr to Electricity in December" is a command, and so is "split this transaction". Core applies a command to the facts and works out the new figures. That one step serves four places:
+- **Previews.** The New job flow's knock-on effects, and What if in v1.x, apply a command without saving it.
+- **Proposals.** A proposal is a command waiting for approval, with its evidence.
+- **Changes.** Saving a command, whether the family's own or an accepted proposal's, writes a change record with each affected row before and after, so undo can restore them.
+- **Undoing an import, or reverting from Change history.** These are new commands with their own preview, not a rewind. A later change that depends on the old one shows up in the preview instead of breaking silently.
 
 ## The objects
 
 ### Household
-Name, currency (NOK), language, theme, stage (1–4, chosen by the family). Budget months are calendar months funded by the previous month's money (decision 1).
+Name, currency (NOK), language, theme, stage (1–4, chosen by the family), and the month the plan starts (decision 10). Budget months are calendar months funded by the previous month's money (decision 1).
+
+### Budget month
+A calendar month in the plan (decision 1). Its state is one of:
+- *planned:* a future month. Its amounts are projections from each job's plan, and they move with the estimates.
+- *open:* the family has started assigning its money, usually when the contributions for it arrive, and on the 1st at the latest. Opening a month turns its projections into assignments (decision 12).
+- *closed:* the family approved the month's review.
+- *reopened:* the family reopened the review. The month closes again when they approve it.
+
+Months before the plan start have no state. Their transactions are history (decision 10).
 
 ### Person
 Display name (a nickname is fine), adult or child.
@@ -155,33 +221,33 @@ The adult, a fixed monthly amount, the expected day, and the shared account it l
 - **Import rhythm:** weekly, fortnightly or monthly.
 - **Format profile.**
 - **Opening balance and date.**
+- **Loans:** a loan account's balance is entered by hand with a date, unless the bank exports the loan account (spike S4 checks). The monthly payment is one fixed-cost allocation. Principal doesn't count towards the savings rate until the family decides otherwise.
 
 ### Asset
 Something the household owns that isn't an account: the house, the plot.
-- Its value is entered by hand, with a date.
-- Every past value is kept, so trends work.
+- Its value is an entered value (see below). It is typed by hand with a date, and every past value is kept, so trends work.
 
 ### Group
 Name and order. A setting says whether its jobs count towards the savings rate. The default groups are Fixed costs, Living and Saving; families can add their own.
 
 ### Job
-The core planning object. It has a name, group, kind and status (active, paused, finished, archived).
+The core planning object. It has a name, group, kind, status (active, paused, finished, archived), and the account where its money sits. For a spend job, that is the account its bills are paid from (Regninger, for Electricity).
 - **Essential (yes / no):** whether the job is needed to keep the household running. Essential jobs set the buffer's target and the runway figure.
   - Defaults: every job in Fixed costs, plus Food and household.
   - The family can change any of them.
-- **Carry over (yes / no):** spend jobs only. Leftover money stays with the job instead of returning to unassigned (decision 2).
-- **Spend each month:** a monthly amount, planned one of two ways (decision 6):
-  - *Follow the bills:* the assignment each month is that month's estimate.
-  - *Even it out:* a fixed monthly amount, with a bucket for the swings. Evening out a job gives it a bucket in the account its bills are paid from (for Electricity, Regninger).
+- **Keeps its money (yes / no):** whether money left at month end stays with the job or returns to unassigned (decision 2). Save-up jobs, the buffer and evened-out jobs always keep it. For other spend jobs, this is the "Carry over" switch. The money a job keeps is its bucket.
+- **Spend each month:** planned one of three ways (decision 12):
+  - *Set amount:* the family's own figure, repeated each month until they change it. This is the default for jobs such as Food.
+  - *Follow the bills:* the amount each month is that month's estimate.
+  - *Even it out:* a fixed monthly amount (decision 6). The job keeps its money, so its bucket fills in cheap months and pays out in expensive ones.
 - **Save up for something:**
   - a target amount and a "ready by" date
   - the monthly amount is calculated from them, or set directly
-  - always keeps its money in exactly one bucket
 - **Pay into another account:** a monthly amount and the account it goes to.
 - Deleting a job whose bucket holds money requires moving that money first.
 
 ### Estimate
-The app's forecast of what a job will cost in a future month. Calculated, never typed, unless the family overrides a month (then it is marked "entered by you"). The app picks a method per job and shows it:
+The app's forecast of what a job will cost in a future month. Core works it out from the history whenever it's needed, and never stores it. The exception is a month the family overrides. That override is stored as an entered value and marked "entered by you". The app picks a method per job and shows it:
 
 | Kind of cost | Method | Example |
 |---|---|---|
@@ -198,23 +264,36 @@ The app's forecast of what a job will cost in a future month. Calculated, never 
 A save-up job with a fixed role. There is exactly one per household. It can't be deleted, only given a target of zero months. It differs from other save-up jobs in four ways:
 - **Its target follows the plan.** The target is the buffer months (a reference setting, default 3) × the monthly total of essential jobs. When the plan changes, the target changes with it.
 - **It has no end date and never finishes.** When it reaches its target, the app proposes what to do with its monthly amount (for example move it to build savings). It doesn't stop by itself.
-- **Taking money out is an event, not spending.** A withdrawal asks for a short reason, appears in the monthly review, and comes with a proposed plan to refill it. Seeding an evened-out bucket from the buffer counts as a withdrawal.
+- **Taking money out is an event, not spending.** A withdrawal asks for a short reason, appears in the monthly review, and comes with a proposed plan to refill it. Seeding an evened-out bucket from the buffer counts as a withdrawal, and appears as a move at the bank when the two buckets sit in different accounts.
 - **It is never money to spend.** It is not shown as available in the plan, and it is the only thing counted in "How long could we last?".
 
 *Why a job and not "whatever is left over":* a leftover buffer would shrink silently every time something overspent, and the runway figure would mean nothing. As a job it has a monthly amount, a bucket, a visible target and a history, all using the same model as everything else.
 
 ### Assignment
-A month, a job and an amount. It is the plan for that month. Past months' assignments are kept, so reviews can compare plan against actual.
+A month, a job and an amount. It is the plan for that month. Assignments exist only for open and closed months; planned months show projections instead (decision 12). Past months' assignments are kept, so reviews can compare plan against actual.
 
 ### Bucket
-An account, the job it serves, and its balance. The balance is calculated from what's been paid in and what's been spent from it, never typed in.
+The money a job keeps in the account where its money sits. A bucket isn't stored on its own. Core works out its balance from the job's opening amount in Setup (decision 10), its assignments and the allocations against it, so nobody types it in. The interface calls it a bucket, and "Where the money sits" in Plan lists the buckets in each account.
+
+### Move at the bank
+A transfer the plan needs the family to make at the bank (decision 11). Holt never moves money itself.
+- **What:** from which account, to which account, the amount, the month, and why.
+- **Kind:**
+  - *one-off:* created by a plan change, such as seeding an evened-out bucket from Buffer.
+  - *monthly:* worked out from the plan. For each account, it is the month's assignments for the jobs whose money sits there, less the money that lands there directly.
+- **Status:** to do, done or skipped. An imported transfer pair with the same accounts and amount, within 3 days, marks it done. The family can also mark it done or skip it.
 
 ### Transaction
-- **Booking:** account, booking date, transaction date (if the bank gives one), amount, the bank's description.
+- **Booking:** account, booking date, transaction date (if the bank gives one), amount, the bank's description. The booking date decides which month a transaction counts in, for spending and for the balance check alike, so bucket sums and account balances agree at every month end.
 - **Who:** a cleaned-up counterparty name.
-- **Source:** the import batch it came from, and the bank's reference (if any).
-- **Status:** needs you, or confirmed.
-- **Optional links:** a transfer partner, a recurring series, a note.
+- **Source:** the import rows that back it (one, or several when files overlap), and the bank's reference (if any).
+- **Treatment:** exactly one of these.
+  - *Needs you:* waiting for the family.
+  - *Income:* with the month it funds and its source (a contribution, a recurring series, or other). The funds month is usually the next month (decision 1). A late contribution funds the month it was meant for. The family can change it.
+  - *Transfer:* with its partner transaction, or waiting until the other side is imported. It can complete a move at the bank.
+  - *Split:* allocations to one or more jobs that sum exactly to the amount. A payment into a child's account is a split to a pay-into job, so it counts as saving. A refund is a split with money coming in.
+  - *History:* before the plan start (decision 10). It can carry a job for the estimates, but nothing requires one.
+- **Optional links:** a recurring series, a note.
 
 ### Allocation
 A transaction, a job and an amount. One transaction can be split across several jobs; for example, one insurance payment covers several policies. An allocation to Gifts and occasions can also name the gift (or gifts) it paid for.
@@ -223,7 +302,13 @@ A transaction, a job and an amount. One transaction can be split across several 
 - **The file:** name and fingerprint, the account, the format profile.
 - **What it covered:** the period, number of rows, how many were new, and how many were duplicates.
 - **The check:** the closing balance in the file, and whether it matched.
-- **Housekeeping:** when it was imported, and whether it has been undone.
+- **Housekeeping:** when it was imported, and whether it has been undone. Undoing an import is a new command (see "Changes are commands"). After a preview, it removes the transactions that no other import backs, with their allocations.
+
+### Import row
+One row of an imported file, kept exactly as the file had it: the batch, its position in the file, the parsed fields and a fingerprint.
+- A row backs at most one transaction. When files overlap, several rows back the same transaction.
+- Pending ("reservert") rows back no transaction until a later file books them.
+- Importing the same file twice adds nothing, because the file's fingerprint matches the earlier import.
 
 ### Format profile
 Bank, file type, column mapping, date and number formats, and which sign means money out. Each account remembers its profile, so the next file from that account needs only a check.
@@ -291,6 +376,9 @@ Key, value, unit, a note on where it came from, and the date it was last checked
 ### Figure you entered
 What it is (gross income, outside debt, credit limit), the value, an as-of date, and who entered it. Used only where the app can't see the number itself.
 
+### Entered value
+Reference settings, figures you entered, asset values, the balances of accounts the household pays into, and estimate overrides are all stored the same way. Each has its kind, what it is, the value, its unit, an as-of date, where it came from, and who entered it. A change adds a new row instead of replacing the old one, so every past value is kept. Rule 10's 12-month check is one query across all of them.
+
 ### Milestone
 A person, a name, a date and an estimated cost (for example konfirmasjon), optionally linked to a save-up job.
 
@@ -321,6 +409,8 @@ Anything the assistant (or the app's own detection) suggests:
 
 Each carries its evidence (transactions, filter), its exact values (calculated by the app), a status (suggested, accepted, rejected, expired), the model that made it, and when it was decided.
 
+Each proposal also holds the command it would apply (see "Changes are commands") and the version of the data it was worked out from. If that data changes before the family decides, the proposal expires and the app works it out again.
+
 ### Reminder
 Type (import due, review ready, renewal, entered figure out of date, occasion coming up), due date, channel (in the app, desktop notification), state.
 
@@ -328,22 +418,22 @@ Type (import due, review ready, renewal, entered figure out of date, occasion co
 The question, the filter the app worked out from it, the calculated result, and the wording. Stored on this computer only; can be cleared.
 
 ### Change record
-Every change: who made it (the family, or an accepted proposal), what changed, and when. Undo is built on this.
+Every change: who made it (the family, or an accepted proposal), the command, each affected row before and after, and when. Undo restores the rows as they were before, if they still match how the change left them. If something changed them since, undo explains what changed instead of overwriting it.
 
 ## Awkward cases and how the app behaves
 | Case | Behaviour |
 |---|---|
-| Transfer between two shared accounts | Matched as a pair (same amount, opposite sign, within 3 days). If only one side has been imported yet, it shows as "transfer, other side not yet imported". |
+| Transfer between two shared accounts | Matched as a pair (same amount, opposite sign, within 3 days). If only one side has been imported yet, it shows as "transfer, other side not yet imported". A pair that matches a move at the bank marks the move done. |
 | One payment covers several things | Split into allocations. A rule can remember the split (for example a combined insurance invoice). |
 | Refund | Money in against a spend job reduces what was spent on that job; it is not income. |
-| Overlapping imports | Duplicates are matched on bank reference, or on account + amount + date (±1 day) + description. They are marked, never deleted, and the covered period is merged. |
+| Overlapping imports | The app keeps every file's rows. A row that matches an existing transaction, on the bank's reference or on account, amount, booking date and description, backs that transaction instead of creating a new one. Matching counts: two identical rows in one file are two transactions, and an overlapping file needs two matching rows to back both. A near match, such as a date one day apart, goes to "needs you" as a suggestion instead of merging. The covered period is merged. |
 | Pending ("reservert") transactions in an export | Ignored until booked, so they are never counted twice. |
 | Contribution arrives early, late, in parts or short | Counted towards that month's agreement; its status shows what happened. Nothing is chased automatically. |
-| Contribution arrives after the month it was meant to fund has started | Added to that month's money available; the month's plan shows it arrived late. |
+| Contribution arrives after the month it was meant to fund has started | Its funds month is the month it was meant for, so it adds to that month's money available. The month's plan shows it arrived late. |
 | Income paid directly into a shared account (barnetrygd) | A recurring income series. The family confirms what it is once; after that it is expected each month. |
 | Cancelled subscription charges again | Back to active with a flag and a proposal: "Charged again after you cancelled". |
 | A price changes on a recurring cost | Added to its price history; flagged; a proposal offers to update the job's amount. |
-| A spend job goes over | Shown as over. At the review, the family chooses where to cover it from. Never moved automatically. |
+| A spend job goes over | Shown as over. At the review, the family chooses where to cover it from. Never moved automatically. Until then, the negative balance stays on the job and doesn't reduce next month's money (decision 13). |
 | Money is taken from the buffer | Recorded as a buffer withdrawal with a reason; shown in the review with a proposed refill plan. |
 | The plan changes so essentials go up | The buffer's target rises with it; the runway figure is recalculated and the change is noted in the next review. |
 | Plan changed mid-month | Allowed; the history of assignments is kept, so the review shows the change. |
@@ -351,7 +441,7 @@ Every change: who made it (the family, or an accepted proposal), what changed, a
 | A paid-into account's balance is unknown | Shown as "entered by you on [date]", with deposits since then added on top. |
 | Deleting a job with money in its bucket | Not allowed until the money is moved to another job or back to unassigned. |
 | The bank's balance and the app's disagree | The account is flagged; the app lists likely causes (missing period, duplicate, pending transaction). Nothing is adjusted. |
-| Evening out starts just before winter | A bucket that starts empty would run dry. The app works out the smallest starting amount that keeps it above zero (with a small margin) and offers two choices: **start now** with that amount moved in (for example 4,100 kr from Buffer, which the family transfers at the bank), or **start in April**, following the bills through winter and filling the bucket over summer. |
+| Evening out starts just before winter | A bucket that starts empty would run dry. The app works out the smallest starting amount that keeps it above zero (with a small margin) and offers two choices: **start now** with that amount moved in (for example 4,100 kr from Buffer, listed as a move at the bank for the family to make), or **start in April**, following the bills through winter and filling the bucket over summer. |
 | An evened-out bucket is heading below zero | The app shows when it would run out and proposes a new monthly amount. Nothing changes until the family accepts. A bucket that does go below zero is shown as short, like an over job, and resolved at the review. |
 | Less than a year of history | Months with no comparable month last year use the nearest comparable months and are marked as rough estimates. The family can type a known figure (for example last winter's bill) for any month. |
 | An actual bill arrives | It replaces that month's estimate. The job panel shows planned against actual, and the bucket (if evened out) absorbs the difference. |
@@ -360,3 +450,8 @@ Every change: who made it (the family, or an accepted proposal), what changed, a
 | A gift costs more or less than planned | The bucket absorbs the difference, and the job panel shows planned against actual for the occasion. |
 | A gift is bought in one month for an occasion in another | It counts when it's paid, against the bucket. The gift shows as "bought" until the occasion, then "given". |
 | A gift is shared with people outside the household (a joint present) | Record only the household's share as the amount, with a note. Money others pay back arrives as a refund against the job. |
+| Transactions from before the plan start | History. The estimates and recurring detection use them, rules and series sort them in bulk, and none of them wait in "needs you" (decision 10). |
+| A move at the bank hasn't been made yet | It stays on the list. If the account's balance check fails, the app names the move as the likely cause. |
+| The same file is imported twice | Nothing changes. The file's fingerprint matches the earlier import. |
+| A bank file has no closing balance | The family types the balance the bank shows, marked "entered by you", and the balance check uses it. Spike S4 checks which files carry one. |
+| The mortgage payment | One allocation to the Mortgage job, a fixed cost. The loan's balance is entered by hand with a date, unless the bank exports the loan account (spike S4 checks). Principal doesn't count towards the savings rate until the family decides otherwise. |

@@ -33,6 +33,10 @@ describe("arithmetic", () => {
     expect(roundUpTo(fromKroner(3_025), fromKroner(50))).toBe(fromKroner(3_050));
     expect(divideUp(ore(100), 3)).toBe(34);
   });
+
+  it("refuses to divide a negative total, where rounding up would no longer cover it", () => {
+    expect(() => divideUp(ore(-100), 3)).toThrow(MoneyError);
+  });
 });
 
 describe("formatKroner", () => {

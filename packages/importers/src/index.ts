@@ -1,8 +1,8 @@
 /**
  * Bank statement importers. Each shared account remembers a format profile, so
  * the next file from the same account needs only a check (see the domain model).
- * Profiles for Bulder and SpareBank 1 SR-Bank are built in spike S4 from real,
- * anonymised exports.
+ * Profiles for Bulder and SpareBank 1 SR-Bank are built in spike S4. Real exports
+ * stay in private/fixtures/; the committed fixtures are synthetic.
  */
 import type { Ore } from "@holt/core";
 

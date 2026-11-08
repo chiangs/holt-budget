@@ -13,21 +13,24 @@ The product, design and technical decisions were made before any code. **Read th
 6. `BACKLOG.md`: what to build, in order.
 
 ## Rules that are never broken
-- **Nothing leaves the machine.** No network calls except to the local model endpoint on 127.0.0.1 or ::1. No telemetry, no auto-update, no remote fonts or assets, no fetching URLs that users type in. Any new dependency that phones home is rejected.
-- **Figures come only from `packages/core`.** The language model may choose a filter, propose a change or draft words. It never produces a number the family sees. Every reply from the model is validated against a schema.
-- **Money is integer øre.** Never floats for amounts. Format only at the edge, with `Intl.NumberFormat('en-GB')` plus " kr".
+- **Nothing leaves the machine.** No network calls except to the local model endpoint on 127.0.0.1 or ::1. No telemetry, no auto-update, no remote fonts or assets, no fetching URLs that users type in. Any new dependency that phones home is rejected. In the main process, all HTTP goes through one loopback-only function (`technical-decisions.md` §3).
+- **Your data never enters the repository.** The repository is public. The first household's details and real bank exports stay in `private/`, which is gitignored. Committed fixtures are synthetic. `pnpm dev` uses the `holt-dev` data folder, never the family's.
+- **Figures come only from `packages/core`.** The language model may choose a filter, propose a change or draft words. It never produces a number the family sees. Every reply from the model is validated against a schema. Words from the model name figures by placeholder, and the app fills them in.
+- **Money is integer øre.** Never floats for amounts. Format only at the edge, in the renderer's message layer, so Norwegian can show "68 048 kr".
 - **Nothing changes without approval.** Suggestions are proposals with evidence; only an accepted proposal changes data. Every change is recorded and can be undone.
 - **Estimates are never actuals.** Mark them (≈, est.), show their method, replace them when the real transaction arrives.
 - **Never accept `safeStorage`'s `basic_text` backend.** See `technical-decisions.md` §5.
+- **Backups open with the recovery code.** The keyring only unlocks Holt day to day, because it sits on the same disk as the data. See `technical-decisions.md` §5 and §14.
 - **The renderer stays sandboxed:** `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`, a strict CSP, and only the typed bridge in `apps/desktop/src/preload`.
 
 ## Stack
 - Electron (latest stable; 45.x at handover), pnpm workspaces, TypeScript everywhere.
 - Renderer: React 19, React Router in SPA data mode (`createHashRouter`), Vite via electron-vite. No HTTP server.
-- Storage: SQLite via better-sqlite3-multiple-ciphers (encrypted), in the main process only.
+- Storage: SQLite via better-sqlite3-multiple-ciphers (encrypted), in the main process only. Plain SQL migrations, no ORM.
+- Schemas: Zod 4 for model replies, IPC arguments and database rows.
 - AI: any OpenAI-compatible local runtime (llama-server, LM Studio/llmster, Ollama), through an adapter in the main process.
 - Styling: CSS custom properties generated from `design/design-system/tokens.json`, plus CSS Modules. Icons: lucide-react. Fonts: Figtree and IBM Plex Mono, bundled.
-- Tests: Vitest (core, importers), Playwright for Electron (smoke), axe for accessibility.
+- Tests: Vitest (core, importers), fast-check for the rules that are invariants, Playwright for Electron (smoke), axe for accessibility.
 
 ## Repository layout
 ```
@@ -62,6 +65,8 @@ pnpm dist            # package (AppImage, pacman) with electron-builder
 ## Code conventions
 - Strict TypeScript. No `any` in core. Prefer plain functions and data over classes in core.
 - Name things with the glossary's terms (`Job`, `Bucket`, `Assignment`, `Allocation`, `Estimate`), not synonyms.
+- Store facts, derive figures. Core works out every figure from stored facts with one pure function, and every change is a command (see "Facts and figures" and "Changes are commands" in the domain model).
+- Dates are branded strings (`LocalDate`, `Month`), never `Date`. IDs are branded per kind of object.
 - Every rule in `v1-scope-and-domain-model.md` ("Rules that must always hold") should have tests in core.
 - Use the Electricity figures in `design/README.md` as fixtures for the estimate and bucket logic.
 - Accessibility: keyboard-first (see the IA keyboard section), visible focus, 4.5:1 contrast, no meaning by colour alone, respects reduced motion and reduced transparency.
@@ -73,7 +78,7 @@ pnpm dist            # package (AppImage, pacman) with electron-builder
 - Keep the app lean: one window, lazy routes, virtualised long lists, no heavyweight UI kits.
 
 ## Definition of done
-- Tests pass, types check, and the no-network test passes.
+- Tests pass, types check, and the no-network test passes. If `private/check-public.sh` exists, it passes too.
 - Interface text follows the writing conventions and comes from the message files.
 - Works in Hearth light, Hearth dark and with glass on, and with the keyboard alone.
 - Docs updated if behaviour or decisions changed.

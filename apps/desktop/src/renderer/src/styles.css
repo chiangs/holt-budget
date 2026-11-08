@@ -1,5 +1,4 @@
-/* App styles use only the generated tokens (packages/ui/src/tokens.css).
-   Fonts must be bundled locally before release (see THIRD_PARTY_NOTICES.md). */
+/* App styles use only the generated tokens (packages/ui/src/tokens.css). */
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }

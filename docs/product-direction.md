@@ -1,4 +1,4 @@
-# Holt: product direction (v0.6, 8 Nov 2026)
+# Holt: product direction (v0.7, 8 Nov 2026)
 
 **Holt** is a household budget planner for Linux (Arch, CachyOS, Hyprland with Caelestia), open source under MIT. It runs entirely on the family's own computer, with a local AI assistant that explains and suggests but never decides.
 
@@ -45,13 +45,15 @@ Holt is designed around one real household first. Its private details stay in `p
 | AI | Local only and not agentic in v1 (see the autonomy levels below). It proposes; the family approves. It never changes figures silently. Everything can be undone. |
 | UI | British English, four colour themes (Hearth light and dark, Instrument, Follow my desktop), glass off by default. i18n-ready. See `visual-design-decisions.md`. |
 | Mobile | Not in v1. Neither dsh nor RustDesk (both rejected on security grounds). Later: a read-only phone view served by Holt over a private network. |
+| Backup | Encrypted, automatic and versioned, to a folder you choose. Your own sync tool can upload that folder; Holt never does. A recovery code opens a backup on any computer, because the keyring sits on the same disk as the data. |
+| Code and data | The repository is public and holds code and docs only. The household's data and details never enter it. |
 
 ## Money model: accounts, buckets and jobs
 Three separate concepts, named consistently everywhere:
 - **Account**: a real bank account. Shared accounts are imported. Accounts the household pays into (children's savings) are tracked by what is paid in; importing them is optional, with balances otherwise entered by hand.
-- **Bucket**: part of one account set aside for a job, for example the Buffer account holding Buffer, Christmas, Konfirmasjon and Holidays. The buckets in an account always add up to the account's balance.
+- **Bucket**: the money a job keeps, set aside in one account. For example, the Buffer account holds Buffer, Christmas, Konfirmasjon and Holidays. The buckets in an account, plus the money in no bucket, add up to the account's balance.
 - **Job**: what part of each month's money is for. A job belongs to a group (Fixed costs, Living, Saving, or a new group). There are three kinds:
-  1. **Spend each month**: food, activities, fuel. Planned by following the bills or evening it out.
+  1. **Spend each month**: food, activities, fuel. Planned with a set amount, by following the bills, or by evening it out.
   2. **Save up for something**: a target and a date. The app calculates the monthly amount (or the user sets it), and the money sits in a bucket.
   3. **Pay into another account**: for example a child's savings account. This counts as saving for the household, not spending.
 
@@ -72,10 +74,10 @@ Select any job in Plan to see its history by month and its estimate for the next
 1. **Welcome**: what the app is (local, private), what you need (a statement per shared account, about 15 minutes), language, currency, theme.
 2. **Household**: adults with their fixed contribution and the day it usually arrives; children with birth month (used for the children's timeline).
 3. **Accounts**: shared accounts (bank, kind, import rhythm), plus accounts the household pays into.
-4. **First import**: drop statements (the year so far is best). The app matches contributions, asks the family to confirm detected income (for example "NAV 8,048 kr: is this barnetrygd?"), and counts the recurring costs it found.
-5. **First plan**: broad jobs suggested from the history; an option to keep Living as one job; a suggested stage with its reasoning, which the family can override.
+4. **First import**: drop statements (the year so far is best). The app matches contributions, asks the family to confirm detected income (for example "NAV 8,048 kr: is this barnetrygd?"), and counts the recurring costs it found. Transactions before the plan's first month become history. The estimates use them, and none of them wait in Needs you.
+5. **First plan**: broad jobs suggested from the history; an option to keep Living as one job; a suggested stage with its reasoning, which the family can override; the month the plan starts, with each account's balance split into buckets.
 6. **Bigger picture (optional, skippable)**: house and plot values, mortgage, gross incomes, other debts and credit limits; reference lines pre-filled and editable. Vital signs that need these stay hidden until they are entered.
-7. **Assistant and reminders**: local runtime and model status; what it will and won't do; reminder settings.
+7. **Assistant and reminders**: local runtime and model status; what it will and won't do; reminder settings; then a backup folder and the recovery code, which the family keeps somewhere other than the backups.
 
 ## Ask or find (A or Ctrl K)
 - One palette that handles both searching and questions.
@@ -105,6 +107,7 @@ Select any job in Plan to see its history by month and its estimate for the next
 - **Household income** is what actually arrives in the shared accounts: each adult's fixed contribution, plus any income paid in directly. An income such as barnetrygd may arrive directly, or bundled inside a contribution, depending on where it is paid.
 - **Contributions** are tracked for each adult against a fixed monthly target. The app shows on track / late / short for each adult. It is a record, not a judge.
 - **Shared debts and assets** are in scope: the mortgage, the house, the plot, and any build financing.
+- **Moves at the bank.** Holt never moves money. When the plan needs money in another account, Holt lists the move for the family to make at the bank, including each account's monthly move worked out from the plan. An import that shows the transfer marks it done.
 - **Ratios that need the whole picture** (gjeldsgrad needs gross income and all debts) use manually entered figures for things outside the app: gross salaries, individual debts, credit limits. Each one is clearly marked as "entered by you, last updated …", and the app prompts a yearly review of them (for example after the skattemelding).
 
 ## Core concepts

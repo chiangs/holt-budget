@@ -69,6 +69,7 @@ export function roundUpTo(amount: Ore, step: Ore): Ore {
 /** Divide into a whole number of øre per part, rounding up so the parts cover the total. */
 export function divideUp(total: Ore, parts: number): Ore {
   if (!Number.isInteger(parts) || parts <= 0) throw new MoneyError("Parts must be a positive integer");
+  if (total < 0) throw new MoneyError("Total must not be negative");
   return ore(Math.ceil(total / parts));
 }
 

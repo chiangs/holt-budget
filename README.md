@@ -5,6 +5,7 @@
 Holt is a household budget planner for Linux. It helps a household give every krone a job: where the shared money comes from, where it goes, and what it's set aside for, from this month's spending to the long-term plan.
 
 - **Private by design.** Holt runs entirely on your computer. Your statements, figures and notes never leave it, and the database is encrypted.
+- **Backups you can restore anywhere.** Holt makes encrypted backups to a folder you choose. If your own sync tool uploads that folder, a recovery code opens them on any computer.
 - **A local assistant, not an autopilot.** A language model running on your own machine suggests jobs for transactions, answers questions about your money, and drafts the monthly review. The app does every calculation; the assistant never decides.
 - **Built for the Linux desktop.** Arch, CachyOS and Hyprland first, with a theme that can follow your Caelestia colour scheme.
 
