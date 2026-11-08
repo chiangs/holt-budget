@@ -10,7 +10,7 @@ linux:
   category: Office;Finance
   icon: ../../design/icon/png
   synopsis: A household budget planner with a local AI assistant
-  description: Holt helps a household give every krone a job. It runs entirely on your computer.
+  description: Holt helps a household give every unit of money a job. It runs entirely on your computer.
   desktop:
     entry:
       StartupWMClass: holt

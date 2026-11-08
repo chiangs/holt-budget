@@ -1,8 +1,8 @@
-# Holt: product direction (v0.7, 8 Nov 2026)
+# Holt: product direction (v0.8, 8 Nov 2026)
 
 **Holt** is a household budget planner for Linux (Arch, CachyOS, Hyprland with Caelestia), open source under MIT. It runs entirely on the family's own computer, with a local AI assistant that explains and suggests but never decides.
 
-*Holt helps a household give every krone a job, showing where the shared money comes from, where it goes and what it's set aside for, from this month's spending to the long-term plan.*
+*Holt helps a household give every unit of money a job, showing where the shared money comes from, where it goes and what it's set aside for, from this month's spending to the long-term plan.*
 
 Status: working draft from the discovery conversation (7–8 Nov 2026). The technical choices are in `technical-decisions.md`.
 
@@ -29,11 +29,12 @@ Holt is designed around one real household first. Its private details stay in `p
 |---|---|
 | Name | **Holt**. Repository `holt-budget`, app ID `ink.chiang.holt`. A *household budget planner*, not a "manager": it never moves money. |
 | Market | A family in Norway first (NOK, Norwegian money year). Then privacy-minded Linux users. Possibly macOS later. |
+| Currency | One currency for the whole household: any ISO 4217 code, chosen in Setup and fixed once data exists. Holt never mixes or converts currencies. |
 | Scope of accounts | Shared household accounts only. Money from individual accounts arrives as contributions. Accounts the household pays into (for example children's savings) are tracked by deposits; importing them is optional. |
 | Contributions | A fixed amount from each adult, tracked against each adult's target. |
 | Off-app figures | Gross incomes, individual debts and credit limits are entered by hand for the lending ratios, and labelled "entered by you, last updated …". |
 | Data in | Import only for v1: CSV / OFX statements (PDF read by the local model in v1.x). The app reminds the family when an import is due. Bank sync is out of scope but not ruled out: imports sit behind a "source" abstraction. First import profiles: Bulder and SpareBank 1 SR-Bank. The first import can cover the year so far (about 10 months). |
-| Method | Every krone gets a job, applied flexibly. The plan matures as the family's position improves (see Stages). |
+| Method | Every unit of money gets a job, applied flexibly. The plan matures as the family's position improves (see Stages). |
 | Scope | Day-to-day budgeting **and** the full picture (net worth, debt, savings schemes, forecasting, the build project). |
 | Variable costs | Plan each one by **following the bills** or **evening it out** with a bucket. The plan always reconciles with the real bills. |
 | Forecasts | v1: in each job's panel in Plan, and as estimates in the Overview's 12-month ribbon. A household-wide forecast view in v1.x. |
@@ -61,7 +62,7 @@ Three separate concepts, named consistently everywhere:
 - Started from the "New job" button (key N), or "+ Add a line" under any group.
 - Pick the kind, name it, choose a group, and set an amount or a target and date.
 - Choose where the money sits (a bucket in an existing account, or an account of its own).
-- **Where it comes from.** Because every krone already has a job, the flow shows:
+- **Where it comes from.** Because every unit of money already has a job, the flow shows:
   - the unassigned amount it uses first
   - the shortfall, with options for where to take it (split, or from a single job)
   - the knock-on effects (for example savings rate 14.0% → 9.9%, and a goal finishing later)
@@ -71,7 +72,7 @@ Three separate concepts, named consistently everywhere:
 Select any job in Plan to see its history by month and its estimate for the next 12 months, with how the app worked it out. For variable costs (electricity is the example in the mockups), choose Follow the bills or Even it out. When evening out starts just before winter, the app offers a starting amount or a later start. Apply and Undo.
 
 ## Setup flow (first run)
-1. **Welcome**: what the app is (local, private), what you need (a statement per shared account, about 15 minutes), language, currency, theme.
+1. **Welcome**: what the app is (local, private), what you need (a statement per shared account, about 15 minutes), language, currency (one for the whole household, fixed once data exists), theme.
 2. **Household**: adults with their fixed contribution and the day it usually arrives; children with birth month (used for the children's timeline).
 3. **Accounts**: shared accounts (bank, kind, import rhythm), plus accounts the household pays into.
 4. **First import**: drop statements (the year so far is best). The app matches contributions, asks the family to confirm detected income (for example "NAV 8,048 kr: is this barnetrygd?"), and counts the recurring costs it found. Transactions before the plan's first month become history. The estimates use them, and none of them wait in Needs you.

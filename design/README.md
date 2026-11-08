@@ -27,4 +27,4 @@ Everything here is reference material for building Holt's interface. The decisio
 | `Ask` | Ask or find | Four example answers |
 
 ## Sample data
-All figures in the mockups are invented sample data for a family of six in Norway. Bank, insurer and merchant names are illustrative. The Electricity figures are internally consistent (Jan–Oct actuals sum to 28,800 kr; the 12-month estimate is 36,300 kr) and make good test fixtures for the estimate and bucket logic in `packages/core`.
+All figures in the mockups are invented sample data for a family of six in Norway, in NOK. Bank, insurer and merchant names are illustrative. The Electricity figures are internally consistent (Jan–Oct actuals sum to 28,800 kr; the 12-month estimate is 36,300 kr) and make good test fixtures for the estimate and bucket logic in `packages/core`.

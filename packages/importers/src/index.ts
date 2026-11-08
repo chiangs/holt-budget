@@ -4,7 +4,7 @@
  * Profiles for Bulder and SpareBank 1 SR-Bank are built in spike S4. Real exports
  * stay in private/fixtures/; the committed fixtures are synthetic.
  */
-import type { Ore } from "@holt/core";
+import type { Money } from "@holt/core";
 
 export interface FormatProfile {
   readonly id: string;
@@ -32,6 +32,6 @@ export interface ParsedRow {
   readonly bookingDate: string; // ISO date
   readonly transactionDate?: string;
   readonly description: string;
-  readonly amount: Ore;
+  readonly amount: Money;
   readonly reference?: string;
 }

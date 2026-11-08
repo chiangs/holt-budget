@@ -3,7 +3,7 @@
 This repository was assembled at the end of the design phase. Everything decided so far is in `docs/` and `design/`; the code is a verified skeleton.
 
 ## What works now
-- `pnpm install`, `pnpm test` (15 tests in `packages/core`: money in øre, and the evening-out bucket maths checked against the Electricity mockup), `pnpm typecheck`, `pnpm build`.
+- `pnpm install`, `pnpm test` (21 tests in `packages/core`: money in the minor units of any one currency, and the evening-out bucket maths checked against the Electricity mockup), `pnpm typecheck`, `pnpm build`.
 - `pnpm dev` opens Holt: the sidebar with Lucide icons, the Holt icon, single-key navigation (A O T P R M I S, Ctrl K), placeholder screens, Hearth light tokens, bundled Figtree and Plex Mono.
 - The main process already forces the GNOME keyring when a Secret Service is running, blocks every non-loopback request that goes through Chromium, denies permission prompts and new windows, and keeps the renderer sandboxed with a strict CSP.
 

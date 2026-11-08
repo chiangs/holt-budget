@@ -1,6 +1,6 @@
 # Holt
 
-Every krone a job. Calm, precise, and kept on your own computer.
+Every unit of money a job. Calm, precise, and kept on your own computer.
 
 Holt is an open-source (MIT) household budget planner for a family's shared money. It runs on Linux (Arch, CachyOS, Hyprland with Caelestia), with a local AI assistant that explains and suggests but never acts on its own. This design system is the single reference for how the app looks, reads and behaves. Read it before designing a screen or writing a line of interface copy.
 
@@ -23,7 +23,7 @@ Product decisions behind it live in the project documents: product direction, v1
   - Short status labels of two to four words may drop the verb if they still name the actor: "Entered by you", "Suggested by the assistant".
 - **One vocabulary:** account, bucket, job, group, unassigned, buffer, suggestion. Never category, envelope, pot, expense, recommend or advise. The full glossary, with Norwegian equivalents (post, pott), is in the information architecture document.
 - **British English** and sentence case. Norwegian terms that lose meaning in translation stay Norwegian: barnetrygd, feriepenger, konfirmasjon, kommunale avgifter, EU-kontroll.
-- **Numbers:** "68,048 kr" in English, "68 048 kr" in Norwegian. No decimals unless øre matter. Dates "7 Nov", "7 November 2026", ranges "Dec–Jun".
+- **Numbers:** shown in the household's currency. For kroner, "68,048 kr" in English and "68 048 kr" in Norwegian. No decimals unless the part-units (øre, cents) matter. Dates "7 Nov", "7 November 2026", ranges "Dec–Jun".
 - **Provenance on every figure:** calculated by the app, entered by you, or found in an import.
 
 ## Visual foundations

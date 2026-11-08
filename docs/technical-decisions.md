@@ -1,4 +1,4 @@
-# Holt: technical decisions (v0.4, 8 Nov 2026)
+# Holt: technical decisions (v0.5, 8 Nov 2026)
 
 Companion to the other documents in `docs/`. Each decision states what was chosen, why, what it costs, and what would change it. Status is **Decided** unless marked otherwise. Short decision records live in `docs/decisions/`.
 
@@ -63,7 +63,7 @@ Companion to the other documents in `docs/`. Each decision states what was chose
 
 ## 3. Process architecture and security
 ```
-packages/core       pure TypeScript: money (integer øre), jobs, buckets, rules, estimates,
+packages/core       pure TypeScript: money (integer minor units), jobs, buckets, rules, estimates,
                     reconciliation, undo log. No Electron, no I/O. Fully unit-tested.
 packages/importers  CSV and OFX parsing, bank format profiles, duplicate detection
 packages/ui         design-system components built from tokens.json
@@ -80,7 +80,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
   No auto-updater (the package manager updates Holt), no telemetry, no remote fonts.
 - **All figures come from `core`.** The AI client can only return validated JSON: a filter, a proposal or words. Core stores nothing. It applies commands to facts and works out every figure with one pure function (see "Facts and figures" and "Changes are commands" in the domain model).
 - **Core types.** Dates are branded strings, `LocalDate` ("2026-11-08") and `Month` ("2026-11"), never `Date`, which can shift a day across time zones. Each kind of object has its own branded ID (UUIDv7 text), so a job's ID can't be passed where an account's belongs.
-- **Money:** integer øre held as JavaScript numbers. Display formatting belongs in the renderer's message layer (FormatJS), so Norwegian can show "68 048 kr". Core parses and does arithmetic only. `formatKroner` moves out of core when FormatJS arrives in Milestone 1.
+- **Money:** whole minor units of the household's one currency (øre, cents, or whole yen), held as JavaScript numbers. The branded `Money` type carries no currency, because a household has exactly one. A mix can't be built and nothing converts. The currency is an ISO 4217 code on the household. Core reads the number of minor-unit digits from `Intl` (`resolvedOptions().maximumFractionDigits`), so there is no currency table to keep, and checks codes against `Intl.supportedValuesOf("currency")`. Display formatting belongs in the renderer's message layer (FormatJS), so Norwegian can show "68 048 kr". Core parses and does arithmetic only. `formatKroner` has left core, and the message layer takes over its job in Milestone 1. Display follows `Intl` for the language and currency ("$68,048", "€68,048"), with one override. Kroner in English are written "68,048 kr", as in the mockups.
 - **Bundling the main process.** electron-vite leaves `dependencies` out of the main and preload bundles. `@holt/core` and `@holt/importers` export TypeScript source, so `electron.vite.config.ts` lists them in `build.externalizeDeps.exclude` and they are bundled. Without that, the built main process would import TypeScript at runtime.
 
 ## 4. Storage: SQLite, encrypted
@@ -89,6 +89,8 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **Library: better-sqlite3-multiple-ciphers** (MIT): fast, synchronous, page-level encryption (default ChaCha20-Poly1305, with a SQLCipher-compatible mode). Plain `node:sqlite` has no encryption, and node-sqlite3 was archived in July 2026. The fallback is @signalapp/sqlcipher.
 - **Backups:** see §14.
 - **Undo** is built on the change-record table. Each record holds the command and every affected row before and after, as in the domain model.
+
+- **The currency** is a column on the household row. A CHECK keeps it to three capital letters, and Zod checks it against `Intl.supportedValuesOf("currency")` (§15). It never changes once data exists (domain model, decision 15).
 
 ## 5. The encryption key on Hyprland
 - **The catch:** Electron's `safeStorage` picks a key store by recognising the desktop environment. Hyprland isn't on its list, so it falls back to `basic_text` (a hard-coded password that protects nothing) **even when a keyring is running**.

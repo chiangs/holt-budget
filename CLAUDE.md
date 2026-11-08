@@ -16,7 +16,7 @@ The product, design and technical decisions were made before any code. **Read th
 - **Nothing leaves the machine.** No network calls except to the local model endpoint on 127.0.0.1 or ::1. No telemetry, no auto-update, no remote fonts or assets, no fetching URLs that users type in. Any new dependency that phones home is rejected. In the main process, all HTTP goes through one loopback-only function (`technical-decisions.md` §3).
 - **Your data never enters the repository.** The repository is public. The first household's details and real bank exports stay in `private/`, which is gitignored. Committed fixtures are synthetic. `pnpm dev` uses the `holt-dev` data folder, never the family's.
 - **Figures come only from `packages/core`.** The language model may choose a filter, propose a change or draft words. It never produces a number the family sees. Every reply from the model is validated against a schema. Words from the model name figures by placeholder, and the app fills them in.
-- **Money is integer øre.** Never floats for amounts. Format only at the edge, in the renderer's message layer, so Norwegian can show "68 048 kr".
+- **Money is integer minor units of one currency.** The household chooses its currency in Setup. Holt never mixes or converts currencies. Never floats for amounts. Format only at the edge, in the renderer's message layer, so Norwegian can show "68 048 kr".
 - **Nothing changes without approval.** Suggestions are proposals with evidence; only an accepted proposal changes data. Every change is recorded and can be undone.
 - **Estimates are never actuals.** Mark them (≈, est.), show their method, replace them when the real transaction arrives.
 - **Never accept `safeStorage`'s `basic_text` backend.** See `technical-decisions.md` §5.

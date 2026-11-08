@@ -1,4 +1,4 @@
-# Holt: v1 scope and domain model (v0.5, 8 Nov 2026)
+# Holt: v1 scope and domain model (v0.6, 8 Nov 2026)
 
 Companion to `product-direction.md`. Part 1 sets out what the first release includes and how we'll know it works. Part 2 describes the objects the app deals with and the rules that must always hold. It stays at the level of product behaviour; the technical choices are in `technical-decisions.md`.
 
@@ -7,7 +7,7 @@ Companion to `product-direction.md`. Part 1 sets out what the first release incl
 # Part 1: v1 scope
 
 ## What v1 is for
-One household (the first household, a family in Norway) runs its shared money through the app every month: import, give every krone a job, review, adjust. It does this privately on a Linux desktop, with a local assistant that explains and suggests but never acts on its own.
+One household (the first household, a family in Norway) runs its shared money through the app every month: import, give every unit of money a job, review, adjust. It does this privately on a Linux desktop, with a local assistant that explains and suggests but never acts on its own.
 
 ## How we'll know it works
 | Measure | Target |
@@ -44,13 +44,13 @@ One household (the first household, a family in Norway) runs its shared money th
 7. Norwegian (Bokmål) interface.
 
 ## Later, or not planned
-Bank connections · mobile access (a read-only view served by Holt over a private network; see `technical-decisions.md`) · links to wishlist services such as Ønsk (no public API, and fetching from them would break the no-network rule) · a private space for each adult's own finances · Obsidian integration · detailed investment tracking · splitting electricity into usage (kWh) and price · multiple currencies · macOS.
+Bank connections · mobile access (a read-only view served by Holt over a private network; see `technical-decisions.md`) · links to wishlist services such as Ønsk (no public API, and fetching from them would break the no-network rule) · a private space for each adult's own finances · Obsidian integration · detailed investment tracking · splitting electricity into usage (kWh) and price · mixing currencies in one household, and converting between them (decision 15) · macOS.
 
 ## Non-goals
-No cloud services. Holt never uploads anything, though you can back up to a folder that your own sync tool uploads. No financial advice. No action without approval. No gamification (streaks, badges, confetti). No figures produced by the language model. No hard-coded rates (inflation, price rises): estimates come from the family's own imports.
+No cloud services. Holt never uploads anything, though you can back up to a folder that your own sync tool uploads. No financial advice. No action without approval. No gamification (streaks, badges, confetti). No figures produced by the language model. No hard-coded rates (inflation, price rises): estimates come from the family's own imports. No currency conversion, because a household has one currency (decision 15).
 
 ## Settings (v1 list)
-- **Household:** people, contributions, children's birth months, milestones.
+- **Household:** people, contributions, children's birth months, milestones, the currency (until data exists) and the even-out step.
 - **Accounts:** name, bank, kind, scope, import rhythm, format profile.
 - **Reference lines:** debt limit, mortgage cap, instalment threshold, buffer months, savings-rate target. Each shows its source and when it was last checked.
 - **Figures you entered:** incomes, outside debts, credit limits, asset values, each with an as-of date.
@@ -75,7 +75,7 @@ No cloud services. Holt never uploads anything, though you can back up to a fold
 **8 Nov 2026**
 6. **Variable costs (such as electricity):** the family pays the real bills, and the plan reconciles with them. Each spend job can be planned in one of two ways:
    - **Follow the bills:** each month's assigned amount is that month's estimate.
-   - **Even it out:** the same amount every month (the 12-month estimate ÷ 12, rounded up to the nearest 50 kr), with a bucket that fills in cheap months and pays out in expensive ones.
+   - **Even it out:** the same amount every month (the 12-month estimate ÷ 12, rounded up to the household's even-out step, 50 whole units of the currency by default), with a bucket that fills in cheap months and pays out in expensive ones.
    - The app never picks for the family, and never changes the amount by itself. If an evened-out bucket is heading below zero, it suggests a new amount.
 7. **Where forecasts live in v1:** in each job's panel in Plan, and as estimates in the Overview's 12-month ribbon. A household-wide forecast view waits for v1.x.
 8. **History at the start:** the family can import from the start of the year (about 10 months). The estimate methods below are designed to work with less than a year, and get better as history grows.
@@ -100,6 +100,11 @@ No cloud services. Holt never uploads anything, though you can back up to a fold
     Future months show projected amounts, which move with the estimates. When a month opens, its amounts become assignments, and after that only the family changes them. This is how "follow the bills" and "the app never changes the amount by itself" both hold.
 13. **Over at month end (refines decision 3).** A spend job's leftover money returns to unassigned at month end unless the job keeps its money (decision 2). A negative leftover stays on the job as "over" until the family resolves it at the review. It doesn't reduce next month's money on its own.
 14. **Backups and the recovery code.** Setup always makes a recovery code, even when a keyring is available, because the keyring sits on the same disk as the data. The keyring unlocks Holt day to day. The recovery code opens a backup on any other computer. The details are in `technical-decisions.md` §5 and §14.
+
+**8 Nov 2026 (currency)**
+15. **One currency for the household.** The family chooses a currency in Setup, any ISO 4217 code (NOK, EUR, USD and so on), and every account, amount and figure is in it. Holt never mixes currencies and never converts between them. Amounts are stored as whole minor units (øre, cents, whole yen), and core reads the number of minor-unit digits from the currency. A bank file or account in another currency is refused, not converted. The currency is fixed once the first transaction or entered value exists, because changing it later would relabel amounts without converting them, and could change the number of digits.
+    - *Why one currency.* Any conversion needs an exchange rate. A rate needs either a network call, which Holt never makes, or a number the family types in and keeps up to date. One currency keeps every rule, balance and reconciliation exact.
+    - *What would change it.* A household that earns or banks in two currencies. That is the later "mixing currencies" item, and it needs its own decision about where rates come from.
 
 ## The objects at a glance
 
@@ -144,13 +149,13 @@ Buckets and estimates aren't in the diagram, because the app works them out inst
 ## Rules that must always hold
 Each rule names what keeps it true. Most of these mechanisms are still to build, and each lands with its milestone in `BACKLOG.md`.
 
-1. **Money is whole øre.** Amounts are stored as integers in øre and shown in kroner. No fractions, no rounding drift.
-   - Enforced by the branded `Ore` type in core. Its constructor rejects anything that isn't a safe integer.
+1. **Money is whole minor units, in one currency.** Amounts are stored as integers in the currency's smallest unit (øre for NOK, cents for EUR and USD, whole yen for JPY) and shown in the household's currency. The household has one currency and nothing converts. No fractions, no rounding drift.
+   - Enforced by the branded `Money` type in core. Its constructor rejects anything that isn't a safe integer. Core has no conversion function, and an import refuses a file in another currency (decision 15).
 2. **Figures are calculated, never written by the AI.** The language model can choose a filter, propose a change or draft words. Every number the family sees is calculated by the app, estimates included. When the model writes words, it names each figure with a placeholder, and the app fills it in.
    - Enforced by the reply validator, which rejects any digit outside a placeholder (`technical-decisions.md` §6).
 3. **Every transaction in a shared account is accounted for, from the plan start on.** It is income, a transfer, or split across one or more jobs, with the splits summing exactly to the amount. Anything else sits in "needs you", in plain view. Earlier transactions are history (decision 10).
    - Enforced by the transaction's treatment type in core. A split can only be built from allocations that sum to the amount.
-4. **Every krone has a job, or is visibly unassigned.** For each month: money available = unassigned carried in + income whose funds month is this month, which is usually money received in the previous month (decision 1). Unassigned = money available − total assigned. A negative figure is shown as "over-assigned", never hidden or fixed silently.
+4. **Every unit of money has a job, or is visibly unassigned.** For each month: money available = unassigned carried in + income whose funds month is this month, which is usually money received in the previous month (decision 1). Unassigned = money available − total assigned. A negative figure is shown as "over-assigned", never hidden or fixed silently.
    - Enforced by core's single function for figures, with property tests.
 5. **Accounts reconcile with the bank.** The balance the app calculates must equal the closing balance in the latest import, or the balance the family typed when a file carries none. A mismatch is flagged and explained; it is never adjusted automatically.
    - Enforced by the balance check on every import. No command writes an adjustment.
@@ -191,7 +196,9 @@ Every change is a command, whether the family makes it or accepts a proposal. "A
 ## The objects
 
 ### Household
-Name, currency (NOK), language, theme, stage (1–4, chosen by the family), and the month the plan starts (decision 10). Budget months are calendar months funded by the previous month's money (decision 1).
+Name, currency, language, theme, stage (1–4, chosen by the family), the month the plan starts (decision 10) and the even-out step (decision 6).
+
+The currency is one ISO 4217 code for the whole household (decision 15), chosen in Setup and fixed once the first transaction or entered value exists. The even-out step is the rounding for evened-out amounts, 50 whole units of the currency by default, and the family can change it. Amounts in these documents are written in NOK, because the first household uses it and the mockups do. Budget months are calendar months funded by the previous month's money (decision 1).
 
 ### Budget month
 A calendar month in the plan (decision 1). Its state is one of:
@@ -215,6 +222,7 @@ The adult, a fixed monthly amount, the expected day, and the shared account it l
 ### Account
 - **Name and bank.**
 - **Kind:** everyday, bills, savings, loan.
+- **Currency:** always the household's. An account in another currency can't be added (decision 15).
 - **Scope:**
   - *shared*: imported and fully tracked
   - *paid into*: for example a child's savings account. Payments in are tracked; importing it is optional, and otherwise its balance is entered by hand.
@@ -301,7 +309,7 @@ A transaction, a job and an amount. One transaction can be split across several 
 ### Import batch
 - **The file:** name and fingerprint, the account, the format profile.
 - **What it covered:** the period, number of rows, how many were new, and how many were duplicates.
-- **The check:** the closing balance in the file, and whether it matched.
+- **The check:** the closing balance in the file, and whether it matched. When the file states a currency, it must be the household's.
 - **Housekeeping:** when it was imported, and whether it has been undone. Undoing an import is a new command (see "Changes are commands"). After a preview, it removes the transactions that no other import backs, with their allocations.
 
 ### Import row
@@ -453,5 +461,8 @@ Every change: who made it (the family, or an accepted proposal), the command, ea
 | Transactions from before the plan start | History. The estimates and recurring detection use them, rules and series sort them in bulk, and none of them wait in "needs you" (decision 10). |
 | A move at the bank hasn't been made yet | It stays on the list. If the account's balance check fails, the app names the move as the likely cause. |
 | The same file is imported twice | Nothing changes. The file's fingerprint matches the earlier import. |
+| A bank file is in another currency | The import stops before it reads any rows and says so, for example "This file is in EUR. Your household uses NOK." Nothing is imported or converted. When a file doesn't state its currency, the household's is assumed. |
+| The family wants a different currency | Allowed only in Settings → Household while no transaction or entered value exists. After that, the family exports what they want to keep, deletes everything in Settings → Data and sets up again. |
+| A card payment abroad | Holt records the amount the bank booked in the account's currency. A foreign amount in the description stays as text and Holt doesn't use it. |
 | A bank file has no closing balance | The family types the balance the bank shows, marked "entered by you", and the balance check uses it. Spike S4 checks which files carry one. |
 | The mortgage payment | One allocation to the Mortgage job, a fixed cost. The loan's balance is entered by hand with a date, unless the bank exports the loan account (spike S4 checks). Principal doesn't count towards the savings rate until the family decides otherwise. |

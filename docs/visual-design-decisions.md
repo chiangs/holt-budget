@@ -34,8 +34,8 @@ The design system is the single source for values. This document records the dec
 - **Category:** a *household budget planner*, not a "manager".
   - It never connects to the banks, moves money or pays anything.
   - It reads imports, tracks what actually happened against the plan, and helps decide what happens next.
-- **Purpose statement:** *Holt helps a household give every krone a job, showing where the shared money comes from, where it goes and what it's set aside for, from this month's spending to the long-term plan. It runs entirely on your own computer, with an AI assistant that explains and suggests but never decides.*
-- **Tagline in mockups:** "Every krone a job".
+- **Purpose statement:** *Holt helps a household give every unit of money a job, showing where the shared money comes from, where it goes and what it's set aside for, from this month's spending to the long-term plan. It runs entirely on your own computer, with an AI assistant that explains and suggests but never decides.*
+- **Tagline:** "Every unit of money a job". The cover preview and the Plan mockups still carry the older "krone" wording and are not regenerated yet.
 
 ### App icon: the grove (decided 8 Nov 2026)
 - **Concept:** four trunks of a small wood standing on one strip of ground. The trunks also read as a bar chart.

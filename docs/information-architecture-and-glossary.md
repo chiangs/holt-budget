@@ -1,4 +1,4 @@
-# Holt: information architecture and glossary (v0.7, 8 Nov 2026)
+# Holt: information architecture and glossary (v0.8, 8 Nov 2026)
 
 Companion to `product-direction.md` and `v1-scope-and-domain-model.md`. This document covers four things:
 - where each thing lives
@@ -21,6 +21,9 @@ Companion to `product-direction.md` and `v1-scope-and-domain-model.md`. This doc
 **8 Nov 2026 (architecture review)**
 - New terms for the review's decisions: Set amount, Plan start, History, Move at the bank and Recovery code.
 - A bucket is now defined as the money a job keeps. The word on screen doesn't change.
+
+**8 Nov 2026 (currency)**
+- New term: Currency. The household has one, chosen in Setup. The interface shows every amount in it, and nothing is converted.
 
 There are no open questions in this document.
 
@@ -63,7 +66,7 @@ Selecting a job opens a panel beside the list: its history by month, its estimat
 |---|---|---|---|---|
 | **Overview** | How are we doing? | Nothing is edited here. Shows vital signs, Money Map, assistant notes, the next 12 months, reminders | Open the working behind any figure; act on an assistant note | Sidebar; O; home on launch |
 | **Transactions** | Is our data complete and correct? | Transactions, allocations, import batches, format profiles | Import; confirm or change a job; split; mark as transfer; link to a gift; add a note; "always do this" (creates a rule); undo an import | Sidebar; T; "Import due" reminder; Overview notes; Ask or find |
-| **Plan** | What is each krone for? | Groups, jobs (including the buffer), assignments, buckets, accounts ("Where the money sits"), contributions, stage, build project, children's timeline, milestones; occasions and gifts (v1.x) | New job; assign or move money; change a job; follow the bills or even it out; add an account or bucket; withdraw from the buffer; add an occasion or a gift | Sidebar; P; Money Map blocks; "unassigned" badge |
+| **Plan** | What is each unit of money for? | Groups, jobs (including the buffer), assignments, buckets, accounts ("Where the money sits"), contributions, stage, build project, children's timeline, milestones; occasions and gifts (v1.x) | New job; assign or move money; change a job; follow the bills or even it out; add an account or bucket; withdraw from the buffer; add an occasion or a gift | Sidebar; P; Money Map blocks; "unassigned" badge |
 | **Recurring costs** | What do we pay again and again, and is it still worth it? | Recurring series, contracts | Keep / I'll cancel it / ask later; set a renewal reminder; open the transactions in a series | Sidebar; R; Overview notes; Review |
 | **Monthly review** | How did last month go, and what do we change? | Reviews (current draft and past months), decisions | Edit the wording; tick decisions; approve; reopen; export as markdown | Sidebar; M; "Review ready" reminder; Overview note |
 | **Ask or find** | Where is …? How much …? | Question history | Search; ask; follow up; open a result in its home screen | A or Ctrl K anywhere; sidebar |
@@ -180,6 +183,7 @@ Norwegian terms marked **decided** are settled. The rest are proposals for a nat
 | Money available | What you can assign this month | Penger til fordeling | |
 | Next month's money | Money already received for next month | Neste måneds penger | Never counted as buffer |
 | Plan start | The first month Holt plans | Planstart | |
+| Currency | The one currency the household uses. Holt never mixes or converts | Valuta | Chosen in Setup, fixed once data exists |
 | History | Transactions from before the plan start | Historikk | Used for estimates; never in Needs you |
 | Move at the bank | A transfer the plan needs the family to make at the bank | Overføring i banken | Holt never moves money itself |
 | Money in | Everything arriving in the shared accounts | Penger inn | |
@@ -305,7 +309,7 @@ A bucket is money set aside inside an account. It is not a type of spending, and
   | Ticked items are applied when approved | The app applies the ticked items when you approve |
 
 - **Spelling and case:** British spelling and sentence case everywhere. No exclamation marks.
-- **Money:** English shows "68,048 kr", Norwegian shows "68 048 kr". No decimals unless øre matter.
+- **Money:** shown in the household's currency, in the language's own style. For kroner, English shows "68,048 kr" and Norwegian shows "68 048 kr". No decimals unless the part-units (øre, cents) matter. Other currencies follow `Intl` for the language, such as "$68,048" in English. Kroner in English are the one override (`technical-decisions.md` §3).
 - **Dates:** short form "7 Nov", full form "7 November 2026", months in a range "Dec–Jun". Norwegian: "7. nov.", "7. november 2026".
 - **Norwegian terms in the English interface:** "barnetrygd", "feriepenger", "konfirmasjon", "kommunale avgifter" and "EU-kontroll" stay in Norwegian, because translating them makes them less clear. Lending terms appear in English, with the Norwegian term in "show working" (for example "Debt to income (gjeldsgrad)").
 - **Every number says where it came from:** the app calculated it, you entered it, or the app found it in an import.
