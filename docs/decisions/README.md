@@ -42,3 +42,4 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0036 | 2026-11-08 | Spikes run S1, S2, S4, S5, S3; real exports are never committed, even anonymised | Accepted | `technical-decisions.md`, Spikes |
 | 0037 | 2026-11-08 | One currency for the household, chosen in Setup and fixed once data exists; money in minor units; no conversion | Accepted | `v1-scope-and-domain-model.md`, decision 15 |
 | 0038 | 2026-11-08 | Money is displayed as `Intl` writes it for the language and currency, with "68,048 kr" kept for kroner in English as the one override; the tagline becomes "Every unit of money a job" | Accepted | `technical-decisions.md` §3 |
+| 0039 | 2026-11-08 | Model behaviour is tested in three layers: fake-model contract tests and recorded replies in CI, and a live `pnpm eval` on your machine scored against the S3 baseline | Proposed | `technical-decisions.md` §12 |
