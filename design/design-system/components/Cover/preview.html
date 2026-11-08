@@ -1,0 +1,51 @@
+<!-- @dsCard height=320 -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap">
+<style>
+body{margin:0}
+.ground{position:relative;width:960px;height:320px;background:var(--bg);overflow:hidden}
+svg{position:absolute;left:0;top:0}
+.accent{fill:var(--accent)}
+.ink{fill:var(--text)}
+.attn{fill:var(--attention)}
+.tint{fill:var(--chart-2)}
+.r-xl{rx:var(--radius-xl)}
+.r-lg{rx:var(--radius-lg)}
+.tick{stroke:var(--accent-ink);stroke-width:2}
+.mark{fill:var(--accent-ink)}
+.name{position:absolute;left:48px;bottom:72px;max-width:440px;margin:0;font-family:var(--font-ui);font-weight:700;font-size:100px;line-height:.95;letter-spacing:-0.02em;color:var(--text)}
+.tag{position:absolute;left:48px;bottom:40px;max-width:440px;margin:0;font-family:var(--font-ui);font-size:14px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+<div class="ground">
+<svg width="960" height="320" viewBox="0 0 960 320" aria-hidden="true">
+<!-- blocks: accent slab 200×272 (radius-xl), ink 200×128 (radius-lg), attention 96×128 (radius-lg), chart-2 tint 88×128 (radius-lg); gaps space-4 -->
+<!-- arrangement: one tall slab with three satellites, right of x=480, flush to a 24px top and bottom margin -->
+<!-- pattern: the tick scale (TickScale component) laid across the slab, because precision on a warm ground is the system's one idea -->
+<!-- steps and radii: tick pitch space-5 (20px), bar height scale-height, radius-xl, radius-lg, gaps space-4 -->
+<rect class="accent r-xl" x="520" y="24" width="200" height="272"></rect>
+<rect class="ink r-lg" x="736" y="24" width="200" height="128"></rect>
+<rect class="attn r-lg" x="736" y="168" width="96" height="128"></rect>
+<rect class="tint r-lg" x="848" y="168" width="88" height="128"></rect>
+<line class="tick" x1="540" y1="240" x2="700" y2="240"></line>
+<line class="tick" x1="540" y1="232" x2="540" y2="248"></line>
+<line class="tick" x1="560" y1="236" x2="560" y2="244"></line>
+<line class="tick" x1="580" y1="236" x2="580" y2="244"></line>
+<line class="tick" x1="600" y1="236" x2="600" y2="244"></line>
+<line class="tick" x1="620" y1="232" x2="620" y2="248"></line>
+<line class="tick" x1="640" y1="236" x2="640" y2="244"></line>
+<line class="tick" x1="660" y1="236" x2="660" y2="244"></line>
+<line class="tick" x1="680" y1="236" x2="680" y2="244"></line>
+<line class="tick" x1="700" y1="232" x2="700" y2="248"></line>
+<rect class="mark" x="540" y="254" width="96" height="6" rx="3"></rect>
+<rect class="mark" x="658" y="224" width="3" height="40"></rect>
+</svg>
+<p class="name">Holt</p>
+<p class="tag">Every krone a job. Calm, precise, and kept on your own computer.</p>
+</div>
+</body>
+</html>

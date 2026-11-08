@@ -1,0 +1,26 @@
+<!-- @dsCard group="Data" height=260 subtitle="What the whole is made of" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui)}
+.card{margin:var(--space-6);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-3)}
+h2{margin:0;font-size:19px;line-height:26px;font-weight:600}
+.bar{display:flex;gap:2px;height:var(--proportion-height)}
+.bar div{border-radius:var(--radius-xs)}
+table{width:100%;border-collapse:collapse;font-family:var(--font-data);font-size:13px;line-height:20px}
+td{padding:6px 0;border-top:1px solid var(--line)}
+td.n{text-align:right}
+td.p{text-align:right;color:var(--text-muted);width:70px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+.att{color:var(--attention)}
+</style></head><body>
+<div class="card">
+<h2>Where November's money goes</h2>
+<div class="bar" aria-hidden="true"><div style="width:56.75%;background:var(--chart-1)"></div><div style="width:28.95%;background:var(--chart-2)"></div><div style="width:13.96%;background:var(--chart-3)"></div><div style="width:.34%;min-width:3px;background:var(--attention)"></div></div>
+<table><tbody>
+<tr><td><span class="sw" style="background:var(--chart-1)"></span>Fixed costs</td><td class="n">38,620</td><td class="p">56.8%</td></tr>
+<tr><td><span class="sw" style="background:var(--chart-2)"></span>Living</td><td class="n">19,700</td><td class="p">29.0%</td></tr>
+<tr><td><span class="sw" style="background:var(--chart-3)"></span>Saving</td><td class="n">9,500</td><td class="p">14.0%</td></tr>
+<tr><td class="att"><span class="sw" style="background:var(--attention)"></span>Unassigned</td><td class="n att">228</td><td class="p">0.3%</td></tr>
+</tbody></table>
+</div>
+</body></html>

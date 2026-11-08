@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Insurance</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.t-light{--bg:#f3f1ee;--surface:#ffffff;--surface2:#ece8e3;--line:#e2ddd6;--text:#1f1b18;--muted:#5f5750;--accent:#1f5446;--accentInk:#ffffff;--accentSoft:#e1eee9;--warn:#a6491f;--warnSoft:#f7e6dc;--scrim:rgba(31,27,24,.45)}
+.t-dark{--bg:#181512;--surface:#221e1a;--surface2:#2c2722;--line:#3a342e;--text:#f1ece6;--muted:#b9afa4;--accent:#6fb8a2;--accentInk:#10241e;--accentSoft:#1f3330;--warn:#f9c9ad;--warnSoft:#3a271d;--scrim:rgba(0,0,0,.55)}
+.t-glass{--bg:radial-gradient(900px 700px at 8% -6%,#1e5a4b 0,rgba(30,90,75,0) 70%),radial-gradient(700px 600px at 96% 22%,#7a3a22 0,rgba(122,58,34,0) 70%),radial-gradient(1000px 700px at 45% 108%,#23304d 0,rgba(35,48,77,0) 70%),#110e0c;--surface:rgba(28,24,21,.55);--surface2:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--accentSoft:rgba(111,184,162,.16);--warnSoft:rgba(249,201,173,.14)}
+.t-glass [style*="background: var(--surface)"]{-webkit-backdrop-filter:blur(28px) saturate(140%);backdrop-filter:blur(28px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 32px rgba(0,0,0,.28)}
+.t-glass [role="dialog"]{background:rgba(28,24,21,.72) !important}
+.num{font-variant-numeric:tabular-nums}
+.fig{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;white-space:nowrap}
+kbd,.key{font-family:'IBM Plex Mono',ui-monospace,monospace}
+a{color:var(--accent)}a:hover{color:var(--text)}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="min-height: 100vh; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--text); font-family: Figtree, system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+
+<nav aria-label="Main" style="flex: 0 0 280px; box-sizing: border-box; padding: 20px 12px; background: var(--surface); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 10px"><svg aria-hidden="true" width="28" height="28" style="flex: 0 0 28px" viewBox="0 0 256 256"><rect x="16" y="16" width="224" height="224" rx="52" fill="#1f5446"/><rect x="48" y="80" width="32" height="80" rx="8" fill="#c0cfcb"/><rect x="112" y="48" width="32" height="112" rx="8" fill="#f3f1ee"/><rect x="176" y="96" width="32" height="64" rx="8" fill="#84a199"/><rect x="48" y="176" width="160" height="16" rx="4" fill="#e09a73"/></svg><span style="font-weight: 700; font-size: 18px; letter-spacing: -0.01em">Holt</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<a href="Ask.dc.html" aria-keyshortcuts="A" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="m21 21-4.34-4.34"></path> <circle cx="11" cy="11" r="8"></circle></svg><span style="flex: 1 1 auto; min-width: 0">Ask or find</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">A</span></a><div aria-hidden="true" style="height: 1px; margin: 6px 4px; background: var(--line)"></div>
+<a href="Main.dc.html" aria-keyshortcuts="O" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><rect width="7" height="9" x="3" y="3" rx="1"></rect> <rect width="7" height="5" x="14" y="3" rx="1"></rect> <rect width="7" height="9" x="14" y="12" rx="1"></rect> <rect width="7" height="5" x="3" y="16" rx="1"></rect></svg><span style="flex: 1 1 auto; min-width: 0">Overview</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">O</span></a>
+<a href="Transactions.dc.html" aria-keyshortcuts="T" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M8 3 4 7l4 4"></path> <path d="M4 7h16"></path> <path d="m16 21 4-4-4-4"></path> <path d="M20 17H4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Transactions</span><span class="" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--warnSoft); color: var(--text); font-weight: 500">Due</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">T</span></a>
+<a href="Plan.dc.html" aria-keyshortcuts="P" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M13 5h8"></path> <path d="M13 12h8"></path> <path d="M13 19h8"></path> <path d="m3 17 2 2 4-4"></path> <path d="m3 7 2 2 4-4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Plan</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">228 kr</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">P</span></a>
+<a href="Recurring.dc.html" aria-keyshortcuts="R" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="m17 2 4 4-4 4"></path> <path d="M3 11v-1a4 4 0 0 1 4-4h14"></path> <path d="m7 22-4-4 4-4"></path> <path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg><span style="flex: 1 1 auto; min-width: 0">Recurring costs</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">2</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">R</span></a>
+<a href="Review.dc.html" aria-keyshortcuts="M" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M8 2v3"></path> <path d="M16 2v3"></path> <rect x="3" y="3" width="18" height="18" rx="2"></rect> <path d="M3 9h18"></path> <path d="m9 15 2 2 4-4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Monthly review</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">Ready</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">M</span></a>
+<a href="Insurance.dc.html" aria-current="page" aria-keyshortcuts="I" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; background: var(--accentSoft); color: var(--text); font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg><span style="flex: 1 1 auto; min-width: 0">Insurance</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--accent); color: var(--accent)">I</span></a>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 10px; padding: 12px; border-radius: 10px; background: var(--surface2); font-size: 13px; color: var(--muted)"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 16px"><path d="M12 20v2"></path> <path d="M12 2v2"></path> <path d="M17 20v2"></path> <path d="M17 2v2"></path> <path d="M2 12h2"></path> <path d="M2 17h2"></path> <path d="M2 7h2"></path> <path d="M20 12h2"></path> <path d="M20 17h2"></path> <path d="M20 7h2"></path> <path d="M7 20v2"></path> <path d="M7 2v2"></path> <rect x="4" y="4" width="16" height="16" rx="2"></rect> <rect x="8" y="8" width="8" height="8" rx="1"></rect></svg><div><div style="color: var(--text); font-weight: 500">Assistant: local model</div><div>Runs on this computer, with no network.</div></div></div>
+<a href="#" aria-keyshortcuts="S" style="display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 10px 0 12px; border-radius: 10px; color: var(--muted); text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path> <circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1 1 auto">Settings</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">S</span></a>
+</div>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px 40px 56px">
+<div style="max-width: 1180px; display: flex; flex-direction: column; gap: 28px">
+
+<header style="display: flex; flex-direction: column; gap: 4px">
+<div style="color: var(--muted); font-size: 14px">What you pay, what it covers, and when it renews. You compare offers; the app lines them up.</div>
+<h1 style="margin: 0; font-weight: 600; font-size: 32px; letter-spacing: -0.01em">Insurance</h1>
+</header>
+
+<div class="num" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px">
+<div style="background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: var(--muted)">A year</span><span class="fig" style="font-size: 26px; font-weight: 600">55,560 kr</span><span style="font-size: 13px; color: var(--muted)">4,630 kr a month</span></div>
+<div style="background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: var(--muted)">Share of household income</span><span class="fig" style="font-size: 26px; font-weight: 600">6.8%</span><span style="font-size: 13px; color: var(--muted)">of 816,576 kr a year</span></div>
+<div style="background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: var(--muted)">Against last year</span><span class="fig" style="font-size: 26px; font-weight: 600">+9.4%</span><span style="font-size: 13px; color: var(--muted)">from 50,790 kr</span></div>
+<div style="background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: var(--muted)">Policies</span><span class="fig" style="font-size: 26px; font-weight: 600">12</span><span style="font-size: 13px; color: var(--muted)">with 2 insurers</span></div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+
+<section aria-labelledby="split" style="flex: 3 1 520px; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<h2 id="split" style="margin: 0; font-size: 18px; font-weight: 600">Where it goes</h2>
+<div role="group" aria-label="Group by" style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface2)">
+<button type="button" aria-pressed="{{byType}}" onClick="{{showType}}" style="{{typeBtn}}">Type</button>
+<button type="button" aria-pressed="{{byInsurer}}" onClick="{{showInsurer}}" style="{{insurerBtn}}">Insurer</button>
+<button type="button" aria-pressed="{{byWho}}" onClick="{{showWho}}" style="{{whoBtn}}">Person or thing</button>
+</div>
+</div>
+<div class="num" style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2.4fr) auto; align-items: center; gap: 14px; font-size: 14px">
+<span>{{r.label}}</span>
+<div aria-hidden="true" style="height: 10px; border-radius: 5px; background: var(--surface2)"><div style="{{r.bar}}"></div></div>
+<span style="min-width: 130px; text-align: right"><span style="font-weight: 600">{{r.amount}} kr</span><span style="color: var(--muted)"> · {{r.share}}</span></span>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{byInsurer}}" hint-placeholder-val="{{ false }}">
+<div class="num" style="padding: 12px 14px; border-radius: 12px; background: var(--surface2); font-size: 14px">Fremtind's bundle discount is 10% (entered by you), worth about 3,600 kr a year. Moving any one policy may change it.</div>
+</sc-if>
+</section>
+
+<section aria-labelledby="cover" style="flex: 2 1 340px; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="cover" style="margin: 0; font-size: 18px; font-weight: 600">Cover against what's at stake</h2>
+<div style="font-size: 13px; color: var(--muted)">Facts to help you decide. Not advice.</div>
+</div>
+<div class="num" style="padding: 14px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 500">Life cover and shared debt</span><span style="font-size: 14px">If one of you died, the cover would pay 2,000,000 kr against 2,840,000 kr of shared debt.</span></div>
+<div style="padding: 14px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 500">The plot</span><span style="font-size: 14px">Liability cover is in place. There is no building cover yet. The app will remind you once you set a build date.</span></div>
+<div style="padding: 14px; border-radius: 12px; background: var(--warnSoft); display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 500">Possible overlap</span><span style="font-size: 14px">Travel cover sometimes comes with a credit card. Holt can't see your cards, so you could check them before 1 January.</span></div>
+</section>
+
+</div>
+
+<section aria-labelledby="compare" style="background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="compare" style="margin: 0; font-size: 18px; font-weight: 600">House insurance renews 1 January</h2>
+<div style="font-size: 13px; color: var(--muted)">You enter quotes from whoever you choose to ask</div>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-weight: 500; cursor: pointer">Add a quote</button>
+<button type="button" aria-expanded="{{compareOpen}}" onClick="{{toggleCompare}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accentInk); font: inherit; font-weight: 600; cursor: pointer">{{compareLabel}}</button>
+</div>
+</div>
+<sc-if value="{{compareOpen}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="overflow-x: auto; border: 1px solid var(--line); border-radius: 12px">
+<table class="num" style="width: 100%; min-width: 700px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="text-align: left">
+<th scope="col" style="padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-weight: 500"></th>
+<th scope="col" style="padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 600">Fremtind (current)</th>
+<th scope="col" style="padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 600">Gjensidige quote</th>
+<th scope="col" style="padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 600">If quote</th>
+</tr>
+</thead>
+<tbody>
+<tr><th scope="row" style="padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; color: var(--muted); font-weight: 500">Price a year</th><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">14,880 kr</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">12,960 kr</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">13,400 kr</td></tr>
+<tr><th scope="row" style="padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; color: var(--muted); font-weight: 500">Excess</th><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">8,000 kr</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">10,000 kr</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">8,000 kr</td></tr>
+<tr><th scope="row" style="padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; color: var(--muted); font-weight: 500">Cover</th><td style="padding: 12px 14px; border-bottom: 1px solid var(--line)">Full value</td><td style="padding: 12px 14px; border-bottom: 1px solid var(--line)">Full value</td><td style="padding: 12px 14px; border-bottom: 1px solid var(--line)">Full value</td></tr>
+<tr><th scope="row" style="padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; color: var(--muted); font-weight: 500">Fremtind bundle on your other 4 policies</th><td style="padding: 12px 14px; border-bottom: 1px solid var(--line)">Unchanged</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">+1,950 kr</td><td class="fig" style="padding: 12px 14px; border-bottom: 1px solid var(--line)">+1,950 kr</td></tr>
+<tr style="background: var(--accentSoft)"><th scope="row" style="padding: 12px 14px; text-align: left; font-weight: 600">Real cost a year</th><td class="fig" style="padding: 12px 14px; font-weight: 600">14,880 kr</td><td class="fig" style="padding: 12px 14px; font-weight: 600">14,910 kr</td><td class="fig" style="padding: 12px 14px; font-weight: 600">15,350 kr</td></tr>
+</tbody>
+</table>
+</div>
+<div class="num" style="font-size: 14px">The Gjensidige quote is 1,920 kr cheaper on its own, but about the same once the Fremtind bundle discount is lost. It also has a higher excess. The app hasn't included any bundle Gjensidige might offer if you moved more policies.</div>
+</div>
+</sc-if>
+</section>
+
+<section aria-labelledby="policies" style="background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
+<h2 id="policies" style="margin: 0; font-size: 18px; font-weight: 600">Policies</h2>
+<div style="color: var(--muted); font-size: 13px">The local model read these from your policy documents, then you checked them</div>
+</div>
+<div style="overflow-x: auto">
+<table class="num" style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="text-align: left; color: var(--muted); font-size: 13px">
+<th scope="col" style="padding: 8px 10px 8px 0; font-weight: 500">Policy</th>
+<th scope="col" style="padding: 8px 10px; font-weight: 500">Insurer</th>
+<th scope="col" style="padding: 8px 10px; font-weight: 500">Covers</th>
+<th scope="col" style="padding: 8px 10px; font-weight: 500; text-align: right">A year</th>
+<th scope="col" style="padding: 8px 10px; font-weight: 500; text-align: right">Excess</th>
+<th scope="col" style="padding: 8px 0 8px 10px; font-weight: 500">Renews</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">House</td><td style="padding: 10px">Fremtind</td><td style="padding: 10px">The house</td><td class="fig" style="padding: 10px; text-align: right">14,880</td><td class="fig" style="padding: 10px; text-align: right">8,000</td><td class="fig" style="padding: 10px 0 10px 10px">1 Jan</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Contents</td><td style="padding: 10px">Fremtind</td><td style="padding: 10px">The house</td><td class="fig" style="padding: 10px; text-align: right">4,320</td><td class="fig" style="padding: 10px; text-align: right">4,000</td><td class="fig" style="padding: 10px 0 10px 10px">1 Jan</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Car</td><td style="padding: 10px">Fremtind</td><td style="padding: 10px">Family car</td><td class="fig" style="padding: 10px; text-align: right">9,960</td><td class="fig" style="padding: 10px; text-align: right">6,000</td><td class="fig" style="padding: 10px 0 10px 10px">1 Apr</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Travel, annual</td><td style="padding: 10px">Fremtind</td><td style="padding: 10px">All six of you</td><td class="fig" style="padding: 10px; text-align: right">2,280</td><td class="fig" style="padding: 10px; text-align: right">1,000</td><td class="fig" style="padding: 10px 0 10px 10px">1 Jan</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Liability</td><td style="padding: 10px">Fremtind</td><td style="padding: 10px">The plot</td><td class="fig" style="padding: 10px; text-align: right">1,000</td><td style="padding: 10px; text-align: right">—</td><td class="fig" style="padding: 10px 0 10px 10px">1 Jan</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Life</td><td style="padding: 10px">Gjensidige</td><td style="padding: 10px">Stephen</td><td class="fig" style="padding: 10px; text-align: right">5,700</td><td style="padding: 10px; text-align: right">—</td><td class="fig" style="padding: 10px 0 10px 10px">1 Sep</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Life</td><td style="padding: 10px">Gjensidige</td><td style="padding: 10px">Partner</td><td class="fig" style="padding: 10px; text-align: right">5,700</td><td style="padding: 10px; text-align: right">—</td><td class="fig" style="padding: 10px 0 10px 10px">1 Sep</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Disability</td><td style="padding: 10px">Gjensidige</td><td style="padding: 10px">Partner</td><td class="fig" style="padding: 10px; text-align: right">2,000</td><td style="padding: 10px; text-align: right">—</td><td class="fig" style="padding: 10px 0 10px 10px">1 Sep</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td style="padding: 10px 10px 10px 0">Children's insurance × 4</td><td style="padding: 10px">Gjensidige</td><td style="padding: 10px">Each child, 2,430 kr</td><td class="fig" style="padding: 10px; text-align: right">9,720</td><td style="padding: 10px; text-align: right">—</td><td class="fig" style="padding: 10px 0 10px 10px">1 Sep</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hearth light","Hearth dark","Hearth dark, glass"],"default":"Hearth light"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'type', compareOpen: true };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'Hearth light';
+    const views = {
+      type: [
+        ['House', '14,880', '27%', 100], ['Life', '11,400', '21%', 77], ['Car', '9,960', '18%', 67],
+        ['Children', '9,720', '17%', 65], ['Contents', '4,320', '8%', 29], ['Travel', '2,280', '4%', 15],
+        ['Disability', '2,000', '4%', 13], ['Plot liability', '1,000', '2%', 7]
+      ],
+      insurer: [
+        ['Fremtind · 5 policies', '32,440', '58%', 100], ['Gjensidige · 7 policies', '23,120', '42%', 71]
+      ],
+      who: [
+        ['House and contents', '19,200', '35%', 100], ['Car', '9,960', '18%', 52], ['The four children', '9,720', '17%', 51],
+        ['Partner', '7,700', '14%', 40], ['Stephen', '5,700', '10%', 30], ['Family travel', '2,280', '4%', 12], ['The plot', '1,000', '2%', 5]
+      ]
+    };
+    const v = this.state.view;
+    const rows = views[v].map((r) => ({
+      label: r[0], amount: r[1], share: r[2],
+      bar: 'width: ' + r[3] + '%; height: 100%; border-radius: 5px; background: var(--accent)'
+    }));
+    const on = 'min-height: 40px; padding: 0 14px; border-radius: 9px; border: 0; background: var(--surface); color: var(--text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer';
+    const off = 'min-height: 40px; padding: 0 14px; border-radius: 9px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer';
+    return {
+      themeClass: theme === 'Hearth dark, glass' ? 't-dark t-glass' : theme === 'Hearth dark' ? 't-dark' : 't-light',
+      rows: rows,
+      byType: v === 'type',
+      byInsurer: v === 'insurer',
+      byWho: v === 'who',
+      typeBtn: v === 'type' ? on : off,
+      insurerBtn: v === 'insurer' ? on : off,
+      whoBtn: v === 'who' ? on : off,
+      showType: () => this.setState({ view: 'type' }),
+      showInsurer: () => this.setState({ view: 'insurer' }),
+      showWho: () => this.setState({ view: 'who' }),
+      compareOpen: this.state.compareOpen,
+      compareLabel: this.state.compareOpen ? 'Hide comparison' : 'Compare quotes',
+      toggleCompare: () => this.setState({ compareOpen: !this.state.compareOpen })
+    };
+  }
+}
+</script>
+</body>
+</html>

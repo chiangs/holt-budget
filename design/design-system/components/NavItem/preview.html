@@ -1,0 +1,18 @@
+<!-- @dsCard group="Navigation" height=260 subtitle="Sidebar item with its key chip" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui)}
+nav{width:240px;margin:var(--space-6);padding:var(--space-3);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);display:flex;flex-direction:column;gap:var(--space-1)}
+a{display:flex;align-items:center;justify-content:space-between;min-height:var(--target-min);padding:0 var(--space-3);border-radius:var(--radius-md);color:var(--text-muted);text-decoration:none;font-weight:500;font-size:15px}
+a[aria-current]{background:var(--surface-raised);color:var(--text);font-weight:600}
+.key{font-family:var(--font-data);font-size:12px;min-width:var(--key-chip);height:var(--key-chip);display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--radius-sm)}
+a[aria-current] .key{border-color:var(--accent);color:var(--accent)}
+.badge{font-size:12px;font-weight:500;padding:2px 8px;border-radius:var(--radius-full);background:var(--attention-soft);color:var(--text);margin-left:auto;margin-right:var(--space-2)}
+</style></head><body>
+<nav aria-label="Example">
+<a href="#" aria-current="page">Overview<span class="key">O</span></a>
+<a href="#">Transactions<span class="badge">Import due</span><span class="key">T</span></a>
+<a href="#">Plan<span class="key">P</span></a>
+<a href="#">Recurring costs<span class="key">R</span></a>
+</nav>
+</body></html>

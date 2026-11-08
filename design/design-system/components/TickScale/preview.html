@@ -1,0 +1,26 @@
+<!-- @dsCard group="Data" height=230 subtitle="Value against the family's targets and limits" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui)}
+.card{margin:var(--space-6);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:0 var(--space-5)}
+.row{display:grid;grid-template-columns:minmax(150px,1.3fr) 110px minmax(180px,2fr) minmax(120px,1fr);gap:var(--space-4);align-items:center;padding:var(--space-4) 0}
+.row+.row{border-top:1px solid var(--line)}
+.val{font-family:var(--font-data);font-size:28px;line-height:34px;font-weight:500}
+.unit{font-size:12px;color:var(--text-muted)}
+.scale{position:relative;height:14px}
+.ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,var(--chart-grid) 0 1px,transparent 1px var(--pitch))}
+.track{position:absolute;left:0;right:0;top:4px;height:var(--scale-height);border-radius:var(--radius-xs);background:var(--chart-track)}
+.bar{position:absolute;left:0;top:4px;height:var(--scale-height);border-radius:var(--radius-xs);background:var(--chart-1)}
+.ref{position:absolute;top:0;width:2px;height:14px;background:var(--chart-ref)}
+.ref.soft{background:var(--text-muted)}
+.cap{font-family:var(--font-data);font-size:11px;letter-spacing:.06em;color:var(--text-muted)}
+</style></head><body>
+<div class="card">
+<div class="row"><span>How long could we last?</span><span class="val">1.6<span class="unit"> mo</span></span>
+<div class="scale" style="--pitch:25%"><div class="track"></div><div class="ticks"></div><div class="bar" style="width:40%"></div><div class="ref" style="left:75%"></div></div>
+<span class="cap">TARGET 3 · YOUR SETTING</span></div>
+<div class="row"><span>Loan to value</span><span class="val">58<span class="unit">%</span></span>
+<div class="scale" style="--pitch:10%"><div class="track"></div><div class="ticks"></div><div class="bar" style="width:58%"></div><div class="ref soft" style="left:60%"></div><div class="ref" style="left:90%"></div></div>
+<span class="cap">60 · 90 · YOUR SETTINGS</span></div>
+</div>
+</body></html>

@@ -1,0 +1,22 @@
+{
+  "name": "holt-budget",
+  "private": true,
+  "description": "Holt: a household budget planner for Linux, with a local AI assistant. Nothing leaves your computer.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "tokens": "node packages/ui/scripts/build-tokens.mjs",
+    "test": "vitest run",
+    "typecheck": "pnpm -r typecheck",
+    "dev": "pnpm --filter @holt/desktop dev",
+    "build": "pnpm tokens && pnpm --filter @holt/desktop build",
+    "dist": "pnpm build && pnpm --filter @holt/desktop dist"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "@types/node": "^26.6.6"
+  }
+}

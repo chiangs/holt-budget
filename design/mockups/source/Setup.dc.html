@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First-time setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.t-light{--bg:#f3f1ee;--surface:#ffffff;--surface2:#ece8e3;--line:#e2ddd6;--text:#1f1b18;--muted:#5f5750;--accent:#1f5446;--accentInk:#ffffff;--accentSoft:#e1eee9;--warn:#a6491f;--warnSoft:#f7e6dc;--scrim:rgba(31,27,24,.45)}
+.t-dark{--bg:#181512;--surface:#221e1a;--surface2:#2c2722;--line:#3a342e;--text:#f1ece6;--muted:#b9afa4;--accent:#6fb8a2;--accentInk:#10241e;--accentSoft:#1f3330;--warn:#f9c9ad;--warnSoft:#3a271d;--scrim:rgba(0,0,0,.55)}
+.t-glass{--bg:radial-gradient(900px 700px at 8% -6%,#1e5a4b 0,rgba(30,90,75,0) 70%),radial-gradient(700px 600px at 96% 22%,#7a3a22 0,rgba(122,58,34,0) 70%),radial-gradient(1000px 700px at 45% 108%,#23304d 0,rgba(35,48,77,0) 70%),#110e0c;--surface:rgba(28,24,21,.55);--surface2:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--accentSoft:rgba(111,184,162,.16);--warnSoft:rgba(249,201,173,.14)}
+.t-glass [style*="background: var(--surface)"]{-webkit-backdrop-filter:blur(28px) saturate(140%);backdrop-filter:blur(28px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 32px rgba(0,0,0,.28)}
+.t-glass [role="dialog"]{background:rgba(28,24,21,.72) !important}
+.num{font-variant-numeric:tabular-nums}
+.fig{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;white-space:nowrap}
+kbd,.key{font-family:'IBM Plex Mono',ui-monospace,monospace}
+a{color:var(--accent)}a:hover{color:var(--text)}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="min-height: 100vh; box-sizing: border-box; background: var(--bg); color: var(--text); font-family: Figtree, system-ui, sans-serif; font-size: 15px; line-height: 1.5; padding: 48px 32px">
+<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; align-items: center; gap: 10px">
+<svg aria-hidden="true" width="28" height="28" style="flex: 0 0 28px" viewBox="0 0 256 256"><rect x="16" y="16" width="224" height="224" rx="52" fill="#1f5446"/><rect x="48" y="80" width="32" height="80" rx="8" fill="#c0cfcb"/><rect x="112" y="48" width="32" height="112" rx="8" fill="#f3f1ee"/><rect x="176" y="96" width="32" height="64" rx="8" fill="#84a199"/><rect x="48" y="176" width="160" height="16" rx="4" fill="#e09a73"/></svg>
+<div style="font-weight: 600; font-size: 17px">Holt</div>
+<span style="margin-left: auto; font-size: 14px; color: var(--muted)">Setup · step {{stepNo}} of 7</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+<nav aria-label="Setup steps" style="flex: 1 1 220px; max-width: 100%">
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="7">
+<li><button type="button" onClick="{{st.go}}" aria-current="{{st.current}}" style="{{st.style}}"><span style="{{st.dot}}">{{st.mark}}</span><span style="display: flex; flex-direction: column; align-items: flex-start"><span>{{st.label}}</span><span style="font-size: 12px; color: var(--muted)">{{st.note}}</span></span></button></li>
+</sc-for>
+</ol>
+</nav>
+
+<section style="flex: 999 1 560px; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">Let's set up your household</h1>
+<p style="margin: 0; font-size: 16px; max-width: 60ch">Holt runs entirely on this computer. Your statements, figures and notes never leave it, and the assistant is a local model with no network access.</p>
+<div style="padding: 16px 18px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 6px">
+<span style="font-weight: 600">You'll need</span>
+<span>A recent statement from each shared account: CSV, OFX or PDF. Three months is best.</span>
+<span>About 15 minutes. You can add anything you don't know yet later.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Language<select style="min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"><option>English (UK)</option><option disabled>Norsk bokmål (coming later)</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Currency<select style="min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"><option>Norwegian krone (kr)</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Theme<select style="min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"><option>Hearth</option><option>Instrument</option><option>Follow my desktop</option></select></label>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">Who is in the household?</h1>
+<p style="margin: 0; color: var(--muted)">Names stay on this computer. Nicknames are fine.</p>
+</div>
+<fieldset class="num" style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 10px">
+<legend style="padding: 0 0 8px; font-weight: 600">Adults, and what each pays into the shared accounts</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; align-items: end">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Name<input type="text" value="Stephen" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Each month<input type="text" value="32,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Usually arrives on<input type="text" value="20th" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; align-items: end">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Name<input type="text" value="Partner" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Each month<input type="text" value="28,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Usually arrives on<input type="text" value="20th" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 40px; padding: 0 10px; border: 0; background: transparent; color: var(--accent); font: inherit; font-weight: 500; cursor: pointer">+ Add an adult</button>
+</fieldset>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 10px">
+<legend style="padding: 0 0 4px; font-weight: 600">Children</legend>
+<div style="font-size: 14px; color: var(--muted)">The app uses birth months only for the children's timeline, such as when child-linked income ends.</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Eldest · born<input type="month" value="2012-04" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Second · born<input type="month" value="2014-09" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Third · born<input type="month" value="2017-02" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Youngest · born<input type="month" value="2020-07" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 40px; padding: 0 10px; border: 0; background: transparent; color: var(--accent); font: inherit; font-weight: 500; cursor: pointer">+ Add a child</button>
+</fieldset>
+</div>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">Which accounts are shared?</h1>
+<p style="margin: 0; color: var(--muted)">Only the household's shared accounts. Your own accounts stay out of the app.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 10px">
+<div style="padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Felles brukskonto</span><span style="font-size: 13px; color: var(--muted)">SpareBank 1 SR-Bank · everyday · weekly import</span></div>
+<div style="padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Regninger</span><span style="font-size: 13px; color: var(--muted)">SpareBank 1 SR-Bank · bills · fortnightly import</span></div>
+<div style="padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Buffer</span><span style="font-size: 13px; color: var(--muted)">Bulder · savings · monthly import</span></div>
+<div style="padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Byggesparing</span><span style="font-size: 13px; color: var(--muted)">Bulder · savings · monthly import</span></div>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-weight: 500; cursor: pointer">+ Add a shared account</button>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line)">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Accounts the household pays into</span><span style="font-size: 14px; color: var(--muted)">For example a child's savings account. The app tracks what you pay in; importing its statements is optional.</span></div>
+<div class="num" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 10px">
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--surface2); display: flex; justify-content: space-between; gap: 8px"><span>Eldest's savings</span><span style="color: var(--muted)">Bulder</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--surface2); display: flex; justify-content: space-between; gap: 8px"><span>Second's savings</span><span style="color: var(--muted)">Bulder</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--surface2); display: flex; justify-content: space-between; gap: 8px"><span>Third's savings</span><span style="color: var(--muted)">Bulder</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--surface2); display: flex; justify-content: space-between; gap: 8px"><span>Youngest's savings</span><span style="color: var(--muted)">Bulder</span></div>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 40px; padding: 0 10px; border: 0; background: transparent; color: var(--accent); font: inherit; font-weight: 500; cursor: pointer">+ Add an account you pay into</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">Bring in your first statements</h1>
+<p style="margin: 0; color: var(--muted)">One file per account. The local model reads them; you check what it found.</p>
+</div>
+<label style="min-height: 120px; border-radius: 14px; border: 2px dashed var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; text-align: center; padding: 20px"><span style="font-weight: 600">Drop statements here, or choose files</span><span style="font-size: 14px; color: var(--muted)">CSV, OFX or PDF</span><input type="file" multiple accept=".csv,.ofx,.pdf" style="position: absolute; width: 1px; height: 1px; opacity: 0"></label>
+<div class="num" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 10px; font-size: 14px">
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--accentSoft); display: flex; flex-direction: column"><span style="font-weight: 600">Felles brukskonto</span><span>412 transactions · Aug–Nov</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--accentSoft); display: flex; flex-direction: column"><span style="font-weight: 600">Regninger</span><span>96 transactions · Aug–Oct</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--accentSoft); display: flex; flex-direction: column"><span style="font-weight: 600">Buffer</span><span>14 transactions · Aug–Nov</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; background: var(--accentSoft); display: flex; flex-direction: column"><span style="font-weight: 600">Byggesparing</span><span>6 transactions · Aug–Nov</span></div>
+</div>
+<div class="num" style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-weight: 600">Regular money in, found in the statements</span>
+<div style="padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px"><span>Stephen · 32,000 kr on the 20th · matches what you entered</span><span style="font-size: 13px; padding: 2px 8px; border-radius: 6px; background: var(--accentSoft)">Matched</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px"><span>Partner · 28,000 kr on the 20th · matches what you entered</span><span style="font-size: 13px; padding: 2px 8px; border-radius: 6px; background: var(--accentSoft)">Matched</span></div>
+<div style="padding: 12px 16px; border-radius: 12px; border: 1px solid var(--warn); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px"><span>NAV · 8,048 kr each month. Is this barnetrygd?</span><span style="display: flex; gap: 8px"><button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 0; background: var(--accent); color: var(--accentInk); font: inherit; font-weight: 600; cursor: pointer">Yes</button><button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; cursor: pointer">Something else</button></span></div>
+</div>
+<div style="font-size: 14px; color: var(--muted)">The app also found 23 recurring costs. You can go through them later, under Recurring costs.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s5}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">A first plan</h1>
+<p style="margin: 0; color: var(--muted)">The app built this from your last three months. Start broad; you can split jobs up whenever you like.</p>
+</div>
+<div class="num" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 10px">
+<div style="padding: 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 2px"><span style="color: var(--muted); font-size: 14px">Fixed costs · 8 jobs</span><span class="fig" style="font-size: 22px; font-weight: 600">38,620 kr</span></div>
+<div style="padding: 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 2px"><span style="color: var(--muted); font-size: 14px">Living · 4 jobs</span><span class="fig" style="font-size: 22px; font-weight: 600">19,700 kr</span></div>
+<div style="padding: 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 2px"><span style="color: var(--muted); font-size: 14px">Saving · 6 jobs</span><span class="fig" style="font-size: 22px; font-weight: 600">9,500 kr</span></div>
+<div style="padding: 16px; border-radius: 12px; border: 1px dashed var(--line); display: flex; flex-direction: column; gap: 2px"><span style="color: var(--muted); font-size: 14px">No job yet</span><span class="fig" style="font-size: 22px; font-weight: 600">228 kr</span></div>
+</div>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: var(--accent)">Keep Living as one job for now (Food, Clothes, Christmas and Konfirmasjon together)</label>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="padding: 0 0 6px; font-weight: 600">Where to start</legend>
+<div class="num" style="font-size: 14px; color: var(--muted); padding-bottom: 4px">Your buffer covers about 1.6 months and no expensive credit showed up, so Foundations looks right. It's your call.</div>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="radio" name="stage" style="width: 20px; height: 20px; accent-color: var(--accent)">Stage 1 · Breathing room</label>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="radio" name="stage" style="width: 20px; height: 20px; accent-color: var(--accent)">Stage 2 · Debt down</label>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="radio" name="stage" checked style="width: 20px; height: 20px; accent-color: var(--accent)">Stage 3 · Foundations (suggested)</label>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="radio" name="stage" style="width: 20px; height: 20px; accent-color: var(--accent)">Stage 4 · Growth</label>
+</fieldset>
+</div>
+</sc-if>
+
+<sc-if value="{{s6}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">The bigger picture</h1>
+<p style="margin: 0; color: var(--muted)">Optional. The vital signs use these figures. Without them, the app hides those instruments.</p>
+</div>
+<div class="num" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">House, estimated value<input type="text" value="4,900,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Mortgage left<input type="text" value="2,840,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Plot, estimated value<input type="text" value="1,150,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Stephen, gross income a year<input type="text" value="720,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Partner, gross income a year<input type="text" value="610,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Other debts and credit limits<input type="text" value="195,000 kr" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); color: var(--text); font: inherit"></label>
+</div>
+<div class="num" style="padding: 16px 18px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 10px">
+<span style="font-weight: 600">Reference lines</span>
+<span style="font-size: 14px; color: var(--muted)">The app filled these in from Norway's lending rules as this version knew them. It never updates them by itself, so check them and change any that are out of date.</span>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 10px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Debt limit<input type="text" value="5 × gross income" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Mortgage cap<input type="text" value="90% of value" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">Instalments required above<input type="text" value="60% of value" style="min-height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit"></label>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s7}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">The assistant and reminders</h1>
+<p style="margin: 0; color: var(--muted)">Last step.</p>
+</div>
+<div style="padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">The app found a local model on this computer</span><span style="font-size: 14px; color: var(--muted)">Ready. It works offline, and Holt never sends it anywhere else.</span></div>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-weight: 500; cursor: pointer">Choose another</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; font-size: 14px">
+<div style="padding: 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 600; font-size: 15px">It will</span><span>Suggest jobs for new transactions</span><span>Explain what changed and why</span><span>Answer questions about your figures</span><span>Draft the monthly review</span></div>
+<div style="padding: 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 600; font-size: 15px">It won't</span><span>Change anything without your approval</span><span>Do the sums: the app calculates every figure</span><span>Go online, or look for offers</span><span>Give financial advice</span></div>
+</div>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 6px">
+<legend style="padding: 0 0 6px; font-weight: 600">Reminders</legend>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--accent)">Remind me when an import is due</label>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--accent)">Have the monthly review ready on the 1st</label>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--accent)">Show desktop notifications</label>
+</fieldset>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line)">
+<sc-if value="{{hasBack}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{back}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-weight: 500; cursor: pointer">Back</button>
+</sc-if>
+<sc-if value="{{canSkip}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{next}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 500; cursor: pointer">Skip for now</button>
+</sc-if>
+<span style="flex: 1"></span>
+<sc-if value="{{notLast}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{next}}" style="min-height: 44px; padding: 0 22px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accentInk); font: inherit; font-weight: 600; cursor: pointer">{{nextLabel}}</button>
+</sc-if>
+<sc-if value="{{isLast}}" hint-placeholder-val="{{ false }}">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 22px; border-radius: 10px; background: var(--accent); color: var(--accentInk); text-decoration: none; font-weight: 600">Open the overview</a>
+</sc-if>
+</div>
+
+</section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hearth light","Hearth dark","Hearth dark, glass"],"default":"Hearth light"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 1 };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'Hearth light';
+    const n = this.state.step;
+    const defs = [
+      ['Welcome', 'What this is'],
+      ['Household', 'Adults and children'],
+      ['Accounts', 'Shared, and paid into'],
+      ['First import', 'Statements in'],
+      ['First plan', 'Jobs and stage'],
+      ['Bigger picture', 'Optional'],
+      ['Assistant', 'And reminders']
+    ];
+    const steps = defs.map((d, i) => {
+      const k = i + 1;
+      const cur = k === n;
+      const done = k < n;
+      return {
+        label: d[0],
+        note: d[1],
+        mark: done ? '✓' : String(k),
+        current: cur ? 'step' : 'false',
+        go: () => this.setState({ step: k }),
+        style: 'width: 100%; min-height: 52px; padding: 6px 12px; border-radius: 10px; border: 0; display: flex; align-items: center; gap: 12px; font: inherit; text-align: left; cursor: pointer; color: var(--text); background: ' + (cur ? 'var(--accentSoft)' : 'transparent') + '; font-weight: ' + (cur ? '600' : '500'),
+        dot: 'width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; ' + (cur ? 'background: var(--accent); color: var(--accentInk)' : done ? 'background: var(--accentSoft); color: var(--text)' : 'border: 1px solid var(--line); color: var(--muted)')
+      };
+    });
+    return {
+      themeClass: theme === 'Hearth dark, glass' ? 't-dark t-glass' : theme === 'Hearth dark' ? 't-dark' : 't-light',
+      steps: steps,
+      stepNo: n,
+      s1: n === 1, s2: n === 2, s3: n === 3, s4: n === 4, s5: n === 5, s6: n === 6, s7: n === 7,
+      hasBack: n > 1,
+      canSkip: n === 6,
+      notLast: n < 7,
+      isLast: n === 7,
+      nextLabel: n === 1 ? 'Start' : 'Continue',
+      next: () => this.setState({ step: Math.min(7, n + 1) }),
+      back: () => this.setState({ step: Math.max(1, n - 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ask or find</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.t-light{--bg:#f3f1ee;--surface:#ffffff;--surface2:#ece8e3;--line:#e2ddd6;--text:#1f1b18;--muted:#5f5750;--accent:#1f5446;--accentInk:#ffffff;--accentSoft:#e1eee9;--warn:#a6491f;--warnSoft:#f7e6dc;--scrim:rgba(31,27,24,.45)}
+.t-dark{--bg:#181512;--surface:#221e1a;--surface2:#2c2722;--line:#3a342e;--text:#f1ece6;--muted:#b9afa4;--accent:#6fb8a2;--accentInk:#10241e;--accentSoft:#1f3330;--warn:#f9c9ad;--warnSoft:#3a271d;--scrim:rgba(0,0,0,.55)}
+.t-glass{--bg:radial-gradient(900px 700px at 8% -6%,#1e5a4b 0,rgba(30,90,75,0) 70%),radial-gradient(700px 600px at 96% 22%,#7a3a22 0,rgba(122,58,34,0) 70%),radial-gradient(1000px 700px at 45% 108%,#23304d 0,rgba(35,48,77,0) 70%),#110e0c;--surface:rgba(28,24,21,.55);--surface2:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--accentSoft:rgba(111,184,162,.16);--warnSoft:rgba(249,201,173,.14)}
+.t-glass [style*="background: var(--surface)"]{-webkit-backdrop-filter:blur(28px) saturate(140%);backdrop-filter:blur(28px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 32px rgba(0,0,0,.28)}
+.t-glass [role="dialog"]{background:rgba(28,24,21,.72) !important}
+.num{font-variant-numeric:tabular-nums}
+.fig{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;white-space:nowrap}
+kbd,.key{font-family:'IBM Plex Mono',ui-monospace,monospace}
+a{color:var(--accent)}a:hover{color:var(--text)}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="min-height: 100vh; box-sizing: border-box; background: linear-gradient(var(--scrim), var(--scrim)), var(--bg); color: var(--text); font-family: Figtree, system-ui, sans-serif; font-size: 15px; line-height: 1.5; padding: 64px 24px">
+<div role="dialog" aria-modal="true" aria-labelledby="asktitle" style="max-width: 820px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 24px 64px rgba(0,0,0,.35); display: flex; flex-direction: column">
+
+<div style="padding: 20px 22px 16px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line)">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<h1 id="asktitle" style="margin: 0; font-size: 14px; font-weight: 500; color: var(--muted)">Ask or find · press A or Ctrl K on any screen</h1>
+<a href="Main.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); color: var(--text); display: inline-flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+</div>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--accent); background: var(--surface2)">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color: var(--muted); flex: 0 0 20px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Ask a question or find something</span>
+<input type="text" value="{{query}}" style="flex: 1; min-width: 0; min-height: 52px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 18px; outline: none">
+<kbd style="font: inherit; font-size: 12px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted)">Enter</kbd>
+</label>
+<div role="group" aria-label="Examples" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{examples}}" as="ex" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{ex.on}}" onClick="{{ex.pick}}" style="{{ex.style}}">{{ex.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="padding: 22px; display: flex; flex-direction: column; gap: 18px">
+
+<sc-if value="{{exA}}" hint-placeholder-val="{{ true }}">
+<div class="num" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted)"><span style="padding: 2px 8px; border-radius: 6px; background: var(--surface2)">Answer</span>Worked out by the app, worded by the assistant</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.6">You spent <strong>6,960 kr</strong> on food at weekends in October, across 6 shops. That is 43% of October's food spending. Four of those shops were over 1,500 kr.</p>
+<div style="padding: 14px 16px; border-radius: 12px; background: var(--surface2); display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; color: var(--muted)">How the app worked this out</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px">
+<span style="padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line)">Job: Food and household</span>
+<span style="padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line)">1–31 October</span>
+<span style="padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line)">Saturdays and Sundays</span>
+<span style="padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line)">All shared accounts</span>
+</div>
+<button type="button" onClick="{{toggleTx}}" aria-expanded="{{showTx}}" style="align-self: flex-start; min-height: 40px; padding: 0 8px; border: 0; background: transparent; color: var(--accent); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer">{{txLabel}}</button>
+<sc-if value="{{showTx}}" hint-placeholder-val="{{ false }}">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<tbody>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sat 3 Oct</td><td style="padding: 8px">REMA 1000</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">1,620</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sat 10 Oct</td><td style="padding: 8px">Coop Extra</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">1,540</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sun 11 Oct</td><td style="padding: 8px">Kiwi</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">310</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sat 17 Oct</td><td style="padding: 8px">REMA 1000</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">1,710</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sat 24 Oct</td><td style="padding: 8px">Meny</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">1,580</td></tr>
+<tr style="border-top: 1px solid var(--line)"><td class="fig" style="padding: 8px 8px 8px 0">Sun 25 Oct</td><td style="padding: 8px">Kiwi</td><td class="fig" style="padding: 8px 0 8px 8px; text-align: right">200</td></tr>
+</tbody>
+</table>
+</sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-size: 14px; cursor: pointer">Compare with September</button>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-size: 14px; cursor: pointer">Weekdays instead</button>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-size: 14px; cursor: pointer">Add to the October review</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{exB}}" hint-placeholder-val="{{ false }}">
+<div class="num" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted)"><span style="padding: 2px 8px; border-radius: 6px; background: var(--surface2)">Search</span>Plain search, no assistant involved</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: var(--muted); padding-bottom: 4px">Transactions · 3</span>
+<a href="Transactions.dc.html" style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none; background: var(--surface2)"><span>Lyse Energi AS · 19 Oct · Regninger</span><span class="fig">−2,846</span></a>
+<a href="Transactions.dc.html" style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none"><span>Lyse Energi AS · 19 Sep · Regninger</span><span class="fig">−2,910</span></a>
+<a href="Transactions.dc.html" style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none"><span>Lyse Energi AS · 19 Aug · Regninger</span><span class="fig">−2,760</span></a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: var(--muted); padding-bottom: 4px">Elsewhere</span>
+<a href="Plan.dc.html" style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none"><span>Job: Electricity</span><span style="color: var(--muted)">2,900 a month · Plan</span></a>
+<a href="Recurring.dc.html" style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none"><span>Contract: Electricity, Lyse</span><span style="color: var(--muted)">Review in January · Recurring costs</span></a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{exC}}" hint-placeholder-val="{{ false }}">
+<div class="num" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted)"><span style="padding: 2px 8px; border-radius: 6px; background: var(--surface2)">What if</span>Worked out by the app, worded by the assistant · nothing has changed</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.6">At 6,000 kr a month from December, the Konfirmasjon bucket would hold about <strong>41,100 kr</strong> by the end of April, enough for the 38,000 kr you set. That is 4,500 kr a month more than now, so you would need to move it from other jobs.</p>
+<div style="padding: 14px 16px; border-radius: 12px; background: var(--surface2); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; font-size: 14px">
+<div style="display: flex; flex-direction: column"><span style="color: var(--muted)">Bucket now</span><span class="fig">9,600 kr</span></div>
+<div style="display: flex; flex-direction: column"><span style="color: var(--muted)">Paid in, Nov–Apr</span><span>1,500 + 5 × 6,000</span></div>
+<div style="display: flex; flex-direction: column"><span style="color: var(--muted)">Needs a source</span><span>4,500 kr a month</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Plan.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; background: var(--accent); color: var(--accentInk); text-decoration: none; font-weight: 600">Draft this change in Plan</a>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; cursor: pointer">Try 5,000 instead</button>
+</div>
+<div style="font-size: 13px; color: var(--muted)">In Plan, you choose where the money comes from and see the effect before the app changes anything.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{exD}}" hint-placeholder-val="{{ false }}">
+<div class="num" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted)"><span style="padding: 2px 8px; border-radius: 6px; background: var(--surface2)">Answer</span>From your policy register</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.6">House insurance renews on <strong>1 January 2027</strong> with Fremtind, at 14,880 kr a year. You've entered two quotes to compare against it.</p>
+<div style="font-size: 13px; color: var(--muted)">Source: the policy document you checked on 12 September</div>
+<a href="Insurance.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); color: var(--text); text-decoration: none; font-weight: 500">Open the comparison</a>
+</div>
+</sc-if>
+
+</div>
+
+<div style="padding: 14px 22px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted)">
+<span>Questions and answers stay on this computer. The assistant can be wrong, so every answer shows how the app worked it out.</span>
+<span>Esc to close</span>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hearth light","Hearth dark","Hearth dark, glass"],"default":"Hearth light"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ex: 0, showTx: false };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'Hearth light';
+    const s = this.state;
+    const defs = [
+      ['Food at weekends in October', 'How much did we spend on food at weekends in October?'],
+      ['Find: Lyse', 'Lyse'],
+      ['What if: konfirmasjon at 6,000', 'What if we put 6,000 a month into konfirmasjon from December?'],
+      ['When does house insurance renew?', 'When does the house insurance renew?']
+    ];
+    const examples = defs.map((d, i) => ({
+      label: d[0],
+      on: i === s.ex,
+      pick: () => this.setState({ ex: i, showTx: false }),
+      style: 'min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid ' + (i === s.ex ? 'var(--accent)' : 'var(--line)') + '; background: ' + (i === s.ex ? 'var(--accentSoft)' : 'transparent') + '; color: var(--text); font: inherit; font-size: 14px; cursor: pointer'
+    }));
+    return {
+      themeClass: theme === 'Hearth dark, glass' ? 't-dark t-glass' : theme === 'Hearth dark' ? 't-dark' : 't-light',
+      examples: examples,
+      query: defs[s.ex][1],
+      exA: s.ex === 0, exB: s.ex === 1, exC: s.ex === 2, exD: s.ex === 3,
+      showTx: s.showTx,
+      txLabel: s.showTx ? 'Hide the 6 transactions' : 'Show the 6 transactions',
+      toggleTx: () => this.setState({ showTx: !s.showTx })
+    };
+  }
+}
+</script>
+</body>
+</html>

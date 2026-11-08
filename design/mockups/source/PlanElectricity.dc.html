@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plan · job panel: Electricity</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.t-light{--bg:#f3f1ee;--surface:#ffffff;--surface2:#ece8e3;--line:#e2ddd6;--text:#1f1b18;--muted:#5f5750;--accent:#1f5446;--accentInk:#ffffff;--accentSoft:#e1eee9;--warn:#a6491f;--warnSoft:#f7e6dc;--scrim:rgba(31,27,24,.45)}
+.t-dark{--bg:#181512;--surface:#221e1a;--surface2:#2c2722;--line:#3a342e;--text:#f1ece6;--muted:#b9afa4;--accent:#6fb8a2;--accentInk:#10241e;--accentSoft:#1f3330;--warn:#f9c9ad;--warnSoft:#3a271d;--scrim:rgba(0,0,0,.55)}
+.t-glass{--bg:radial-gradient(900px 700px at 8% -6%,#1e5a4b 0,rgba(30,90,75,0) 70%),radial-gradient(700px 600px at 96% 22%,#7a3a22 0,rgba(122,58,34,0) 70%),radial-gradient(1000px 700px at 45% 108%,#23304d 0,rgba(35,48,77,0) 70%),#110e0c;--surface:rgba(28,24,21,.55);--surface2:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--accentSoft:rgba(111,184,162,.16);--warnSoft:rgba(249,201,173,.14)}
+.t-glass [style*="background: var(--surface)"]{-webkit-backdrop-filter:blur(28px) saturate(140%);backdrop-filter:blur(28px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 32px rgba(0,0,0,.28)}
+.t-glass [role="dialog"]{background:rgba(28,24,21,.72) !important}
+.num{font-variant-numeric:tabular-nums}
+.fig{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;white-space:nowrap}
+kbd,.key{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.t-light{--c2:#84a199;--c3:#c0cfcb}
+.t-dark{--c2:#4c7365;--c3:#384940}
+a{color:var(--accent)}a:hover{color:var(--text)}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="min-height: 100vh; display: flex; background: var(--bg); color: var(--text); font-family: Figtree, system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+<nav aria-label="Main" style="flex: 0 0 280px; box-sizing: border-box; padding: 20px 12px; background: var(--surface); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 10px"><svg aria-hidden="true" width="28" height="28" style="flex: 0 0 28px" viewBox="0 0 256 256"><rect x="16" y="16" width="224" height="224" rx="52" fill="#1f5446"/><rect x="48" y="80" width="32" height="80" rx="8" fill="#c0cfcb"/><rect x="112" y="48" width="32" height="112" rx="8" fill="#f3f1ee"/><rect x="176" y="96" width="32" height="64" rx="8" fill="#84a199"/><rect x="48" y="176" width="160" height="16" rx="4" fill="#e09a73"/></svg><span style="font-weight: 700; font-size: 18px; letter-spacing: -0.01em">Holt</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<a href="Ask.dc.html" aria-keyshortcuts="A" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="m21 21-4.34-4.34"></path> <circle cx="11" cy="11" r="8"></circle></svg><span style="flex: 1 1 auto; min-width: 0">Ask or find</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">A</span></a><div aria-hidden="true" style="height: 1px; margin: 6px 4px; background: var(--line)"></div>
+<a href="Main.dc.html" aria-keyshortcuts="O" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><rect width="7" height="9" x="3" y="3" rx="1"></rect> <rect width="7" height="5" x="14" y="3" rx="1"></rect> <rect width="7" height="9" x="14" y="12" rx="1"></rect> <rect width="7" height="5" x="3" y="16" rx="1"></rect></svg><span style="flex: 1 1 auto; min-width: 0">Overview</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">O</span></a>
+<a href="Transactions.dc.html" aria-keyshortcuts="T" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M8 3 4 7l4 4"></path> <path d="M4 7h16"></path> <path d="m16 21 4-4-4-4"></path> <path d="M20 17H4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Transactions</span><span class="" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--warnSoft); color: var(--text); font-weight: 500">Due</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">T</span></a>
+<a href="Plan.dc.html" aria-current="page" aria-keyshortcuts="P" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; background: var(--accentSoft); color: var(--text); font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M13 5h8"></path> <path d="M13 12h8"></path> <path d="M13 19h8"></path> <path d="m3 17 2 2 4-4"></path> <path d="m3 7 2 2 4-4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Plan</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">228 kr</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--accent); color: var(--accent)">P</span></a>
+<a href="Recurring.dc.html" aria-keyshortcuts="R" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="m17 2 4 4-4 4"></path> <path d="M3 11v-1a4 4 0 0 1 4-4h14"></path> <path d="m7 22-4-4 4-4"></path> <path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg><span style="flex: 1 1 auto; min-width: 0">Recurring costs</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">2</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">R</span></a>
+<a href="Review.dc.html" aria-keyshortcuts="M" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M8 2v3"></path> <path d="M16 2v3"></path> <rect x="3" y="3" width="18" height="18" rx="2"></rect> <path d="M3 9h18"></path> <path d="m9 15 2 2 4-4"></path></svg><span style="flex: 1 1 auto; min-width: 0">Monthly review</span><span class="fig" style="font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px; background: var(--surface2); color: var(--text); font-weight: 500">Ready</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">M</span></a>
+<a href="Insurance.dc.html" aria-keyshortcuts="I" style="display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px 0 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg><span style="flex: 1 1 auto; min-width: 0">Insurance</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">I</span></a>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 10px; padding: 12px; border-radius: 10px; background: var(--surface2); font-size: 13px; color: var(--muted)"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 16px"><path d="M12 20v2"></path> <path d="M12 2v2"></path> <path d="M17 20v2"></path> <path d="M17 2v2"></path> <path d="M2 12h2"></path> <path d="M2 17h2"></path> <path d="M2 7h2"></path> <path d="M20 12h2"></path> <path d="M20 17h2"></path> <path d="M20 7h2"></path> <path d="M7 20v2"></path> <path d="M7 2v2"></path> <rect x="4" y="4" width="16" height="16" rx="2"></rect> <rect x="8" y="8" width="8" height="8" rx="1"></rect></svg><div><div style="color: var(--text); font-weight: 500">Assistant: local model</div><div>Runs on this computer, with no network.</div></div></div>
+<a href="#" aria-keyshortcuts="S" style="display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 10px 0 12px; border-radius: 10px; color: var(--muted); text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 18px"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path> <circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1 1 auto">Settings</span><span class="key" aria-hidden="true" style="flex: 0 0 auto; min-width: 20px; box-sizing: border-box; text-align: center; font-size: 11px; line-height: 18px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted)">S</span></a>
+</div>
+</nav>
+<main style="flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 600px">
+
+<div style="box-sizing: border-box; padding: 32px 32px 56px; display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div><div style="color: var(--muted); font-size: 14px">November 2026 · every krone gets a job</div>
+<h1 style="margin: 4px 0 0; font-weight: 600; font-size: 32px; letter-spacing: -0.01em">Plan</h1></div>
+<div class="fig" style="font-size: 14px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface)">{{unassignedText}}</div>
+</header>
+<section style="background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px 8px 8px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 12px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">This month's jobs</h2><span style="font-size: 13px; color: var(--muted)">Select a job to see its history and estimate</span></div>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="font-size: 12px; color: var(--muted); text-align: left"><th style="padding: 6px 10px 6px 12px; font-weight: 500">Job</th><th style="padding: 6px 10px; font-weight: 500; text-align: right">Assigned</th><th style="padding: 6px 10px; font-weight: 500; text-align: right">Spent</th><th style="padding: 6px 12px 6px 10px; font-weight: 500">Status</th></tr></thead>
+<tbody>
+<tr><td style="padding: 12px 10px 6px 12px; font-weight: 600">Fixed costs</td><td class="fig" style="padding: 12px 10px 6px; text-align: right; color: var(--muted)">{{fixedTotal}}</td><td></td><td></td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Mortgage</td><td class="fig" style="padding: 11px 10px; text-align: right">19,850</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">Due 15 Nov</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Insurance</td><td class="fig" style="padding: 11px 10px; text-align: right">4,630</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">Due 21–22 Nov</td></tr>
+<tr aria-selected="true" style="border-top: 1px solid var(--line); background: var(--accentSoft); box-shadow: inset 3px 0 0 var(--accent)"><td style="padding: 11px 10px 11px 12px"><span style="font-weight: 600">Electricity</span></td><td class="fig" style="padding: 11px 10px; text-align: right">{{elAssigned}}</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">{{elStatus}}</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Kommunale avgifter</td><td class="fig" style="padding: 11px 10px; text-align: right">1,450</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">Bucket 2,900 of 4,350 for January</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Car running costs</td><td class="fig" style="padding: 11px 10px; text-align: right">3,200</td><td class="fig" style="padding: 11px 10px; text-align: right">640</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">2,560 left</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Phones and internet</td><td class="fig" style="padding: 11px 10px; text-align: right">1,390</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">Due 25 Nov</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Subscriptions</td><td class="fig" style="padding: 11px 10px; text-align: right">1,800</td><td class="fig" style="padding: 11px 10px; text-align: right">179</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">1,621 left</td></tr>
+<tr aria-selected="false" style="border-top: 1px solid var(--line); "><td style="padding: 11px 10px 11px 12px">Activities and SFO</td><td class="fig" style="padding: 11px 10px; text-align: right">3,400</td><td class="fig" style="padding: 11px 10px; text-align: right">0</td><td style="padding: 11px 12px 11px 10px; color: var(--muted); font-size: 13px">3,400 left</td></tr>
+</tbody></table>
+<div style="padding: 6px 12px 10px; font-size: 13px; color: var(--muted)">Living and Saving continue below, as on the Plan screen.</div>
+</section>
+</div>
+
+<aside aria-label="Job: Electricity" style="box-sizing: border-box; border-left: 1px solid var(--line); background: var(--surface); padding: 28px 28px 40px; display: flex; flex-direction: column; gap: 22px">
+
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+<div><div style="font-size: 12px; color: var(--muted)">Fixed costs · spend each month · Lyse, paid from Regninger</div>
+<h2 style="margin: 2px 0 0; font-size: 24px; font-weight: 600">Electricity</h2></div>
+<button type="button" aria-label="Close" style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 16px"><path d="M18 6 6 18"></path> <path d="m6 6 12 12"></path></svg></button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 12px; border-radius: 12px; background: var(--surface2)"><div style="font-size: 12px; color: var(--muted)">Jan–Oct, actual</div><div class="fig" style="font-size: 20px; font-weight: 500">28,800 kr</div><div style="font-size: 12px; color: var(--muted)">2,880 a month on average</div></div>
+<div style="padding: 12px; border-radius: 12px; background: var(--surface2)"><div style="font-size: 12px; color: var(--muted)">Next 12 months, estimate</div><div class="fig" style="font-size: 20px; font-weight: 500">≈36,300 kr</div><div style="font-size: 12px; color: var(--muted)">3,025 a month if evened out</div></div>
+<div style="padding: 12px; border-radius: 12px; background: var(--surface2)"><div style="font-size: 12px; color: var(--muted)">Planned now</div><div class="fig" style="font-size: 20px; font-weight: 500">{{elAssigned}} kr</div><div style="font-size: 12px; color: var(--muted)">{{plannedNote}}</div></div>
+</div>
+
+<div role="group" aria-label="How to plan this job" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
+<button type="button" aria-pressed="{{m.on}}" onClick="{{m.pick}}" style="{{m.style}}"><span style="font-weight: 600; color: var(--text)">{{m.label}}</span><span style="font-size: 13px; color: var(--muted)">{{m.note}}</span></button>
+</sc-for>
+</div>
+
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+<figcaption style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--c2)"></span>Bills you paid</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; border: 1.5px dashed var(--c2); box-sizing: border-box"></span>Estimated bills</span>
+<sc-if value="{{isEven}}" hint-placeholder-val="{{ true }}"><span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 0; border-top: 2px dashed var(--text)"></span>Planned each month</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 2px; background: var(--accent)"></span><span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: -12px"></span>Bucket at month end</span></sc-if>
+</figcaption>
+<div style="position: relative; height: 236px">
+<div aria-hidden="true" style="position: absolute; left: 36px; right: 0; top: 0; height: 200px">
+<sc-for list="{{grid}}" as="g" hint-placeholder-count="5"><div style="{{g.style}}"><span class="fig" style="position: absolute; left: -36px; top: -8px; width: 30px; text-align: right; font-size: 10px; color: var(--muted)">{{g.label}}</span></div></sc-for>
+<div style="position: absolute; left: {{nowX}}px; top: -6px; bottom: -4px; border-left: 1px solid var(--text)"><span style="position: absolute; left: 6px; top: -4px; font-size: 11px; font-weight: 600">Now</span></div>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="22"><div style="{{b.style}}"></div></sc-for>
+<svg width="{{chartW}}" height="200" viewBox="0 0 {{chartW}} 200" style="position: absolute; left: 0; top: 0; overflow: visible">
+<polyline points="{{levelPts}}" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-dasharray="5 4"></polyline>
+<polyline points="{{bucketPts}}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+</svg>
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="12"><div style="{{d.style}}"></div></sc-for>
+<sc-for list="{{callouts}}" as="c" hint-placeholder-count="3"><span class="fig" style="{{c.style}}">{{c.text}}</span></sc-for>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 36px; right: 0; top: 206px; height: 30px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="22"><span style="{{b.labelStyle}}">{{b.m}}</span></sc-for>
+<span style="position: absolute; left: 0; top: 14px; font-size: 11px; color: var(--muted)">2026</span>
+<span style="position: absolute; left: {{year2X}}px; top: 14px; font-size: 11px; color: var(--muted)">2027</span>
+</div>
+</div>
+</figure>
+
+<div role="table" aria-label="Next 12 months" style="display: grid; grid-template-columns: 64px repeat(12, minmax(0, 1fr)); font-size: 12px">
+<span></span><sc-for list="{{ahead}}" as="a" hint-placeholder-count="12"><span style="padding: 6px 2px; color: var(--muted); text-align: right">{{a.m}}</span></sc-for>
+<span style="padding: 7px 6px 7px 0; color: var(--muted); white-space: nowrap; border-top: 1px solid var(--line)">Bill, est.</span><sc-for list="{{ahead}}" as="a" hint-placeholder-count="12"><span class="fig" style="padding: 7px 2px; text-align: right; border-top: 1px solid var(--line)">{{a.bill}}</span></sc-for>
+<span style="padding: 7px 6px 7px 0; color: var(--muted); white-space: nowrap; border-top: 1px solid var(--line)">Planned</span><sc-for list="{{ahead}}" as="a" hint-placeholder-count="12"><span class="fig" style="padding: 7px 2px; text-align: right; border-top: 1px solid var(--line); font-weight: 600">{{a.plan}}</span></sc-for>
+<sc-if value="{{isEven}}" hint-placeholder-val="{{ true }}"><span style="padding: 7px 6px 7px 0; color: var(--muted); white-space: nowrap; border-top: 1px solid var(--line)">Bucket</span><sc-for list="{{ahead}}" as="a" hint-placeholder-count="12"><span class="fig" style="padding: 7px 2px; text-align: right; border-top: 1px solid var(--line); color: var(--accent)">{{a.bucket}}</span></sc-for></sc-if>
+</div>
+
+<sc-if value="{{isEven}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; border: 1px solid var(--line)">
+<div style="font-weight: 600">When should evening out start?</div>
+<div style="font-size: 14px; color: var(--muted)">Winter is close, so a bucket that starts empty runs dry by December.</div>
+<div role="group" aria-label="Start" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<sc-for list="{{starts}}" as="s" hint-placeholder-count="2"><button type="button" aria-pressed="{{s.on}}" onClick="{{s.pick}}" style="{{s.style}}"><span style="font-weight: 600; color: var(--text)">{{s.label}}</span><span style="font-size: 13px; color: var(--muted)">{{s.note}}</span></button></sc-for>
+</div>
+<div style="font-size: 14px">{{startResult}}</div>
+</div>
+</sc-if>
+<sc-if value="{{isFollow}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 16px; border-radius: 14px; border: 1px solid var(--line); font-size: 14px">Your plan changes each month to match the estimate: highest in January at about <span class="fig">4,420</span> kr, lowest in July at about <span class="fig">1,820</span> kr. The extra money for winter months has to come from other jobs in those months.</div>
+</sc-if>
+
+<details style="border-radius: 14px; background: var(--surface2); padding: 14px 16px">
+<summary style="cursor: pointer; font-weight: 600">How Holt estimated this</summary>
+<ul style="margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted)">
+<li>Jan–Oct: your Lyse bills, which the app found in your Regninger imports.</li>
+<li>Nov: about the same as March (<span class="fig">3,300</span>). Dec: the average of January and February (<span class="fig">4,200</span>). These two are rough, because you have no bills from last November or December.</li>
+<li>Jan–Oct 2027: the same month this year. From next November, the app can also adjust for the trend against the same months a year earlier.</li>
+<li>You can type your own figure for any month. The app marks it "entered by you".</li>
+</ul>
+</details>
+
+<div style="font-size: 14px; color: var(--muted)">Last 3 months: you planned <span class="fig">2,900</span> each month and paid <span class="fig">2,760</span>, <span class="fig">2,910</span> and <span class="fig">2,846</span>. That's <span class="fig">184</span> kr under in total.</div>
+
+<sc-if value="{{notApplied}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<button type="button" onClick="{{apply}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accentInk); font: inherit; font-weight: 600; cursor: pointer">{{applyLabel}}</button>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-weight: 500; cursor: pointer">Keep 2,900 for now</button>
+<span style="font-size: 13px; color: var(--muted)">Nothing changes until you apply.</span>
+</div>
+</sc-if>
+<sc-if value="{{applied}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--accentSoft); font-size: 14px"><span>{{appliedText}}</span><button type="button" onClick="{{undo}}" style="min-height: 40px; padding: 0 12px; border: 0; background: transparent; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer">Undo</button></div>
+</sc-if>
+
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hearth light","Hearth dark","Hearth dark, glass"],"default":"Hearth light"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mode: 'even', start: 'now', applied: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const theme = this.props.theme ?? 'Hearth light';
+    const fmt = (n) => n.toLocaleString('en-GB');
+    const actual = [4420, 3980, 3300, 2700, 2194, 1870, 1820, 2760, 2910, 2846];
+    const est = [3300, 4200, 4420, 3980, 3300, 2700, 2194, 1870, 1820, 2760, 2910, 2846];
+    const mA = ['J','F','M','A','M','J','J','A','S','O'];
+    const mE = ['N','D','J','F','M','A','M','J','J','A','S','O'];
+    const mFull = ['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+    const even = s.mode === 'even';
+    const monthly = 3050;
+    const startIdx = s.start === 'now' ? 0 : 5;
+    const seed = s.start === 'now' ? 4100 : 0;
+    const plan = est.map((b, i) => even && i >= startIdx ? monthly : b);
+    const bucket = []; let bal = seed;
+    est.forEach((b, i) => { if (even && i >= startIdx) { bal += monthly - b; bucket.push(bal); } else bucket.push(null); });
+    const W = 524, H = 200, max = 5000, n = 22, slot = W / n, bw = 14;
+    const y = (v) => H - v / max * H;
+    const xc = (i) => i * slot + slot / 2;
+    const bars = [];
+    actual.forEach((v, i) => bars.push({ m: mA[i], style: `position: absolute; left: ${xc(i) - bw / 2}px; width: ${bw}px; top: ${y(v)}px; height: ${H - y(v)}px; border-radius: 3px 3px 0 0; background: var(--c2)`, labelStyle: `position: absolute; left: ${xc(i) - 6}px; width: 12px; text-align: center; font-size: 10px; color: var(--muted)` }));
+    est.forEach((v, j) => { const i = j + 10; bars.push({ m: mE[j], style: `position: absolute; left: ${xc(i) - bw / 2}px; width: ${bw}px; top: ${y(v)}px; height: ${H - y(v)}px; box-sizing: border-box; border-radius: 3px 3px 0 0; border: 1.5px dashed var(--c2); border-bottom: 0; background: var(--surface2)`, labelStyle: `position: absolute; left: ${xc(i) - 6}px; width: 12px; text-align: center; font-size: 10px; color: var(--muted)` }); });
+    const grid = [0, 1000, 2000, 3000, 4000, 5000].map((v) => ({ label: v === 0 ? '0' : (v / 1000) + 'k', style: `position: absolute; left: 0; right: 0; top: ${y(v)}px; border-top: 1px solid var(--line)` }));
+    let levelPts = '', bucketPts = '';
+    const dots = [], callouts = [];
+    if (even) {
+      const x0 = (startIdx + 10) * slot, x1 = W;
+      levelPts = `${x0},${y(monthly)} ${x1},${y(monthly)}`;
+      bucketPts = bucket.map((b, j) => b == null ? null : `${xc(j + 10)},${y(Math.max(b, 0))}`).filter(Boolean).join(' ');
+      bucket.forEach((b, j) => { if (b != null) dots.push({ style: `position: absolute; left: ${xc(j + 10) - 3.5}px; top: ${y(b) - 3.5}px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface)` }); });
+      const vals = bucket.filter((b) => b != null); const lo = Math.min(...vals); const loJ = bucket.indexOf(lo);
+      callouts.push({ text: 'Lowest ' + fmt(lo), style: `position: absolute; left: ${xc(loJ + 10) + 8}px; top: ${y(lo) - 9}px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--surface); padding: 0 3px` });
+      callouts.push({ text: fmt(monthly) + ' a month', style: `position: absolute; right: 0; top: ${y(monthly) + 4}px; font-size: 11px; font-weight: 600; background: var(--surface); padding: 0 3px` });
+    }
+    callouts.push({ text: '4,420', style: `position: absolute; left: ${xc(0) - 14}px; top: ${y(4420) - 16}px; font-size: 10px; color: var(--muted)` });
+    const ahead = mFull.map((m, j) => ({ m: m, bill: fmt(est[j]), plan: fmt(plan[j]), bucket: bucket[j] == null ? '—' : fmt(bucket[j]) }));
+    const card = (on) => 'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; min-height: 64px; padding: 12px 14px; border-radius: 12px; border: 1px solid ' + (on ? 'var(--accent)' : 'var(--line)') + '; background: ' + (on ? 'var(--accentSoft)' : 'transparent') + '; font: inherit; cursor: pointer';
+    const modes = [
+      { id: 'follow', label: 'Follow the bills', note: 'Plan each month at its estimate' },
+      { id: 'even', label: 'Even it out', note: 'Same amount monthly; a bucket takes the swings' }
+    ].map((m) => ({ label: m.label, note: m.note, on: s.mode === m.id ? 'true' : 'false', style: card(s.mode === m.id), pick: () => this.setState({ mode: m.id, applied: false }) }));
+    const starts = [
+      { id: 'now', label: 'Start now', note: 'Move 4,100 kr from Buffer to start the bucket' },
+      { id: 'april', label: 'Start in April', note: 'Follow the bills this winter, fill the bucket over summer' }
+    ].map((o) => ({ label: o.label, note: o.note, on: s.start === o.id ? 'true' : 'false', style: card(s.start === o.id), pick: () => this.setState({ start: o.id, applied: false }) }));
+    const startResult = s.start === 'now'
+      ? 'The bucket stays above zero all winter, with about 150 kr to spare in March, and holds 4,400 kr by next October. You make the 4,100 kr transfer at the bank; the app records it when it sees it in an import. The buffer drops to 81,900 kr, about 1.55 months.'
+      : 'November to March follow the bills, so the winter months need extra from other jobs. From April, 3,050 kr a month fills the bucket to 4,250 kr by October, ready for next winter.';
+    const novPlan = plan[0];
+    const assigned = s.applied ? novPlan : 2900;
+    const delta = assigned - 2900;
+    const applyLabel = even ? 'Apply: even it out from ' + (s.start === 'now' ? 'November' : 'April') : 'Apply: follow the bills';
+    const appliedText = even
+      ? (s.start === 'now' ? 'You applied Even it out. November is now 3,050 kr; the extra 150 kr came from the 228 kr with no job.' : 'You applied Even it out from April. November follows the estimate, 3,300 kr, so the plan is 172 kr over-assigned: move it from another job.')
+      : 'You applied Follow the bills. November is now 3,300 kr, so the plan is 172 kr over-assigned: move it from another job.';
+    return {
+      themeClass: theme === 'Hearth dark, glass' ? 't-dark t-glass' : theme === 'Hearth dark' ? 't-dark' : 't-light',
+      isEven: even, isFollow: !even, modes, starts, startResult,
+      bars, grid, dots, callouts, levelPts, bucketPts, chartW: W,
+      nowX: 10 * slot, year2X: 12 * slot,
+      ahead,
+      elAssigned: fmt(assigned),
+      elStatus: s.applied ? (even && s.start === 'now' ? 'Due 19 Nov · bucket 4,100' : 'Due 19 Nov') : 'Due 19 Nov · estimate 3,300',
+      plannedNote: s.applied ? 'You applied the change' : 'Same every month since January',
+      fixedTotal: fmt(38620 + delta),
+      unassignedText: 228 - delta >= 0 ? fmt(228 - delta) + ' kr has no job yet' : fmt(delta - 228) + ' kr over-assigned',
+      notApplied: !s.applied, applied: s.applied, applyLabel, appliedText,
+      apply: () => this.setState({ applied: true }),
+      undo: () => this.setState({ applied: false })
+    };
+  }
+}
+</script>
+</body>
+</html>
