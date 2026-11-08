@@ -12,9 +12,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: npx -y pnpm@12.18.0 install --frozen-lockfile
-      - run: npx -y pnpm@12.18.0 tokens
+          package-manager-cache: false
+      - run: npm install -g "$(node -p "require('./package.json').packageManager")"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tokens
       - run: git diff --exit-code packages/ui/src/tokens.css
-      - run: npx -y pnpm@12.18.0 typecheck
-      - run: npx -y pnpm@12.18.0 test
-      - run: npx -y pnpm@12.18.0 --filter @holt/desktop build
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter @holt/desktop build
