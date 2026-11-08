@@ -72,6 +72,7 @@ Product decisions behind it live in the project documents: product direction, v1
 
 ## Using the tokens
 - **Theme switching:** set `data-theme` on the root to one of hearth-light, hearth-dark, instrument-dark, instrument-light, or the desktop theme. Every role is a CSS custom property (`--accent`, `--surface` and so on). Type styles are classes (`.body`, `.figure-xl`).
+- **No hard-coded colours.** Colour literals (hex, `rgb()`, `hsl()`, `oklch()`, named colours) live only in the top-level token declarations in `tokens.json`, and in the CSS generated from it. Components, CSS Modules, charts and inline SVG use `var(--token)`, `currentColor` or `inherit`. Need a translucent or blended colour? Use `color-mix()` on tokens, or add a token for every theme. Changing a theme or the palette then means editing one file. The app icon masters are the only exception.
 - **Follow my desktop:** the app writes the desktop theme's values at runtime from Caelestia's Material 3 palette, using the mapping in "Themes and glass". The Fjord values here are only an example.
 - **Fonts and icons:** bundle Figtree and IBM Plex Mono (both SIL Open Font License 1.1) and Lucide inside the app. Never load anything from the internet at runtime. The previews in this system load the fonts from Google Fonts only because they are previews.
 
