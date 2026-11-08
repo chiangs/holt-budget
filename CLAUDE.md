@@ -70,6 +70,7 @@ pnpm dist            # package (AppImage, pacman) with electron-builder
 - Every rule in `v1-scope-and-domain-model.md` ("Rules that must always hold") should have tests in core.
 - Use the Electricity figures in `design/README.md` as fixtures for the estimate and bucket logic.
 - Accessibility: keyboard-first (see the IA keyboard section), visible focus, 4.5:1 contrast, no meaning by colour alone, respects reduced motion and reduced transparency.
+- **No hard-coded colours outside the tokens.** Colour values (hex, `rgb()`, `hsl()`, `oklch()`, named colours) appear only in the top-level declarations in `design/design-system/tokens.json` and the CSS generated from it (`packages/ui/src/tokens.css`). Everything else (CSS Modules, components, inline styles, chart code, SVG `fill` and `stroke`) uses `var(--token)`, `currentColor` or `inherit`. For a translucent or mixed colour, add a token or use `color-mix()` on tokens; never type a new literal. If a role is missing, add a token in `tokens.json` for every theme, then use it. This keeps retheming, Follow my desktop and the contrast guarantees to one place. The app icon masters are the one exception, because the icon is the same in every theme.
 
 ## How to work
 - Start with the spikes in `BACKLOG.md`. Record what each spike found in `docs/decisions/` (a new record, or an update to an open one).
@@ -80,5 +81,6 @@ pnpm dist            # package (AppImage, pacman) with electron-builder
 ## Definition of done
 - Tests pass, types check, and the no-network test passes. If `private/check-public.sh` exists, it passes too.
 - Interface text follows the writing conventions and comes from the message files.
+- No colour literals outside `tokens.json` and the generated `tokens.css`.
 - Works in Hearth light, Hearth dark and with glass on, and with the keyboard alone.
 - Docs updated if behaviour or decisions changed.
