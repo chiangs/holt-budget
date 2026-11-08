@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { app, BrowserWindow, ipcMain, safeStorage, session, shell } from "electron";
+import tokens from "../../../../design/design-system/tokens.json";
 
 // ── 1. Key storage: never accept basic_text (technical-decisions.md §5) ─────
 // Electron only picks GNOME Keyring for desktops it recognises, and Hyprland
@@ -47,6 +48,15 @@ function lockDownNetwork(): void {
 }
 
 // ── 3. Window ───────────────────────────────────────────────────────────────
+// Native window colour shown before the renderer paints. Read from the design
+// tokens so no colour literal lives in code.
+function windowBackground(): string {
+  const value = tokens.color.tokens.find((t) => t.name === "bg")?.value;
+  const colour = typeof value === "object" ? value["hearth-light"] : value;
+  if (colour === undefined) throw new Error("tokens.json has no bg token");
+  return colour;
+}
+
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1440,
@@ -54,7 +64,7 @@ function createWindow(): BrowserWindow {
     minWidth: 1024,
     minHeight: 700,
     title: "Holt",
-    backgroundColor: "#f3f1ee",
+    backgroundColor: windowBackground(),
     show: false,
     webPreferences: {
       preload: join(import.meta.dirname, "../preload/index.cjs"),

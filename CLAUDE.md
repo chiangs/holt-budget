@@ -48,6 +48,7 @@ private/               Gitignored: the first household's details and real bank e
 ```
 pnpm install
 pnpm tokens          # regenerate packages/ui/src/tokens.css from design/design-system/tokens.json
+pnpm lint:colours    # fail on colour literals outside tokens.json and the generated tokens.css
 pnpm test            # Vitest across packages
 pnpm typecheck
 pnpm dev             # run the desktop app with hot reload
@@ -81,6 +82,6 @@ pnpm dist            # package (AppImage, pacman) with electron-builder
 ## Definition of done
 - Tests pass, types check, and the no-network test passes. If `private/check-public.sh` exists, it passes too.
 - Interface text follows the writing conventions and comes from the message files.
-- No colour literals outside `tokens.json` and the generated `tokens.css`.
+- No colour literals outside `tokens.json` and the generated `tokens.css` (`pnpm lint:colours` passes; CI runs it).
 - Works in Hearth light, Hearth dark and with glass on, and with the keyboard alone.
 - Docs updated if behaviour or decisions changed.

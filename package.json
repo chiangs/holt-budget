@@ -8,6 +8,7 @@
   "engines": { "node": ">=24" },
   "scripts": {
     "tokens": "node packages/ui/scripts/build-tokens.mjs",
+    "lint:colours": "node scripts/check-colours.mjs",
     "test": "vitest run",
     "typecheck": "pnpm -r typecheck",
     "dev": "pnpm --filter @holt/desktop dev",
