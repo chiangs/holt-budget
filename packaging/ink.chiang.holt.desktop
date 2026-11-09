@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Holt
+GenericName=Household budget
+Comment=Give every unit of money a job. Runs entirely on your computer.
+Exec=holt %U
+Icon=ink.chiang.holt
+Terminal=false
+Categories=Office;Finance;
+Keywords=budget;money;household;finance;
+StartupWMClass=holt
+StartupNotify=true

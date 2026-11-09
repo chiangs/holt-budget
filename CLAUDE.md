@@ -53,7 +53,8 @@ pnpm test            # Vitest across packages
 pnpm typecheck
 pnpm dev             # run the desktop app with hot reload
 pnpm build           # production build
-pnpm dist            # package (AppImage, pacman) with electron-builder
+pnpm dist            # package the AppImage with electron-builder
+./install.sh         # build and install Holt into ~/.local (./uninstall.sh removes it)
 ```
 
 ## Writing conventions (interface text, docs, commit messages)

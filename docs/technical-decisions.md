@@ -21,7 +21,7 @@ Companion to the other documents in `docs/`. Each decision states what was chose
 | 7 | Model | Qwen 3.8 27B by default on the 4090; bake-off against Gemma 4 26B-A4B | Proposed (spike 3) |
 | 8 | Themes and Caelestia | Tokens compiled to CSS variables; "Follow my desktop" watches Caelestia's `scheme.json` | Decided |
 | 9 | Glass | v1: in-app glass. Compositor blur of the real desktop: experimental. Review Stephen's frosted-glass experiment | Open |
-| 10 | Packaging | **AUR first**, AppImage second, Flatpak later | Decided |
+| 10 | Packaging | **`install.sh` for now**, AppImage for others; AUR and Flatpak later | Decided |
 | 11 | Mobile access | **Neither dsh nor RustDesk.** Not in v1. Later: read-only view served by Holt over a private network | Decided (direction) |
 | 12 | Name | Repository `holt-budget`, app ID `ink.chiang.holt` | Decided |
 | 13 | Code and data | The public repository holds code and docs only. Household data stays in XDG folders; dev uses its own; real exports stay in `private/` | Decided |
@@ -104,7 +104,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
   6. Never accept `basic_text`.
 - **Restoring on a new machine.** Install Holt, choose a backup and type the recovery code. The new machine's keyring then takes over the daily unlock.
 - **A synced keyring is a bonus, not a plan.** If the Secret Service is backed by a synced store, such as KeePassXC with a synced database, the keyring's copy also survives a lost disk. Holt works with that, but never relies on it.
-- **Argon2id implementation:** chosen in spike S2. Prefer one that doesn't add a second native module.
+- **Argon2id implementation:** `hash-wasm`, which is WebAssembly, so it adds no second native module. Node's own `crypto.argon2` exists inside Electron but fails, because Electron builds Node against BoringSSL, which has no Argon2 (`decisions/0041-encrypted-sqlite-in-electron.md`). Settings: 256 MiB of memory, 3 passes and 4 lanes.
 - **Checks for any machine:**
   - Keyring visible to apps: `busctl --user list | grep org.freedesktop.secrets` should print a line.
   - Disk encryption: `lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINTS` shows `crypto_LUKS` and a `crypt` device above root (and home, if separate) when encrypted. `findmnt -no SOURCE /` printing `/dev/mapper/…` points the same way.
@@ -149,8 +149,9 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **To do:** review Stephen's frosted-glass card experiment (experiments.chiang.ink, "frosted-glass-card") for the panel recipe.
 
 ## 10. Packaging and releases
-- **AUR first:** `holt-budget-bin` from release builds, then `holt-budget-git`. This covers Arch and CachyOS.
-- **AppImage** for everyone else. **Flatpak later:** its sandbox and Secret portal suit Holt, but local-model access needs extra work.
+- **`install.sh` for now,** as with Stephen's other app, Fenmyr (decision 0042). It builds Holt from a clone with `pnpm` and electron-builder's unpacked build, which carries its own Electron. It puts the app in `~/.local/lib/holt`, a `holt` command in `~/.local/bin`, and the icon and `ink.chiang.holt.desktop` under `~/.local/share`. `./install.sh --update` pulls first. `./uninstall.sh` removes the app and asks before deleting the budget.
+  - Holt doesn't use Arch's `electron` package, because Holt is tested on its own Electron version (45), and the system's can differ (44 at the time of writing).
+- **AppImage** for everyone else. **The AUR (`holt-budget-bin`) and Flatpak later:** a public package needs a maintainer and contact details. Flatpak's sandbox and Secret portal suit Holt, but local-model access needs extra work.
 - Built with electron-builder in GitHub Actions; releases come with checksums.
 - **Desktop integration:** the icon goes into the hicolor theme as `ink.chiang.holt` (scalable SVG, PNGs from 16 to 512, and `ink.chiang.holt-symbolic.svg`), with `ink.chiang.holt.desktop`.
 
@@ -189,7 +190,7 @@ The repository is public, and the household's data never enters it.
 - **When.** Automatically after each import and each approved review, and whenever the family asks.
 - **Versions.** Each backup is a new dated file, and Holt keeps the most recent ones (the number is a setting). A synced folder uploads a corrupted file as readily as a good one, so one overwritten file isn't enough.
 - **Written in one step.** Holt writes to a temporary file in the same folder and renames it into place, so a sync tool never uploads half a backup.
-- **Format.** An encrypted copy of the database made with SQLite's backup API, with a header holding the copy of the data key that the recovery code protects (§5).
+- **Format.** A short header holding the copy of the data key that the recovery code protects (§5), then an encrypted copy of the database made with `VACUUM INTO`. SQLite's backup API can't copy an encrypted database here, because better-sqlite3 opens the target without a key (0041).
 - **Restore** opens a backup with the recovery code. It is on the release checklist.
 
 ## 15. Schemas: Zod 4
@@ -205,7 +206,7 @@ Inside core, code trusts these types and doesn't check them again.
 ## Spikes before committing (about one week)
 Run them in the order S1, S2, S4, S5, S3. S3 needs S4's data and S5's query language.
 1. **S1 Electron 45 on Hyprland with the 4090:** native Wayland, frameless window with CSD, fractional scaling, and a transparent window resized under tiling with Hyprland blur.
-2. **S2 Encrypted SQLite in Electron 45:** prebuilt binaries for the current Electron ABI, WAL, the backup API, the data key's two copies (the keyring via forced `gnome-libsecret`, and the recovery code), and the passphrase fallback. It must work in the packaged AppImage and pacman builds, not only in dev, because packaging is where native modules break. A backup must restore on a fresh user account with only the recovery code.
+2. **S2 Encrypted SQLite in Electron 45:** prebuilt binaries for the current Electron ABI, WAL, the backup API, the data key's two copies (the keyring via forced `gnome-libsecret`, and the recovery code), and the passphrase fallback. It must work in the packaged builds (the AppImage and `install.sh`), not only in dev, because packaging is where native modules break. A backup must restore on a fresh user account with only the recovery code.
 3. **S3 Model bake-off:** Qwen 3.8 27B against Gemma 4 26B-A4B on the family's own data, through both llama-server and llmster. The family labels the 200 transactions first, and the data stays in `private/`.
 4. **S4 Bank exports:** real CSVs from Bulder and SpareBank 1 SR-Bank for January to October, kept in `private/fixtures/`. Build the format profiles, and a script that writes synthetic files in each format for the committed tests. Check whether each CSV carries a closing balance (rule 5), and whether SR-Bank exports the loan account or splits interest and principal.
 5. **S5 Ask query language v0:** the filters and aggregates that Ask turns a question into, as a Zod schema in core with a pure evaluator.

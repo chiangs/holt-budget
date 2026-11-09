@@ -16,6 +16,5 @@ linux:
       StartupWMClass: holt
   target:
     - AppImage
-    - pacman
 # No auto-update: the package manager updates Holt (technical-decisions.md §3).
 publish: null

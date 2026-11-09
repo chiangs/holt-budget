@@ -22,7 +22,7 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0016 | 2026-11-08 | Bring-your-own local runtime (llama-server, LM Studio/llmster, Ollama) on loopback only, JSON-schema output | Accepted | `technical-decisions.md` §6 |
 | 0017 | 2026-11-08 | Model: Qwen 3.8 27B default on the 4090, confirmed by bake-off | Proposed | `technical-decisions.md` §7 |
 | 0018 | 2026-11-08 | Glass: in-app in v1; compositor blur experimental | Open; spike S1 found compositor blur viable on Hyprland (0040) | `technical-decisions.md` §9 |
-| 0019 | 2026-11-08 | AUR first, then AppImage, Flatpak later | Accepted | `technical-decisions.md` §10 |
+| 0019 | 2026-11-08 | AUR first, then AppImage, Flatpak later | Superseded by 0042 | `technical-decisions.md` §10 |
 | 0020 | 2026-11-08 | Mobile: neither dsh nor RustDesk; later a read-only view over a private network | Accepted | `technical-decisions.md` §11 |
 | 0021 | 2026-11-08 | Code and data are separate: the public repository holds code and docs; household details and real exports stay in `private/`; dev uses its own data folder | Accepted | `technical-decisions.md` §13 |
 | 0022 | 2026-11-08 | Store facts, derive figures; every change is a command, shared by previews, proposals, change records and undo | Accepted | `v1-scope-and-domain-model.md`, "Facts and figures" and "Changes are commands" |
@@ -44,3 +44,5 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0038 | 2026-11-08 | Money is displayed as `Intl` writes it for the language and currency, with "68,048 kr" kept for kroner in English as the one override; the tagline becomes "Every unit of money a job" | Accepted | `technical-decisions.md` §3 |
 | 0039 | 2026-11-08 | Model behaviour is tested in three layers: fake-model contract tests and recorded replies in CI, and a live `pnpm eval` on your machine scored against the S3 baseline | Proposed | `technical-decisions.md` §12 |
 | 0040 | 2026-11-09 | Spike S1: Electron runs natively on Wayland with the 4090; "Show the desktop behind Holt" is viable on Hyprland; no window buttons on Hyprland; no minimum window size, with a layout that works down to about 900 px | Accepted | `decisions/0040-electron-on-hyprland.md` |
+| 0041 | 2026-11-09 | Spike S2: encrypted SQLite (better-sqlite3-multiple-ciphers) works in dev, the AppImage and the `install.sh` build; backups use `VACUUM INTO`; Argon2id from `hash-wasm` | Accepted | `decisions/0041-encrypted-sqlite-in-electron.md` |
+| 0042 | 2026-11-09 | Install with `install.sh` for now, like Fenmyr, carrying Holt's own Electron; AppImage for others; the AUR and Flatpak later | Accepted | `technical-decisions.md` §10 |

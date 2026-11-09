@@ -98,7 +98,14 @@ ipcMain.handle("holt:app-info", () => ({
   storageBackend: process.platform === "linux" ? safeStorage.getSelectedStorageBackend() : "os",
 }));
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  const s2Check = app.commandLine.getSwitchValue("holt-s2-check");
+  if (s2Check) {
+    const { runS2Check } = await import("./storage/s2-check.ts");
+    app.exit(await runS2Check(s2Check));
+    return;
+  }
+
   lockDownNetwork();
 
   if (process.platform === "linux" && safeStorage.getSelectedStorageBackend() === "basic_text") {
