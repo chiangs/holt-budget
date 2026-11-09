@@ -1,0 +1,10 @@
+{
+  "name": "@holt/eval",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Benchmarks a local model on the household's own data: suggesting jobs, Ask, and the monthly review (technical-decisions.md §12).",
+  "dependencies": { "@holt/core": "workspace:*", "@holt/importers": "workspace:*" },
+  "scripts": { "typecheck": "tsc -p tsconfig.json" }
+}

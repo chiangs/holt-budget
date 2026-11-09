@@ -5,7 +5,9 @@
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@12.18.0",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "tokens": "node packages/ui/scripts/build-tokens.mjs",
     "lint:colours": "node scripts/check-colours.mjs",
@@ -13,7 +15,8 @@
     "typecheck": "pnpm -r typecheck",
     "dev": "pnpm --filter @holt/desktop dev",
     "build": "pnpm tokens && pnpm --filter @holt/desktop build",
-    "dist": "pnpm build && pnpm --filter @holt/desktop dist"
+    "dist": "pnpm build && pnpm --filter @holt/desktop dist",
+    "eval": "node tools/eval/run.ts"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

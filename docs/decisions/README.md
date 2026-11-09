@@ -20,7 +20,7 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0014 | 2026-11-08 | Pure TypeScript core; sandboxed renderer; network denied except the loopback model endpoint | Accepted | `technical-decisions.md` §3 |
 | 0015 | 2026-11-08 | Encrypted SQLite (better-sqlite3-multiple-ciphers); key in the keyring via forced gnome-libsecret, passphrase fallback, never basic_text | Accepted; the key part is superseded by 0030 | `technical-decisions.md` §4–5 |
 | 0016 | 2026-11-08 | Bring-your-own local runtime (llama-server, LM Studio/llmster, Ollama) on loopback only, JSON-schema output | Accepted | `technical-decisions.md` §6 |
-| 0017 | 2026-11-08 | Model: Qwen 3.8 27B default on the 4090, confirmed by bake-off | Proposed | `technical-decisions.md` §7 |
+| 0017 | 2026-11-08 | Model: Qwen 3.8 27B default on the 4090, confirmed by bake-off | Accepted; confirmed by 0045 | `technical-decisions.md` §7 |
 | 0018 | 2026-11-08 | Glass: in-app in v1; compositor blur experimental | Open; spike S1 found compositor blur viable on Hyprland (0040) | `technical-decisions.md` §9 |
 | 0019 | 2026-11-08 | AUR first, then AppImage, Flatpak later | Superseded by 0042 | `technical-decisions.md` §10 |
 | 0020 | 2026-11-08 | Mobile: neither dsh nor RustDesk; later a read-only view over a private network | Accepted | `technical-decisions.md` §11 |
@@ -48,3 +48,4 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0042 | 2026-11-09 | Install with `install.sh` for now, like Fenmyr, carrying Holt's own Electron; AppImage for others; the AUR and Flatpak later | Accepted | `technical-decisions.md` §10 |
 | 0043 | 2026-11-09 | Spike S4: format profiles for Bulder and SpareBank 1 as code; neither export carries a closing balance or states the account currency; loans aren't exported, so their balances are entered by hand | Accepted | `decisions/0043-bank-exports.md` |
 | 0044 | 2026-11-09 | Spike S5: Ask's query language has transaction queries (evaluated now) and figure queries (evaluated by core from Milestone 2); a reply can have up to three steps, or route the question elsewhere | Accepted | `decisions/0044-ask-query-language.md` |
+| 0045 | 2026-11-09 | Spike S3: Qwen 3.8 27B is the default model; Ollama is the runtime on the first household's machine; `pnpm eval` benchmarks any later model against the baseline | Accepted | `decisions/0045-model-bake-off.md` |

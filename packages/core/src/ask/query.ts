@@ -90,3 +90,8 @@ export type Step = z.infer<typeof Step>;
 /** The assistant's whole reply: one step, or two or three that the app shows side by side (compare October with September). */
 export const AskReply = z.object({ steps: z.array(Step).min(1).max(3) });
 export type AskReply = z.infer<typeof AskReply>;
+
+/** The reply's JSON Schema, for the runtime's constrained decoding (technical-decisions.md §15). */
+export function askReplyJsonSchema(): object {
+  return z.toJSONSchema(AskReply);
+}

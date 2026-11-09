@@ -252,6 +252,15 @@ importers:
 
   packages/ui: {}
 
+  tools/eval:
+    dependencies:
+      '@holt/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@holt/importers':
+        specifier: workspace:*
+        version: link:../../packages/importers
+
 packages:
 
   '@babel/code-frame@7.29.7':

@@ -129,12 +129,13 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **LM Studio's licence:** its app is not open source (the `lms` CLI is MIT). Holt supports it, but the docs present llama.cpp as the fully open route.
 
 ## 7. Model
-- **Default on the 4090:** Qwen 3.8 27B, which current lists name as the pick for 24 GB cards. The measured 55,000-token context is plenty, because Holt's tasks need roughly 4,000–16,000.
-- **Bake-off (spike 3):** Qwen 3.8 27B against Gemma 4 26B-A4B. Gemma is a mixture-of-experts model that activates only part of itself per token, so it should be faster for batch categorisation after an import.
+- **Default on the 4090:** Qwen 3.8 27B, confirmed by the bake-off (decision 0045). It answered 21 of 24 Ask questions and wrote reviews that kept to the placeholder rule first time. The measured 55,000-token context is plenty, because Holt's tasks need roughly 4,000–16,000.
+- **Runtime on the first household's machine:** Ollama, with Qwen's multi-token prediction layer in use. Thinking is switched off per request for structured tasks: `reasoning_effort: "none"` for Ollama and llmster, `chat_template_kwargs: {"enable_thinking": false}` for llama-server.
+- **Bake-off (spike 3, done):** Qwen 3.8 27B against Gemma 4 26B-A4B. Gemma was about twice as fast but weaker at Ask and the review. Results are in decision 0045.
   - About 200 real, anonymised transactions to categorise.
   - 24 questions to turn into queries (`private/questions.md`).
   - 3 review drafts.
-  - Measure accuracy against the family's choices (target 90%, the v1 success measure), valid-JSON rate and latency.
+  - Measure accuracy against the family's choices (target 90%, the v1 success measure), valid-JSON rate and latency. Holt as a whole reached about 79% on one labelled month; the model alone was weak on unfamiliar payees (0045).
 - **For other users' hardware** (guidance in Setup): 8 GB → Qwen3.5-9B or Gemma 4 E4B; 12 GB → Gemma 4 12B; 16 GB → gpt-oss-20b.
 
 ## 8. Themes and Caelestia
@@ -170,11 +171,11 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **Model behaviour** is tested in three layers, because a real model is slow, differs between runs and can't run in CI.
   1. **Contract tests in CI, with a fake model.** The adapter takes a fake model that returns scripted replies. Tests cover every path around the model: a valid reply, invalid JSON, a schema failure, a digit outside a placeholder, a placeholder with no figure behind it, a retry that succeeds, and a retry that fails and falls back to the plain template (§6). They also show that a model reply only ever becomes a stored proposal (rule 8). A fast-check property test feeds the placeholder validator random text and checks that it accepts a reply only when every digit sits inside a placeholder (rule 2).
   2. **Recorded replies in CI.** A small committed set of synthetic prompts, each with a reply recorded from a real model, runs through the whole path from prompt to proposal. This catches a change to a prompt builder or schema that breaks a reply the model used to get right. Re-record a reply on purpose, in its own commit.
-  3. **A live eval on your machine.** `pnpm eval` sends the eval set to the model on loopback and prints the S3 measures: accuracy, valid-JSON rate, how often a reply passes the placeholder rule first time, and latency. It never runs in CI, and it sends nothing beyond loopback.
+  3. **A live eval on your machine.** `pnpm eval <model>` (in `tools/eval/`) sends the eval set to the model on loopback and prints the S3 measures: accuracy, valid-JSON rate, how often a reply passes the placeholder rule first time, and latency. It never runs in CI, and it sends nothing beyond loopback.
      - The committed eval set is synthetic. The family's labelled transactions and 24 questions stay in `private/`, and the same command uses them when that folder exists.
      - An Ask answer is correct when its query returns the same rows and figures as the hand-written query for that question, run through core. Core compares results, never query text.
      - A categorisation is correct when the job matches the family's label. The model's confidence isn't scored.
-     - Spike S3 records the first scores as the baseline in `docs/decisions/`. Run `pnpm eval` before changing the default model, a prompt, or a reply schema, and write the before and after scores in the commit message. A drop in valid-JSON rate or first-time placeholder passes blocks the change until you accept it in a decision record.
+     - Spike S3 recorded the first scores as the baseline, in decision 0045 and in `private/eval/baseline.json`, which `pnpm eval` compares against. Run `pnpm eval` before changing the default model, a prompt, or a reply schema, and write the before and after scores in the commit message. A drop in valid-JSON rate or first-time placeholder passes blocks the change until you accept it in a decision record.
      - Prompts and schemas live in files, one per task, so a change shows up in a diff and the eval can name the version it scored.
 
 ## 13. Code and data are separate
