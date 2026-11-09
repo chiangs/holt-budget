@@ -47,7 +47,7 @@ ip route add default dev sink0
 ip -6 route add default dev sink0
 
 capture="$work/capture.txt"
-tcpdump -l -n -i sink0 -Q out '(tcp or udp)' >"$capture" 2>"$work/tcpdump.err" &
+tcpdump -Z root -l -n -i sink0 -Q out '(tcp or udp)' >"$capture" 2>"$work/tcpdump.err" &
 dump_pid=$!
 for _ in $(seq 50); do grep -q 'listening on' "$work/tcpdump.err" && break; sleep 0.1; done
 grep -q 'listening on' "$work/tcpdump.err" || die "tcpdump could not start: $(cat "$work/tcpdump.err")"

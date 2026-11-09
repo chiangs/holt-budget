@@ -3,7 +3,7 @@
 #   scripts/check-packaging.sh
 # install.sh and uninstall.sh run against a scratch HOME. The real one is never touched.
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 2
 REPO="$PWD"
 RELEASE="$REPO/apps/desktop/release"
 FAILS=0
@@ -23,7 +23,7 @@ rm -rf "$RELEASE"
 if ! { pnpm build && pnpm --filter @holt/desktop exec electron-builder --linux AppImage --publish never; } >"$SCRATCH/build.log" 2>&1; then
   tail -n 20 "$SCRATCH/build.log"; fail "P1 the build"; exit 1
 fi
-APPIMAGE="$(ls "$RELEASE"/Holt-*.AppImage 2>/dev/null | head -n 1)"
+APPIMAGE="$(find "$RELEASE" -maxdepth 1 -name 'Holt-*.AppImage' 2>/dev/null | head -n 1)"
 check "P1 an AppImage exists" test -x "$APPIMAGE"
 [ -x "$APPIMAGE" ] || exit 1
 

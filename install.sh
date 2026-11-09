@@ -26,6 +26,8 @@ echo "  Installing Holt…"
 need() {
   if ! command -v "$1" >/dev/null && command -v pacman >/dev/null; then
     ask "  Holt is built with $2. Install it with pacman (sudo pacman -S $3)? [Y/n]: " y
+    # $3 is a list of packages, so it must split into words.
+    # shellcheck disable=SC2086
     if [[ "$REPLY" =~ ^[Yy] ]]; then sudo pacman -S --needed --noconfirm $3; fi
   fi
   command -v "$1" >/dev/null || { echo "  Holt is built with $2. Install it (Arch: sudo pacman -S $3), then run ./install.sh again."; exit 1; }
