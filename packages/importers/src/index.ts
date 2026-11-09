@@ -1,37 +1,18 @@
 /**
- * Bank statement importers. Each shared account remembers a format profile, so
- * the next file from the same account needs only a check (see the domain model).
- * Profiles for Bulder and SpareBank 1 SR-Bank are built in spike S4. Real exports
- * stay in private/fixtures/; the committed fixtures are synthetic.
+ * Bank statement importers. The formats that ship with Holt are code (technical-decisions.md §13).
+ * Real exports stay in private/fixtures/; the committed fixtures are synthetic (scripts/make-synthetic.ts).
  */
-import type { Money } from "@holt/core";
+import { bulder } from "./formats/bulder.ts";
+import { sparebank1 } from "./formats/sparebank1.ts";
+import type { BankFormat } from "./types.ts";
 
-export interface FormatProfile {
-  readonly id: string;
-  readonly bank: string;
-  readonly fileType: "csv" | "ofx";
-  /** Column names or indexes for each field (CSV only). */
-  readonly columns?: {
-    readonly bookingDate: string | number;
-    readonly transactionDate?: string | number;
-    readonly description: string | number;
-    readonly amount?: string | number;
-    readonly amountIn?: string | number;
-    readonly amountOut?: string | number;
-    readonly reference?: string | number;
-  };
-  readonly delimiter?: "," | ";" | "\t";
-  readonly decimalSeparator: "," | ".";
-  /** Date format as written in the file, for example "dd.MM.yyyy". */
-  readonly dateFormat: string;
-  /** Which sign means money out, when a single amount column is used. */
-  readonly moneyOutSign: "negative" | "positive";
-}
+export * from "./types.ts";
+export { readCsv } from "./csv.ts";
 
-export interface ParsedRow {
-  readonly bookingDate: string; // ISO date
-  readonly transactionDate?: string;
-  readonly description: string;
-  readonly amount: Money;
-  readonly reference?: string;
+export const formats: readonly BankFormat[] = [bulder, sparebank1];
+
+/** The format whose header matches the file's first line, or null when Holt doesn't know it yet. */
+export function recogniseFormat(text: string): BankFormat | null {
+  const firstLine = (text.split(/\r?\n/, 1)[0] ?? "").replace(/^﻿/, "");
+  return formats.find((f) => f.recognises(firstLine)) ?? null;
 }

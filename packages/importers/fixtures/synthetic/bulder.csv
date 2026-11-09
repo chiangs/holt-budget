@@ -1,0 +1,174 @@
+Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto;Fra kontonummer;Type;Tekst;KID;Hovedkategori;Underkategori
+2026-01-01;1,00;1,00;NOK;BRUKSKONTO;9710.11.10001;;;Renter;KREDITRENTER;;Inntekter;Renter
+2026-01-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-01-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-01-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-01-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-01-07;-664,85;-664,85;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-01-10;-813,32;-813,32;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-01-15;-669,13;-669,13;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-01-15;-1436,79;-1436,79;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-01-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-01-17;-87,39;-87,39;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-01-19;-227,52;-227,52;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-01-19;-542,82;-542,82;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-01-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-01-20;-483,71;-483,71;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-01-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-01-21;-8907,88;-8907,88;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-01-21;8907,88;8907,88;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-02-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-02-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-02-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-02-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-02-09;-530,36;-530,36;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-02-13;-847,40;-847,40;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-02-15;-758,73;-758,73;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-02-15;-1186,91;-1186,91;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-02-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-02-17;-118,22;-118,22;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-02-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-02-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-02-21;-8609,98;-8609,98;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-02-21;8609,98;8609,98;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-02-21;-385,96;-385,96;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-02-21;-870,22;-870,22;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-02-27;-779,99;-779,99;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-03-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-03-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-03-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-03-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-03-08;-313,18;-313,18;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-03-10;-643,29;-643,29;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-03-12;-430,46;-430,46;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-03-13;-615,82;-615,82;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-03-15;-415,19;-415,19;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-03-15;-455,65;-455,65;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-03-15;-270,65;-270,65;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-03-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-03-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-03-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-03-21;-6812,70;-6812,70;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-03-21;6812,70;6812,70;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-03-26;-59,21;-59,21;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-04-03;-204,75;-204,75;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-04-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-04-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-04-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-04-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-04-04;-809,92;-809,92;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-04-10;-853,75;-853,75;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-04-15;-1683,88;-1683,88;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-04-15;-856,19;-856,19;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-04-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-04-17;-358,62;-358,62;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-04-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-04-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-04-21;-8747,74;-8747,74;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-04-21;8747,74;8747,74;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-04-21;-719,21;-719,21;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-04-24;-598,77;-598,77;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-05-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-05-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-05-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-05-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-05-05;-45,62;-45,62;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-05-10;-847,21;-847,21;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-05-15;-957,90;-957,90;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-05-15;-903,28;-903,28;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-05-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-05-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-05-20;-382,49;-382,49;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-05-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-05-21;-8965,85;-8965,85;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-05-21;8965,85;8965,85;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-05-21;-361,45;-361,45;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-05-24;-274,31;-274,31;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-05-27;-766,80;-766,80;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-06-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-06-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-06-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-06-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-06-05;-734,70;-734,70;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-06-09;-521,89;-521,89;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-06-15;-404,08;-404,08;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-06-15;-1273,90;-1273,90;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-06-16;-214,08;-214,08;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-06-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-06-17;-42,62;-42,62;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-06-17;-816,99;-816,99;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-06-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-06-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-06-21;-5749,91;-5749,91;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-06-21;5749,91;5749,91;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-06-24;-883,52;-883,52;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-07-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-07-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-07-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-07-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-07-04;-266,98;-266,98;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-07-09;-164,60;-15,11;USD;;Example Store;BRUKSKONTO;9710.11.10001;Betaling;Example Store;;;
+2026-07-11;-51,66;-4,40;EUR;;Café Exemple;BRUKSKONTO;9710.11.10001;Betaling;Café Exemple;;;
+2026-07-15;-689,00;-689,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-07-15;-834,61;-834,61;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-07-16;-428,20;-428,20;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-07-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-07-17;-884,23;-884,23;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-07-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-07-20;-381,10;-381,10;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-07-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-07-21;-5231,36;-5231,36;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-07-21;5231,36;5231,36;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-07-25;-857,16;-857,16;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-07-28;-825,22;-825,22;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-08-02;-893,33;-893,33;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-08-03;-597,52;-597,52;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-08-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-08-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-08-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-08-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-08-05;-126,25;-126,25;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-08-15;-1713,51;-1713,51;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-08-15;-1634,24;-1634,24;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-08-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-08-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-08-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-08-21;-8092,60;-8092,60;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-08-21;8092,60;8092,60;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-08-21;-247,58;-247,58;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-08-25;-249,34;-249,34;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-08-26;-166,56;-166,56;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-09-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-09-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-09-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-09-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-09-13;-708,86;-708,86;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-09-14;-581,15;-581,15;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-09-15;-476,30;-476,30;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-09-15;-463,99;-463,99;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-09-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-09-19;-490,24;-490,24;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-09-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-09-20;-485,50;-485,50;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-09-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-09-21;-7805,43;-7805,43;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-09-21;7805,43;7805,43;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-09-21;-332,97;-332,97;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-09-25;-288,04;-288,04;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-10-03;-298,24;-298,24;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
+2026-10-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-10-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-10-03;-20,00;-20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-10-03;20,00;20,00;NOK;Ferie ;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
+2026-10-05;-303,32;-303,32;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-10-13;-488,58;-488,58;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-10-14;-25,56;-25,56;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-10-15;-1145,98;-1145,98;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-10-15;-1649,62;-1649,62;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
+2026-10-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
+2026-10-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-10-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
+2026-10-21;-8185,57;-8185,57;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-10-21;8185,57;8185,57;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-10-23;-267,58;-267,58;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-10-24;-216,42;-216,42;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer

@@ -229,7 +229,7 @@ The adult, a fixed monthly amount, the expected day, and the shared account it l
 - **Import rhythm:** weekly, fortnightly or monthly.
 - **Format profile.**
 - **Opening balance and date.**
-- **Loans:** a loan account's balance is entered by hand with a date, unless the bank exports the loan account (spike S4 checks). The monthly payment is one fixed-cost allocation. Principal doesn't count towards the savings rate until the family decides otherwise.
+- **Loans:** a loan account's balance is entered by hand with a date, because SpareBank 1 SR-Bank doesn't export loan accounts (spike S4, decision record 0043). The monthly payment is one fixed-cost allocation. Principal doesn't count towards the savings rate until the family decides otherwise.
 
 ### Asset
 Something the household owns that isn't an account: the house, the plot.
@@ -465,4 +465,4 @@ Every change: who made it (the family, or an accepted proposal), the command, ea
 | The family wants a different currency | Allowed only in Settings → Household while no transaction or entered value exists. After that, the family exports what they want to keep, deletes everything in Settings → Data and sets up again. |
 | A card payment abroad | Holt records the amount the bank booked in the account's currency. A foreign amount in the description stays as text and Holt doesn't use it. |
 | A bank file has no closing balance | The family types the balance the bank shows, marked "entered by you", and the balance check uses it. Spike S4 checks which files carry one. |
-| The mortgage payment | One allocation to the Mortgage job, a fixed cost. The loan's balance is entered by hand with a date, unless the bank exports the loan account (spike S4 checks). Principal doesn't count towards the savings rate until the family decides otherwise. |
+| The mortgage payment | One allocation to the Mortgage job, a fixed cost. The loan's balance is entered by hand with a date, because the bank doesn't export loan accounts (0043). Principal doesn't count towards the savings rate until the family decides otherwise. |
