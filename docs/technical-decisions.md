@@ -119,7 +119,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **A small adapter layer** covers the runtimes' differences. For example, llama-server takes the JSON schema directly in `response_format`, while LM Studio uses the OpenAI-style `json_schema` wrapper. Both constrain decoding so replies always parse. Holt still validates every reply, because a grammar guarantees syntax, not sense.
 - **What the model is used for, and what it isn't:**
   - *Suggesting a job for a transaction:* only after rules and "what did you choose last time for this counterparty" have failed.
-  - *Ask:* turning a question into a query in Holt's query language (JSON, defined in core by spike S5) that `core` runs and calculates.
+  - *Ask:* turning a question into a reply in Holt's query language (`AskReply` in `packages/core/src/ask/`, decision 0044). The reply has one to three steps. Each step is a transaction query, which core runs over the transactions, or a figure query, which asks core for a figure from the plan. A step can also say the question belongs elsewhere in Holt, or that Holt can't answer it. Relative periods such as "the last three months" are resolved by core from today's date, not by the model.
   - *Words:* drafting the monthly review and notes from figures `core` calculated.
   - *Never:* producing a number.
 - **Prompts include only the rows a task needs**, at low temperature for structured tasks.
@@ -132,7 +132,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 - **Default on the 4090:** Qwen 3.8 27B, which current lists name as the pick for 24 GB cards. The measured 55,000-token context is plenty, because Holt's tasks need roughly 4,000–16,000.
 - **Bake-off (spike 3):** Qwen 3.8 27B against Gemma 4 26B-A4B. Gemma is a mixture-of-experts model that activates only part of itself per token, so it should be faster for batch categorisation after an import.
   - About 200 real, anonymised transactions to categorise.
-  - 20 questions to turn into filters.
+  - 24 questions to turn into queries (`private/questions.md`).
   - 3 review drafts.
   - Measure accuracy against the family's choices (target 90%, the v1 success measure), valid-JSON rate and latency.
 - **For other users' hardware** (guidance in Setup): 8 GB → Qwen3.5-9B or Gemma 4 E4B; 12 GB → Gemma 4 12B; 16 GB → gpt-oss-20b.
@@ -171,7 +171,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
   1. **Contract tests in CI, with a fake model.** The adapter takes a fake model that returns scripted replies. Tests cover every path around the model: a valid reply, invalid JSON, a schema failure, a digit outside a placeholder, a placeholder with no figure behind it, a retry that succeeds, and a retry that fails and falls back to the plain template (§6). They also show that a model reply only ever becomes a stored proposal (rule 8). A fast-check property test feeds the placeholder validator random text and checks that it accepts a reply only when every digit sits inside a placeholder (rule 2).
   2. **Recorded replies in CI.** A small committed set of synthetic prompts, each with a reply recorded from a real model, runs through the whole path from prompt to proposal. This catches a change to a prompt builder or schema that breaks a reply the model used to get right. Re-record a reply on purpose, in its own commit.
   3. **A live eval on your machine.** `pnpm eval` sends the eval set to the model on loopback and prints the S3 measures: accuracy, valid-JSON rate, how often a reply passes the placeholder rule first time, and latency. It never runs in CI, and it sends nothing beyond loopback.
-     - The committed eval set is synthetic. The family's labelled transactions and 20 questions stay in `private/`, and the same command uses them when that folder exists.
+     - The committed eval set is synthetic. The family's labelled transactions and 24 questions stay in `private/`, and the same command uses them when that folder exists.
      - An Ask answer is correct when its query returns the same rows and figures as the hand-written query for that question, run through core. Core compares results, never query text.
      - A categorisation is correct when the job matches the family's label. The model's confidence isn't scored.
      - Spike S3 records the first scores as the baseline in `docs/decisions/`. Run `pnpm eval` before changing the default model, a prompt, or a reply schema, and write the before and after scores in the commit message. A drop in valid-JSON rate or first-time placeholder passes blocks the change until you accept it in a decision record.
