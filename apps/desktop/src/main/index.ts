@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
-import { app, BrowserWindow, ipcMain, safeStorage, session, shell } from "electron";
-import tokens from "../../../../design/design-system/tokens.json";
+import { app, safeStorage, shell } from "electron";
+import { registerIpc } from "./ipc.ts";
+import { lockDownNetwork } from "./network.ts";
+import { initAppDatabase } from "./storage/app-database.ts";
+import { createWindow } from "./window.ts";
 
 // ── 1. Key storage: never accept basic_text (technical-decisions.md §5) ─────
 // Electron only picks GNOME Keyring for desktops it recognises, and Hyprland
@@ -19,85 +21,6 @@ if (process.platform === "linux" && !app.commandLine.hasSwitch("password-store")
   app.commandLine.appendSwitch("password-store", "gnome-libsecret");
 }
 
-// ── 2. Network lock-down: nothing leaves the machine (§3) ───────────────────
-// Allowed: the app's own files, the dev server while developing, and the
-// local model endpoint on loopback. Everything else is cancelled.
-const devServerUrl = process.env["ELECTRON_RENDERER_URL"];
-
-function isLoopback(hostname: string): boolean {
-  return hostname === "127.0.0.1" || hostname === "::1" || hostname === "[::1]" || hostname === "localhost";
-}
-
-function allowed(url: string): boolean {
-  const u = new URL(url);
-  if (u.protocol === "file:" || u.protocol === "devtools:" || u.protocol === "data:" || u.protocol === "blob:") return true;
-  if (devServerUrl && url.startsWith(devServerUrl)) return true;
-  // The model runtime is reached from the main process; the renderer never needs it,
-  // but loopback is the only network destination Holt ever permits.
-  return (u.protocol === "http:" || u.protocol === "ws:") && isLoopback(u.hostname);
-}
-
-function lockDownNetwork(): void {
-  session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
-    const ok = allowed(details.url);
-    if (!ok) console.warn(`[holt] blocked request: ${details.url}`);
-    callback({ cancel: !ok });
-  });
-  // No permission prompts (camera, notifications from web content, etc.).
-  session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
-}
-
-// ── 3. Window ───────────────────────────────────────────────────────────────
-// Native window colour shown before the renderer paints. Read from the design
-// tokens so no colour literal lives in code.
-function windowBackground(): string {
-  const value = tokens.color.tokens.find((t) => t.name === "bg")?.value;
-  const colour = typeof value === "object" ? value["hearth-light"] : value;
-  if (colour === undefined) throw new Error("tokens.json has no bg token");
-  return colour;
-}
-
-function createWindow(): BrowserWindow {
-  const win = new BrowserWindow({
-    width: 1440,
-    height: 960,
-    minWidth: 1024,
-    minHeight: 700,
-    title: "Holt",
-    backgroundColor: windowBackground(),
-    show: false,
-    webPreferences: {
-      preload: join(import.meta.dirname, "../preload/index.cjs"),
-      contextIsolation: true,
-      sandbox: true,
-      nodeIntegration: false,
-      webSecurity: true,
-      spellcheck: false,
-    },
-  });
-
-  win.once("ready-to-show", () => win.show());
-
-  // Never open new windows or navigate away from the app.
-  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-  win.webContents.on("will-navigate", (event, url) => {
-    if (!allowed(url)) event.preventDefault();
-  });
-
-  if (devServerUrl) {
-    void win.loadURL(devServerUrl);
-  } else {
-    void win.loadFile(join(import.meta.dirname, "../renderer/index.html"));
-  }
-  return win;
-}
-
-// ── 4. Typed bridge handlers (see src/preload) ──────────────────────────────
-ipcMain.handle("holt:app-info", () => ({
-  version: app.getVersion(),
-  storageBackend: process.platform === "linux" ? safeStorage.getSelectedStorageBackend() : "os",
-}));
-
 app.whenReady().then(async () => {
   const s2Check = app.commandLine.getSwitchValue("holt-s2-check");
   if (s2Check) {
@@ -107,13 +30,25 @@ app.whenReady().then(async () => {
   }
 
   lockDownNetwork();
+  registerIpc();
+  await initAppDatabase();
 
   if (process.platform === "linux" && safeStorage.getSelectedStorageBackend() === "basic_text") {
     // Spike S2: fall back to a passphrase (Argon2id) instead of storing the key unprotected.
     console.warn("[holt] No keyring available: the passphrase fallback is not built yet (spike S2).");
   }
 
-  createWindow();
+  const win = createWindow();
+
+  // The no-network test (scripts/no-network.sh) needs the app to load, wait for any late request, then exit.
+  if (app.commandLine.hasSwitch("holt-smoke-exit")) {
+    win.webContents.once("did-finish-load", () => {
+      setTimeout(() => {
+        console.log("[holt] smoke-exit: window loaded");
+        app.quit();
+      }, 3000);
+    });
+  }
 });
 
 app.on("window-all-closed", () => app.quit());
