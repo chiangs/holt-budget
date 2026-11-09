@@ -23,6 +23,10 @@ if [[ "${1:-}" != "--inside" ]]; then
   for tool in unshare ip tcpdump; do
     command -v "$tool" >/dev/null || die "$tool is required"
   done
+  # Electron downloads its binary the first time it is required. Do that here, with a network, because inside the namespace there is none.
+  if ! prefetch="$(cd "$root/apps/desktop" && node -e "require('electron')" 2>&1)"; then
+    die "Electron's binary is not installed and could not be downloaded: $prefetch"
+  fi
   display=()
   if [[ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
     command -v xvfb-run >/dev/null || die "no display and no xvfb-run. Install xorg-server-xvfb or run inside a session"
@@ -60,10 +64,6 @@ seen_before=$(wc -l <"$capture")
 
 electron="$root/apps/desktop/node_modules/.bin/electron"
 [[ -x "$electron" ]] || die "electron not found at $electron. Run: pnpm install"
-# Electron downloads its binary the first time it is required. Do that here, with a network, because inside the namespace there is none.
-if ! prefetch="$(cd "$root/apps/desktop" && node -e "require('electron')" 2>&1)"; then
-  die "Electron's binary is not installed and could not be downloaded: $prefetch"
-fi
 log="$work/app.log"
 status=0
 # --map-root-user makes the app run as root, which Chromium refuses with its sandbox on.
