@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en-GB" data-theme="hearth-light">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <title>Holt S1</title>
+  <link rel="stylesheet" href="../../packages/ui/src/tokens.css">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { font-family: system-ui, sans-serif; color: var(--text); background: var(--bg); display: flex; flex-direction: column; }
+    body.transparent { background: transparent; }
+    body.transparent main { background: color-mix(in srgb, var(--surface) 55%, transparent); }
+    header { -webkit-app-region: drag; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 8px 0 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+    header .title { flex: 1; font-weight: 600; }
+    header button { -webkit-app-region: no-drag; font: inherit; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface-raised); color: var(--text); }
+    header button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    main { flex: 1; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-content: start; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; font-variant-numeric: tabular-nums; }
+    dt { color: var(--text-muted); }
+    .hairlines { height: 120px; background: repeating-linear-gradient(90deg, var(--text) 0 1px, transparent 1px 3px); }
+    .sample { font-size: 13px; line-height: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="title">Holt S1</span>
+    <button id="min" type="button">Minimise</button>
+    <button id="max" type="button">Maximise</button>
+    <button id="close" type="button">Close</button>
+  </header>
+  <main>
+    <dl>
+      <dt>Mode</dt><dd id="mode"></dd>
+      <dt>devicePixelRatio</dt><dd id="dpr"></dd>
+      <dt>Inner size</dt><dd id="size"></dd>
+      <dt>Focused</dt><dd id="focused"></dd>
+      <dt>Last key</dt><dd id="key">none</dd>
+    </dl>
+    <div>
+      <label for="field">Text field</label><br>
+      <input id="field" autocomplete="off">
+    </div>
+    <div class="hairlines" aria-hidden="true"></div>
+    <p class="sample">The app skipped 2 duplicates. 68 048 kr assigned to Electricity in December. 1 px lines on the left should look even, not blurred.</p>
+  </main>
+  <script>
+    const mode = new URLSearchParams(location.search).get("mode");
+    document.body.classList.toggle("transparent", mode === "transparent");
+    const emit = (event, data = {}) => console.log(JSON.stringify({ event, ...data }));
+    const state = () => ({ dpr: devicePixelRatio, width: innerWidth, height: innerHeight, focused: document.hasFocus() });
+    const render = () => {
+      const s = state();
+      document.getElementById("mode").textContent = mode;
+      document.getElementById("dpr").textContent = String(s.dpr);
+      document.getElementById("size").textContent = `${s.width} × ${s.height}`;
+      document.getElementById("focused").textContent = s.focused ? "yes" : "no";
+    };
+    let lastDpr = devicePixelRatio;
+    addEventListener("resize", () => {
+      render();
+      if (devicePixelRatio !== lastDpr) { lastDpr = devicePixelRatio; emit("dpr-change", state()); }
+      emit("resize", state());
+    });
+    addEventListener("focus", () => { render(); emit("focus", state()); });
+    addEventListener("blur", () => { render(); emit("blur", state()); });
+    addEventListener("keydown", (e) => {
+      document.getElementById("key").textContent = e.key;
+      emit("keydown", { key: e.key, ctrl: e.ctrlKey, target: e.target.id || e.target.tagName });
+    });
+    for (const id of ["min", "max", "close"]) {
+      document.getElementById(id).addEventListener("click", () => s1.control({ min: "minimize", max: "maximize", close: "close" }[id]));
+    }
+    render();
+    emit("ready", state());
+  </script>
+</body>
+</html>

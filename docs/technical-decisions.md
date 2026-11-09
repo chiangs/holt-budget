@@ -144,7 +144,8 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 
 ## 9. Glass (open)
 - **v1: in-app glass,** as in the mockups: frosted panels over a backdrop Holt draws itself. Works on every compositor.
-- **Experimental: the real desktop behind Holt.** Hyprland blurs translucent windows itself when blur is on. Electron documents limits for transparent windows (they may not resize, and clicks don't pass through), which could break tiling. Spike 1 tests this.
+- **Experimental: the real desktop behind Holt.** Hyprland blurs translucent windows itself when blur is on. Electron documents limits for transparent windows (they may not resize, and clicks don't pass through). Spike S1 found it viable on Hyprland: a transparent window resizes under tiling, and Hyprland blurs the desktop behind it (`decisions/0040-electron-on-hyprland.md`). It depends on the compositor's blur, so the in-app backdrop stays the default.
+- **The window on Hyprland** is frameless with no window buttons, because the compositor manages windows with its own keys and ignores Minimise. It has no minimum size, because Hyprland doesn't honour one for tiled windows. The layout works down to about 900 px wide, the width of a half tile on a 1920 px screen (0040).
 - **To do:** review Stephen's frosted-glass card experiment (experiments.chiang.ink, "frosted-glass-card") for the panel recipe.
 
 ## 10. Packaging and releases

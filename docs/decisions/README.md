@@ -21,7 +21,7 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0015 | 2026-11-08 | Encrypted SQLite (better-sqlite3-multiple-ciphers); key in the keyring via forced gnome-libsecret, passphrase fallback, never basic_text | Accepted; the key part is superseded by 0030 | `technical-decisions.md` §4–5 |
 | 0016 | 2026-11-08 | Bring-your-own local runtime (llama-server, LM Studio/llmster, Ollama) on loopback only, JSON-schema output | Accepted | `technical-decisions.md` §6 |
 | 0017 | 2026-11-08 | Model: Qwen 3.8 27B default on the 4090, confirmed by bake-off | Proposed | `technical-decisions.md` §7 |
-| 0018 | 2026-11-08 | Glass: in-app in v1; compositor blur experimental | Open | `technical-decisions.md` §9 |
+| 0018 | 2026-11-08 | Glass: in-app in v1; compositor blur experimental | Open; spike S1 found compositor blur viable on Hyprland (0040) | `technical-decisions.md` §9 |
 | 0019 | 2026-11-08 | AUR first, then AppImage, Flatpak later | Accepted | `technical-decisions.md` §10 |
 | 0020 | 2026-11-08 | Mobile: neither dsh nor RustDesk; later a read-only view over a private network | Accepted | `technical-decisions.md` §11 |
 | 0021 | 2026-11-08 | Code and data are separate: the public repository holds code and docs; household details and real exports stay in `private/`; dev uses its own data folder | Accepted | `technical-decisions.md` §13 |
@@ -43,3 +43,4 @@ Short records of decisions, newest last. The full reasoning lives in the documen
 | 0037 | 2026-11-08 | One currency for the household, chosen in Setup and fixed once data exists; money in minor units; no conversion | Accepted | `v1-scope-and-domain-model.md`, decision 15 |
 | 0038 | 2026-11-08 | Money is displayed as `Intl` writes it for the language and currency, with "68,048 kr" kept for kroner in English as the one override; the tagline becomes "Every unit of money a job" | Accepted | `technical-decisions.md` §3 |
 | 0039 | 2026-11-08 | Model behaviour is tested in three layers: fake-model contract tests and recorded replies in CI, and a live `pnpm eval` on your machine scored against the S3 baseline | Proposed | `technical-decisions.md` §12 |
+| 0040 | 2026-11-09 | Spike S1: Electron runs natively on Wayland with the 4090; "Show the desktop behind Holt" is viable on Hyprland; no window buttons on Hyprland; no minimum window size, with a layout that works down to about 900 px | Accepted | `decisions/0040-electron-on-hyprland.md` |

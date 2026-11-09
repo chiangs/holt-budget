@@ -67,7 +67,7 @@ The design system is the single source for values. This document records the dec
 
 **Glass (transparency)** is a separate setting, **off by default**.
 - When on, panels are frosted and partly see-through, 55–80% opaque so text keeps its contrast. Dialogs, such as Ask or find, use the stronger 72% panel.
-- On Hyprland, the desktop compositor could blur the real wallpaper behind the window. Whether this works with Electron's transparent windows under tiling is spike 1 (see `technical-decisions.md`). Without it, the app uses an in-app blurred backdrop.
+- On Hyprland, the desktop compositor can blur the real wallpaper behind the window. Spike S1 found this works with Electron's transparent windows under tiling (`docs/decisions/0040-electron-on-hyprland.md`). Without compositor blur, the app uses an in-app blurred backdrop.
 - Stephen has a frosted-glass card experiment (experiments.chiang.ink, "frosted-glass-card") to review for the panel recipe.
 - "Reduce transparency" (glass off) is always available.
 
