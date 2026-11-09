@@ -60,6 +60,8 @@ seen_before=$(wc -l <"$capture")
 
 electron="$root/apps/desktop/node_modules/.bin/electron"
 [[ -x "$electron" ]] || die "electron not found at $electron. Run: pnpm install"
+# Electron downloads its binary the first time it is required. Do that here, with a network, because inside the namespace there is none.
+(cd "$root/apps/desktop" && node -e "require('electron')") >/dev/null 2>&1 || die "Electron's binary is not installed and could not be downloaded."
 log="$work/app.log"
 status=0
 # --map-root-user makes the app run as root, which Chromium refuses with its sandbox on.
