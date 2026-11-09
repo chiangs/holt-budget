@@ -5,19 +5,48 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    env:
-      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          package-manager-cache: false
-      - run: npm install -g "$(node -p "require('./package.json').packageManager")"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - run: pnpm tokens
       - run: git diff --exit-code packages/ui/src/tokens.css
       - run: pnpm lint:colours
+      - run: pnpm lint:network
+      - run: pnpm lint:strings
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm --filter @holt/desktop build
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          electron-binary: "true"
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: pnpm build
+      - run: xvfb-run --auto-servernum pnpm test:e2e
+
+  no-network:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          electron-binary: "true"
+      - run: sudo apt-get update && sudo apt-get install -y xvfb tcpdump
+      # Ubuntu 24.04 blocks unprivileged user namespaces by default; the test needs one for its network namespace.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - run: pnpm build
+      - run: pnpm test:no-network
+
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          electron-binary: "true"
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: xvfb-run --auto-servernum bash scripts/check-packaging.sh

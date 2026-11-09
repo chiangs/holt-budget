@@ -1,0 +1,19 @@
+name: Set up Holt
+description: Node, pnpm and the locked dependencies.
+inputs:
+  electron-binary:
+    description: Download Electron's binary (needed to run the app, not to type-check it).
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24
+        package-manager-cache: false
+    - shell: bash
+      run: npm install -g "$(node -p "require('./package.json').packageManager")"
+    - shell: bash
+      env:
+        ELECTRON_SKIP_BINARY_DOWNLOAD: ${{ inputs.electron-binary != 'true' && '1' || '' }}
+      run: pnpm install --frozen-lockfile
