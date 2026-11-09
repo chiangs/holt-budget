@@ -6,6 +6,15 @@ directories:
   output: release
 files:
   - out/**
+  # The renderer is bundled by Vite, so its packages never load from node_modules.
+  - "!node_modules/{react,react-dom,react-router,lucide-react,@fontsource}/**"
+  # Only the Linux x64 glibc build of SQLite loads; the rest is other platforms and build sources.
+  - "!node_modules/better-sqlite3-multiple-ciphers/{deps,src,build,binding.gyp}/**"
+  - "!node_modules/better-sqlite3-multiple-ciphers/prebuilds/{darwin,win32,linuxmusl}-*.node"
+  - "!node_modules/better-sqlite3-multiple-ciphers/prebuilds/linux-arm64.node"
+  - "!node_modules/better-sqlite3-multiple-ciphers/lib/{darwin,win32,linuxmusl,linux-arm64}*.js"
+asarUnpack:
+  - node_modules/better-sqlite3-multiple-ciphers/**
 linux:
   category: Office;Finance
   icon: ../../design/icon/png
