@@ -1,14 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { createBridge } from "../shared/bridge.ts";
 
-/**
- * The only door between the sandboxed interface and the main process.
- * Keep it small and typed. Every new call needs a handler in src/main and a
- * type in src/renderer/src/env.d.ts.
- */
-const holt = {
-  appInfo: (): Promise<{ version: string; storageBackend: string }> => ipcRenderer.invoke("holt:app-info"),
-};
+export type { HoltBridge } from "../shared/bridge.ts";
 
-export type HoltBridge = typeof holt;
-
-contextBridge.exposeInMainWorld("holt", holt);
+contextBridge.exposeInMainWorld("holt", createBridge((channel, ...args) => ipcRenderer.invoke(channel, ...args)));

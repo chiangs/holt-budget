@@ -1,4 +1,4 @@
-import type { HoltBridge } from "../../preload/index.ts";
+import type { HoltBridge } from "../../shared/bridge.ts";
 
 declare global {
   interface Window {
