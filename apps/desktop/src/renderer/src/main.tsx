@@ -1,6 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { IntlProvider } from "react-intl";
 import { RouterProvider } from "react-router/dom";
+import { AppearanceProvider } from "./appearance.tsx";
+import { locale, messages } from "./i18n/messages.ts";
 import { router } from "./router.tsx";
 // Fonts are bundled from npm (SIL OFL 1.1), never loaded from the internet.
 import "@fontsource/figtree/400.css";
@@ -17,6 +20,10 @@ if (!root) throw new Error("No #root element");
 
 createRoot(root).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <IntlProvider locale={locale} messages={messages}>
+      <AppearanceProvider>
+        <RouterProvider router={router} />
+      </AppearanceProvider>
+    </IntlProvider>
   </StrictMode>,
 );

@@ -1,107 +1,109 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router";
-import {
-  ArrowLeftRight,
-  CalendarCheck,
-  Cpu,
-  LayoutDashboard,
-  ListChecks,
-  Repeat,
-  Search,
-  Settings,
-  Shield,
-  type LucideIcon,
-} from "lucide-react";
+import { useIntl } from "react-intl";
+import { Cpu, Search } from "lucide-react";
+import { AskOverlay } from "./AskOverlay.tsx";
+import { askKey, screens, type Screen } from "./screens.ts";
 
-interface NavItem {
-  to: string;
-  label: string;
-  key: string;
-  Icon: LucideIcon;
-}
+const isTextField = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 
-// Keys from the IA document: the first letter of each sidebar item.
-const items: NavItem[] = [
-  { to: "/ask", label: "Ask or find", key: "A", Icon: Search },
-  { to: "/", label: "Overview", key: "O", Icon: LayoutDashboard },
-  { to: "/transactions", label: "Transactions", key: "T", Icon: ArrowLeftRight },
-  { to: "/plan", label: "Plan", key: "P", Icon: ListChecks },
-  { to: "/recurring", label: "Recurring costs", key: "R", Icon: Repeat },
-  { to: "/review", label: "Monthly review", key: "M", Icon: CalendarCheck },
-  { to: "/insurance", label: "Insurance", key: "I", Icon: Shield },
-];
-const settings: NavItem = { to: "/settings", label: "Settings", key: "S", Icon: Settings };
-
-/** Single-key navigation. Typing always wins: never fires in a text field. */
-function useNavigationKeys(): void {
+/** Single-key navigation. Typing always wins: no letter fires in a text field or while Ask or find is open. */
+function useShortcuts(askOpen: boolean, openAsk: () => void): void {
   const navigate = useNavigate();
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.altKey) {
-        if (e.ctrlKey && e.key.toLowerCase() === "k") {
-          e.preventDefault();
-          void navigate("/ask");
-        }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openAsk();
         return;
       }
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
-      const item = [...items, settings].find((i) => i.key === e.key.toUpperCase());
-      if (item) {
-        e.preventDefault();
-        void navigate(item.to);
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || event.repeat) return;
+      if (askOpen || isTextField(event.target)) return;
+      const letter = event.key.toUpperCase();
+      if (letter === askKey) {
+        event.preventDefault();
+        openAsk();
+        return;
+      }
+      const screen = screens.find((s) => s.key === letter);
+      if (screen !== undefined) {
+        event.preventDefault();
+        void navigate(screen.path);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate]);
+  }, [askOpen, navigate, openAsk]);
 }
 
-function NavRow({ item }: { item: NavItem }) {
-  const { to, label, key, Icon } = item;
+function KeyChip({ letter }: { letter: string }) {
   return (
-    <NavLink to={to} end={to === "/"} className="nav-row" aria-keyshortcuts={key}>
+    <span className="key" aria-hidden="true">
+      {letter}
+    </span>
+  );
+}
+
+function NavRow({ screen }: { screen: Screen }) {
+  const intl = useIntl();
+  const { path, key, navId, Icon } = screen;
+  if (navId === undefined || key === undefined || Icon === undefined) return null;
+  return (
+    <NavLink to={path} end={path === "/"} className="nav-row" aria-keyshortcuts={key}>
       <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
-      <span className="nav-label">{label}</span>
-      <span className="key" aria-hidden="true">
-        {key}
-      </span>
+      <span className="nav-label">{intl.formatMessage({ id: navId })}</span>
+      <KeyChip letter={key} />
     </NavLink>
   );
 }
 
 export function Layout() {
-  useNavigationKeys();
-  const [backend, setBackend] = useState<string>("…");
-  useEffect(() => {
-    void window.holt?.appInfo().then((info) => setBackend(info.storageBackend));
-  }, []);
+  const intl = useIntl();
+  const [askOpen, setAskOpen] = useState(false);
+  const openAsk = useCallback(() => setAskOpen(true), []);
+  const closeAsk = useCallback(() => setAskOpen(false), []);
+  useShortcuts(askOpen, openAsk);
+
+  const top = screens.filter((s) => s.navId !== undefined && s.placement !== "bottom");
+  const bottom = screens.filter((s) => s.placement === "bottom");
 
   return (
-    <div className="app" data-theme="hearth-light">
-      <nav className="sidebar" aria-label="Main">
+    <div className="app">
+      <div className="drag-strip" aria-hidden="true" />
+      <aside className="sidebar" aria-label={intl.formatMessage({ id: "nav.sidebar" })}>
         <div className="brand">
           <img src="./holt-small.svg" width={28} height={28} alt="" />
-          <span>Holt</span>
+          <span className="nav-label">{intl.formatMessage({ id: "app.name" })}</span>
         </div>
-        <div className="nav-list">
-          {items.map((item) => (
-            <NavRow key={item.to} item={item} />
+        <nav className="nav-list" aria-label={intl.formatMessage({ id: "nav.label" })}>
+          <button type="button" className="nav-row" aria-keyshortcuts={`${askKey} Control+K`} aria-haspopup="dialog" onClick={openAsk}>
+            <Search size={18} strokeWidth={1.75} aria-hidden="true" />
+            <span className="nav-label">{intl.formatMessage({ id: "nav.ask" })}</span>
+            <KeyChip letter={askKey} />
+          </button>
+          <hr className="nav-divider" />
+          {top.map((screen) => (
+            <NavRow key={screen.path} screen={screen} />
           ))}
-        </div>
+        </nav>
         <div className="sidebar-foot">
           <div className="assistant-status">
             <Cpu size={16} strokeWidth={1.75} aria-hidden="true" />
-            <div>
-              <div className="strong">Assistant: local model</div>
-              <div>Runs on this computer, with no network.</div>
-              <div className="muted">Key store: {backend}</div>
+            <div className="nav-label">
+              <div className="strong">{intl.formatMessage({ id: "assistant.title" })}</div>
+              <div>{intl.formatMessage({ id: "assistant.detail" })}</div>
             </div>
           </div>
-          <NavRow item={settings} />
+          {bottom.map((screen) => (
+            <NavRow key={screen.path} screen={screen} />
+          ))}
         </div>
-      </nav>
-      <Outlet />
+      </aside>
+      <main className="screen" id="main">
+        <Outlet />
+      </main>
+      <AskOverlay open={askOpen} onClose={closeAsk} />
     </div>
   );
 }

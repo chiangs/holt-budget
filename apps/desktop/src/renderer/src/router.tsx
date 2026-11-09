@@ -1,21 +1,17 @@
-import { createHashRouter } from "react-router";
+import type { ReactElement } from "react";
+import { createHashRouter, type RouteObject } from "react-router";
 import { Layout } from "./Layout.tsx";
-import { Placeholder } from "./routes/Placeholder.tsx";
+import { NotFound } from "./routes/NotFound.tsx";
+import { Screen } from "./routes/Screen.tsx";
+import { Settings } from "./routes/Settings.tsx";
+import { screens } from "./screens.ts";
+
+const built: Record<string, ReactElement> = { "/settings": <Settings /> };
+
+const children: RouteObject[] = screens.map((screen) => {
+  const element = built[screen.path] ?? <Screen titleId={screen.titleId} questionId={screen.questionId} />;
+  return screen.path === "/" ? { index: true, element } : { path: screen.path.slice(1), element };
+});
 
 // SPA data mode, no server (technical-decisions.md §2). Loaders will call window.holt.
-export const router = createHashRouter([
-  {
-    path: "/",
-    Component: Layout,
-    children: [
-      { index: true, element: <Placeholder title="Overview" /> },
-      { path: "transactions", element: <Placeholder title="Transactions" /> },
-      { path: "plan", element: <Placeholder title="Plan" /> },
-      { path: "recurring", element: <Placeholder title="Recurring costs" /> },
-      { path: "review", element: <Placeholder title="Monthly review" /> },
-      { path: "insurance", element: <Placeholder title="Insurance" /> },
-      { path: "ask", element: <Placeholder title="Ask or find" /> },
-      { path: "settings", element: <Placeholder title="Settings" /> },
-    ],
-  },
-]);
+export const router = createHashRouter([{ path: "/", Component: Layout, children: [...children, { path: "*", element: <NotFound /> }] }]);
