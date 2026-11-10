@@ -58,6 +58,7 @@ Built as decision 0047 describes. The model's job suggestions wait for the model
   - A background check for a new version. This is a network call from Holt and needs a written exception to the rule and a switch in Settings.
 
 ## v1.x (after three real monthly cycles)
+- [ ] Prove the OFX reader on a real bank file when one is available, then take `ofx` out of `unprovenFormats` (`packages/importers/src/proven.ts`) so the import screen stops warning (decision 0047, item 8).
 - [ ] Insurance.
 - [ ] Occasions and gifts (decision 9 in the scope document).
 - [ ] What-ifs in Ask or find.

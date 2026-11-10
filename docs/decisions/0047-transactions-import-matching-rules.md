@@ -1,6 +1,6 @@
 # 0047 Transactions: import, matching, treatments and rules (Milestone 3)
 
-Status: proposed.
+Status: accepted on 10 Nov 2026.
 Date: 2026-11-10
 
 ## Question
@@ -155,15 +155,17 @@ A pass reads the facts again after every change, so typing and pressing Space in
 ## Reminders
 Import reminders in Milestone 3 are the in-app "Due" badge on Transactions and each account's status. Desktop notifications come with Settings in Milestone 6.
 
-## Decisions for Stephen
-1. **Rules apply on import** (above). The alternative is a suggestion for each rule match.
+## Decisions (Stephen, 10 Nov 2026)
+Stephen confirmed every item. Item 1 comes with a clarification, and item 8 was decided last: keep OFX, marked as unproven.
+
+1. **Rules apply on import** (above). The alternative is a suggestion for each rule match. Stephen: the line "rules give the same result every time" is about consistency, not about whether a rule applies by itself, so how a rule is applied is left to performance and consistency. Applying once on import, and storing the result with the rule that gave it, serves both.
 2. **Rows for an unknown account are left out and reported.** The alternative is to refuse the whole file.
 3. **Typing a balance is optional.** An account with no typed balance still shows "Up to date" by its dates, with a line saying "Not checked against your bank" (or "Checked against your bank on 6 Nov" after one is typed). The alternative is to withhold "Up to date" until a balance is typed.
 4. **A balance mismatch flags the account and doesn't block the import** (rule 5).
 5. **"Same as last time" applies when you press Add on an import, and waits for Space everywhere else.** The mockup decides it: the preview shows the job the app suggests for each new row and why, you can change any of them, and Add applies what you saw. A row stays in needs you when the payee's last two transactions went to different jobs, and the preview flags a changed amount only after two equal ones, so a bill that varies is not flagged every month. Those two thresholds are the app's proposal, for Stephen to confirm.
 6. **Income from before the plan start keeps its funds month** when that month is on or after the plan start (the fix proposed in 0046). Otherwise October's contributions could never fund November.
 7. **A fixed passphrase for the dev seed**, in non-production builds only.
-8. **OFX** is built from the format's published structure, with synthetic fixtures. Neither of the family's banks offers it, so it has never met a real file.
+8. **OFX is kept and marked as unproven.** It is built from the format's published structure, with synthetic fixtures, and neither of the family's banks offers it, so it has never read a real file. Stephen: keep it, but mark it as unproven. The mark is in three places: `proven: false` on the format and its comment in `packages/importers`, the `unprovenFormats` list in `packages/importers/src/proven.ts` (a test keeps the two equal), and a notice in the import screen's file check that says the app has only read files like this from invented examples and asks you to check the rows and your bank's balance carefully. Remove the format from the list once a real file has read cleanly.
 9. **The model's suggestions wait for Milestone 6.** The backlog's Milestone 3 item "the model only for the rest, as proposals" needs the model adapter, which is Milestone 6. Rules and "same as last time" are built.
 10. **Undo on the Needs you screen undoes only changes made there**, and only while the change is still the log's last, so a key press can't undo an import. There is no Dismiss for a suggestion, because suggestions are figures with nowhere to remember a dismissal.
 11. **A new rule's defaults.** It is limited to the transaction's direction, so a rule for a purchase doesn't take a refund. It covers every account unless you tick "Only in this account". Its origin is "learned" when you pick a job other than the suggestion, otherwise "set". Its priority is one above the best rule already matching the transaction. It also sorts the other waiting transactions it matches, in the same change, unless you untick that.
