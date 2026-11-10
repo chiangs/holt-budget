@@ -3,6 +3,7 @@ import { month } from "../dates.ts";
 import type { Facts } from "../facts.ts";
 import { accepted, commandHousehold, today } from "../testing/command-household.ts";
 import { factsBuilder, kr, monthlySaving } from "../testing/facts-builder.ts";
+import { ruleOf, withRules } from "../rules/rule-fixtures.ts";
 import { type Command, apply } from "./apply.ts";
 
 const h = commandHousehold();
@@ -10,6 +11,14 @@ const november = month("2026-11");
 const run = (facts: Facts, command: Command) => apply(facts, command, { asOf: today });
 
 describe("deleting a job", () => {
+  it("is refused while a rule gives transactions to it, alone or in a split", () => {
+    const single = withRules(h.facts, ruleOf({ n: 1, counterparty: "Shop", result: { kind: "job", jobId: h.jobs.unused } }));
+    expect(run(single, { kind: "deleteJob", jobId: h.jobs.unused })).toMatchObject({ ok: false, refusal: { code: "jobInUse" } });
+    const split = withRules(h.facts, ruleOf({ n: 2, counterparty: "Shop", result: { kind: "split", shares: [{ jobId: h.jobs.food, weight: 1 }, { jobId: h.jobs.unused, weight: 1 }] } }));
+    expect(run(split, { kind: "deleteJob", jobId: h.jobs.unused })).toMatchObject({ ok: false, refusal: { code: "jobInUse" } });
+    expect(run(h.facts, { kind: "deleteJob", jobId: h.jobs.unused }).ok).toBe(true);
+  });
+
   it("is allowed once its money has moved to another job (domain model, awkward cases)", () => {
     const assigned = accepted(run(h.facts, { kind: "assign", month: november, jobId: h.jobs.unused, amount: kr(500) }));
     expect(run(assigned, { kind: "deleteJob", jobId: h.jobs.unused })).toMatchObject({ ok: false, refusal: { code: "jobInUse" } });

@@ -1,8 +1,9 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { type Facts, type Job, makeSplit } from "../facts.ts";
-import { jobId } from "../ids.ts";
+import { accountId, jobId, ruleId } from "../ids.ts";
 import type { Money } from "../money.ts";
+import { ruleOf, withRules, withTransaction } from "../rules/rule-fixtures.ts";
 import { arbitraryScript } from "../testing/arbitrary-commands.ts";
 import { commandHousehold } from "../testing/command-household.ts";
 import { type FactsBuilder, evenOut, factsBuilder, kr, monthlySaving, setAmount, testId } from "../testing/facts-builder.ts";
@@ -77,3 +78,67 @@ describe("checkFacts", () => {
     );
   });
 });
+
+describe("transactions before the plan start (decision 6 of 0047)", () => {
+  const codes = (facts: Facts) => checkFacts(facts).map((v) => v.code);
+
+  it("accepts income booked before the plan start when it funds a month from the plan start on", () => {
+    expect(codes(household((b) => b.income({ date: "2026-09-20", amount: kr(9_000), fundsMonth: "2026-10" })))).toEqual([]);
+    expect(codes(household((b) => b.income({ date: "2026-09-20", amount: kr(9_000), fundsMonth: "2027-03" })))).toEqual([]);
+  });
+
+  it("finds income booked before the plan start that funds an earlier month", () => {
+    expect(codes(household((b) => b.income({ date: "2026-09-20", amount: kr(9_000), fundsMonth: "2026-09" })))).toEqual(["notHistoryBeforePlanStart"]);
+    expect(codes(household((b) => b.income({ date: "2026-09-20", amount: kr(9_000), fundsMonth: "2026-07" })))).toEqual(["notHistoryBeforePlanStart"]);
+  });
+
+  it.each([
+    ["needs you", (b: FactsBuilder) => b.needsYou({ date: "2026-09-30", amount: kr(-100) })],
+    ["a transfer", (b: FactsBuilder) => b.unmatchedTransfer({ date: "2026-09-30", amount: kr(-100) })],
+    ["a split", (b: FactsBuilder, food: ReturnType<FactsBuilder["spendJob"]>) => b.spend({ date: "2026-09-30", amount: kr(-100), jobId: food })],
+  ])("still finds %s booked before the plan start", (_, add) => {
+    expect(codes(household(add))).toEqual(["notHistoryBeforePlanStart"]);
+  });
+
+  it("never lets income from the plan start on be history, and history from it on is still a fault", () => {
+    expect(codes(household((b) => b.income({ date: "2026-10-01", amount: kr(9_000), fundsMonth: "2026-11" })))).toEqual([]);
+    expect(codes(household((b) => b.history({ date: "2026-10-01", amount: kr(-100) })))).toEqual(["historyFromPlanStart"]);
+  });
+
+  it("treats the first day of the plan start's month as the plan start, and the last day before it as before", () => {
+    expect(codes(household((b) => b.needsYou({ date: "2026-10-01", amount: kr(-100) })))).toEqual([]);
+    expect(codes(household((b) => b.needsYou({ date: "2026-09-30", amount: kr(-100) })))).toEqual(["notHistoryBeforePlanStart"]);
+  });
+});
+
+describe("references from rules and from the transactions they sorted", () => {
+  const base = household(() => {});
+  const everyday = [...base.accounts.keys()][0] as ReturnType<typeof accountId>;
+  const food = [...base.jobs.values()].find((j) => j.kind === "spend")?.id as ReturnType<typeof jobId>;
+  const kiwi = ruleOf({ n: 1, counterparty: "Kiwi", accountId: everyday, result: { kind: "job", jobId: food } });
+
+  it("accepts a rule that names a job and an account that exist", () => {
+    expect(checkFacts(withRules(base, kiwi))).toEqual([]);
+  });
+
+  it("finds a rule that gives a job that doesn't exist, in a single job or in a share", () => {
+    const missing = jobId(testId(999_999));
+    const single = withRules(base, { ...kiwi, result: { kind: "job", jobId: missing } });
+    const shared = withRules(base, { ...kiwi, result: { kind: "split", shares: [{ jobId: food, weight: 1 }, { jobId: missing, weight: 1 }] } });
+    for (const facts of [single, shared]) expect(checkFacts(facts)).toEqual([{ code: "missingReference", table: "rules", key: kiwi.id, field: "result" }]);
+  });
+
+  it("finds a rule that names an account that doesn't exist", () => {
+    const facts = withRules(base, { ...kiwi, match: { counterparty: "Kiwi", accountId: accountId(testId(999_999)) } });
+    expect(checkFacts(facts)).toEqual([{ code: "missingReference", table: "rules", key: kiwi.id, field: "match.accountId" }]);
+  });
+
+  it("finds a transaction that names a rule that doesn't exist", () => {
+    const facts = household((b) => b.needsYou({ date: "2026-10-05", amount: kr(-100) }));
+    const [transaction] = [...facts.transactions.values()];
+    if (transaction === undefined) throw new Error("no transaction");
+    expect(checkFacts(withTransaction(facts, transaction.id, { ruleId: ruleId(testId(999_998)) }))).toEqual([{ code: "missingReference", table: "transactions", key: transaction.id, field: "ruleId" }]);
+    expect(checkFacts(withTransaction(withRules(facts, kiwi), transaction.id, { ruleId: kiwi.id }))).toEqual([]);
+  });
+});
+

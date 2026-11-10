@@ -4,12 +4,13 @@
  * of row, so a change can be described as a list of rows before and after (see `patch.ts`) and undone.
  *
  * What is not here, on purpose: buckets, unassigned money, estimates, balances and monthly moves at the
- * bank. They are figures. People, contribution agreements, recurring series, import batches and rules
- * arrive with the milestones that need them.
+ * bank. They are figures. People, contribution agreements and recurring series arrive with the
+ * milestones that need them. Import batches, import rows and rules arrived with Milestone 3.
  */
 
+import type { AccountNumber } from "./account-number.ts";
 import type { LocalDate, Month } from "./dates.ts";
-import type { AccountId, EnteredValueId, GroupId, HouseholdId, Id, JobId, MoveId, TransactionId } from "./ids.ts";
+import type { AccountId, EnteredValueId, GroupId, HouseholdId, Id, ImportBatchId, ImportRowId, JobId, MoveId, RuleId, TransactionId } from "./ids.ts";
 import { type Currency, type Money, MoneyError } from "./money.ts";
 
 // ── Rows ─────────────────────────────────────────────────────────────────────
@@ -18,13 +19,16 @@ export interface Household {
   readonly id: HouseholdId;
   readonly name: string;
   readonly currency: Currency;
-  /** The first month Holt plans. Earlier transactions are history (decision 10). */
+  /** The first month Holt plans. Earlier transactions are history (decision 10), except income that funds a month from the plan start on. */
   readonly planStart: Month;
   /** The rounding for evened-out amounts: 50 whole units of the currency by default (decision 6). */
   readonly evenOutStep: Money;
 }
 
 export type AccountKind = "everyday" | "bills" | "savings" | "loan";
+
+/** How often the family imports this account (domain model, "Account"). Its "up to date" status follows it. */
+export type ImportRhythm = "weekly" | "fortnightly" | "monthly";
 
 export interface Account {
   readonly id: AccountId;
@@ -34,6 +38,10 @@ export interface Account {
   readonly scope: "shared" | "paidInto";
   readonly openingBalance: Money;
   readonly openingDate: LocalDate;
+  /** The bank's number, so an imported row finds its account. Absent for an account that isn't imported. */
+  readonly number?: AccountNumber;
+  /** Absent means monthly. */
+  readonly importRhythm?: ImportRhythm;
 }
 
 export interface Group {
@@ -152,6 +160,15 @@ export interface Transaction {
   readonly amount: Money;
   readonly description: string;
   readonly treatment: Treatment;
+  /** The cleaned-up name of the other party (domain model, "Who"). */
+  readonly counterparty?: string;
+  /** The date of the purchase, when the bank gives one that differs from the booking date. */
+  readonly transactionDate?: LocalDate;
+  /** The bank's payment reference (KID). It is not unique to one payment, so matching never relies on it alone. */
+  readonly reference?: string;
+  readonly note?: string;
+  /** The rule that gave this transaction its treatment on import, so the screen can say which rule applied. */
+  readonly ruleId?: RuleId;
 }
 
 export type MoveStatus = "todo" | "done" | "skipped";
@@ -188,6 +205,88 @@ export interface EnteredValue {
   readonly source: string;
 }
 
+/**
+ * One imported file (domain model, "Import batch"). The rows it read are `ImportRow`s. Undoing an import
+ * marks the batch `undone` and releases its rows; it never deletes them, so the history of imports stays whole.
+ */
+export interface ImportBatch {
+  readonly id: ImportBatchId;
+  readonly fileName: string;
+  /** SHA-256 of the file's bytes, in hex. A file whose fingerprint matches a live batch adds nothing. */
+  readonly fingerprint: string;
+  /** The format profile that read the file. Formats are code, so this is an ID such as "bulder-csv". */
+  readonly format: string;
+  /** ISO datetime, from the caller. */
+  readonly importedAt: string;
+  /** The first and last booking dates in the file. */
+  readonly from: LocalDate;
+  readonly to: LocalDate;
+  /** What the import did, counted when it ran. */
+  readonly rows: number;
+  readonly created: number;
+  readonly matched: number;
+  readonly pending: number;
+  readonly undone: boolean;
+}
+
+/** One row of an imported file, kept as the file had it (domain model, "Import row"). */
+export interface ImportRow {
+  readonly id: ImportRowId;
+  readonly batchId: ImportBatchId;
+  /** The 1-based line in the file. */
+  readonly line: number;
+  readonly accountId: AccountId;
+  readonly bookingDate: LocalDate;
+  readonly interestDate?: LocalDate;
+  readonly description: string;
+  /** Negative means money out of the account. */
+  readonly amount: Money;
+  /** The other account's number, as 11 digits, when the bank gives one. */
+  readonly counterpartAccount?: string;
+  readonly counterpartName?: string;
+  readonly reference?: string;
+  readonly bankType?: string;
+  readonly original?: { readonly text: string; readonly currency: string };
+  /** What identifies the row for matching: account, amount, booking date and description. Equal rows have equal fingerprints. */
+  readonly fingerprint: string;
+  /** A pending ("reservert") row backs no transaction until a later file books it. */
+  readonly pending: boolean;
+  /** The transaction this row backs. A row backs at most one, and several rows can back the same one when files overlap. */
+  readonly backs: TransactionId | null;
+}
+
+/** What a rule decides: one job, or a split by integer weights, rounded by largest remainder with the first share winning ties. */
+export type RuleResult =
+  | { readonly kind: "job"; readonly jobId: JobId }
+  | { readonly kind: "split"; readonly shares: readonly [RuleShare, ...RuleShare[]] };
+
+export interface RuleShare {
+  readonly jobId: JobId;
+  /** A positive whole number. Shares of 2 and 1 split an amount two thirds to one third. */
+  readonly weight: number;
+}
+
+/** When a rule applies (domain model, "Categorisation rule"). Every field present must match. */
+export interface RuleMatch {
+  /** Compared with the transaction's cleaned counterparty, ignoring case. */
+  readonly counterparty: string;
+  readonly accountId?: AccountId;
+  /** Inclusive bounds on the signed amount, so money out is negative. */
+  readonly min?: Money;
+  readonly max?: Money;
+}
+
+export type RuleOrigin = "set" | "learned" | "accepted";
+
+/** "Always do this". Rules run first and give the same result every time; the highest priority wins. */
+export interface Rule {
+  readonly id: RuleId;
+  readonly match: RuleMatch;
+  readonly result: RuleResult;
+  readonly origin: RuleOrigin;
+  readonly priority: number;
+}
+
 // ── Tables ───────────────────────────────────────────────────────────────────
 
 /** An assignment is identified by its month and job together. */
@@ -212,6 +311,9 @@ export interface TableTypes {
   readonly transactions: { readonly key: TransactionId; readonly row: Transaction };
   readonly moves: { readonly key: MoveId; readonly row: Move };
   readonly enteredValues: { readonly key: EnteredValueId; readonly row: EnteredValue };
+  readonly importBatches: { readonly key: ImportBatchId; readonly row: ImportBatch };
+  readonly importRows: { readonly key: ImportRowId; readonly row: ImportRow };
+  readonly rules: { readonly key: RuleId; readonly row: Rule };
 }
 
 export type TableName = keyof TableTypes;
@@ -228,6 +330,9 @@ export const tableNames = [
   "transactions",
   "moves",
   "enteredValues",
+  "importBatches",
+  "importRows",
+  "rules",
 ] as const satisfies readonly TableName[];
 
 export type Table<T extends TableName> = ReadonlyMap<KeyOf<T>, RowOf<T>>;
@@ -245,6 +350,9 @@ export function emptyFacts(household: Household): Facts {
     transactions: new Map(),
     moves: new Map(),
     enteredValues: new Map(),
+    importBatches: new Map(),
+    importRows: new Map(),
+    rules: new Map(),
   };
 }
 

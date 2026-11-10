@@ -237,7 +237,9 @@ function commandFrom(facts: Facts, step: StepRecipe, id: string): Command {
       };
     case "addJob": {
       const job = jobFrom(facts, step.job, id);
-      return { kind: "addJob", job: step.buffer ? { ...job, kind: "saveUp", role: "buffer", target: { kind: "bufferMonths", monthly: step.job.plan.amount } } : job };
+      const { id: jobId, name, groupId: group, status, accountId: account, essential, opening } = job;
+      const buffer: Job = { id: jobId, name, groupId: group, status, accountId: account, essential, opening, kind: "saveUp", role: "buffer", target: { kind: "bufferMonths", monthly: step.job.plan.amount } };
+      return { kind: "addJob", job: step.buffer ? buffer : job };
     }
     case "changeJob": {
       const target = facts.jobs.get(anyJob(step.pick));

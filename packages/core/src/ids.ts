@@ -30,6 +30,9 @@ export type MoveId = Id<"move">;
 export type EnteredValueId = Id<"enteredValue">;
 export type ChangeId = Id<"change">;
 export type ProposalId = Id<"proposal">;
+export type ImportBatchId = Id<"importBatch">;
+export type ImportRowId = Id<"importRow">;
+export type RuleId = Id<"rule">;
 
 export const householdId = idOf("household");
 export const accountId = idOf("account");
@@ -40,3 +43,6 @@ export const moveId = idOf("move");
 export const enteredValueId = idOf("enteredValue");
 export const changeId = idOf("change");
 export const proposalId = idOf("proposal");
+export const importBatchId = idOf("importBatch");
+export const importRowId = idOf("importRow");
+export const ruleId = idOf("rule");

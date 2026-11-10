@@ -1,18 +1,21 @@
 import { describe, expect, it } from "vitest";
+import { accountNumber } from "../account-number.ts";
 import { emptyChangeLog } from "../change-log.ts";
 import { month } from "../dates.ts";
-import { makeSplit } from "../facts.ts";
 import { accountId, groupId, jobId, moveId, proposalId, transactionId } from "../ids.ts";
 import { currency, money } from "../money.ts";
 import { type DecideResult, accept, commitProposal, suggest } from "../proposal.ts";
 import { changeMeta, commandHousehold, today } from "../testing/command-household.ts";
 import { kr, setAmount, testId } from "../testing/facts-builder.ts";
 import { type ApplyResult, type Command, type CommitResult, apply, commit } from "./apply.ts";
+import { importMessages } from "./imports.messages.ts";
 import { type Refusal, type RefusalCode, messageFor, refusalCodes } from "./refusal.ts";
+import { ruleMessages } from "./rules.messages.ts";
 
 const h = commandHousehold();
 const run = (command: Command): ApplyResult => apply(h.facts, command, { asOf: today });
 const unknown = testId(999_999);
+const shoppingAmount = h.facts.transactions.get(h.transactions.shopping)!.amount;
 
 const proposal = suggest<Command>({
   id: proposalId(testId(500_000)),
@@ -27,7 +30,16 @@ if (!accepted.ok) throw new Error("A suggested proposal can be accepted");
 type Result = ApplyResult | CommitResult | DecideResult<Command>;
 
 /** One way to reach each refusal. The type makes a new code fail to compile until it has a case. */
-const reach: { readonly [C in RefusalCode]: () => Result } = {
+type CodesHere = Exclude<RefusalCode, keyof typeof importMessages | keyof typeof ruleMessages>;
+const codesHere = refusalCodes.filter((code): code is CodesHere => !(code in importMessages) && !(code in ruleMessages));
+
+const reach: { readonly [C in CodesHere]: () => Result } = {
+  accountNumberTaken: () => {
+    const numbered = apply(h.facts, { kind: "changeAccount", accountId: h.accounts.everyday, changes: { number: accountNumber("12345678901") } }, { asOf: today });
+    if (!numbered.ok) throw new Error("A free account number can be set");
+    return apply(numbered.facts, { kind: "addAccount", account: { ...numbered.facts.accounts.get(h.accounts.everyday)!, id: accountId(unknown) } }, { asOf: today });
+  },
+  splitDoesNotAddUp: () => run({ kind: "setTreatment", transactionId: h.transactions.shopping, treatment: { kind: "split", allocations: [{ jobId: h.jobs.food, amount: money(-1) }] } }),
   idTaken: () => run({ kind: "addAccount", account: { ...h.facts.accounts.get(h.accounts.everyday)!, name: "Another" } }),
   nameMissing: () => run({ kind: "addGroup", group: { id: groupId(unknown), name: "  ", order: 3, countsTowardsSavingsRate: false } }),
   negativeAmount: () => run({ kind: "assign", month: month("2026-11"), jobId: h.jobs.food, amount: money(-1) }),
@@ -54,7 +66,7 @@ const reach: { readonly [C in RefusalCode]: () => Result } = {
   historyFromPlanStart: () =>
     run({ kind: "recordTransaction", transaction: { id: transactionId(unknown), accountId: h.accounts.everyday, bookingDate: today, amount: kr(-80), description: "Kiosk", treatment: { kind: "history", jobId: null } } }),
   notHistoryBeforePlanStart: () => run({ kind: "setTreatment", transactionId: h.transactions.earlier, treatment: { kind: "needsYou" } }),
-  breaksFacts: () => run({ kind: "setTreatment", transactionId: h.transactions.shopping, treatment: makeSplit(kr(-500), [{ jobId: h.jobs.food, amount: kr(-500) }]) }),
+  breaksFacts: () => run({ kind: "setTreatment", transactionId: h.transactions.shopping, treatment: { kind: "split", allocations: [{ jobId: jobId(unknown), amount: shoppingAmount }] } }),
   proposalNotSuggested: () => accept(accepted.proposal, "2026-11-09T11:00:00Z"),
   proposalNotAccepted: () => commitProposal(h.facts, emptyChangeLog(), proposal, changeMeta(1), { asOf: today }),
   proposalStale: () => {
@@ -69,7 +81,7 @@ function codeOf(result: Result): RefusalCode | "accepted" {
 }
 
 describe("refusals", () => {
-  it.each(refusalCodes)("the app can refuse with %s", (code) => {
+  it.each(codesHere)("the app can refuse with %s", (code) => {
     expect(codeOf(reach[code]())).toBe(code);
   });
 
@@ -77,7 +89,7 @@ describe("refusals", () => {
     const result = reach.breaksFacts();
     if (result.ok) throw new Error("expected a refusal");
     const refusal: Refusal = result.refusal;
-    expect(refusal.code === "breaksFacts" && refusal.violations).toEqual([{ code: "splitDoesNotAddUp", table: "transactions", key: h.transactions.shopping, field: "allocations" }]);
+    expect(refusal.code === "breaksFacts" && refusal.violations).toEqual([{ code: "missingReference", table: "transactions", key: h.transactions.shopping, field: "allocations" }]);
   });
 
   it("the same commands are accepted when nothing stands in their way", () => {

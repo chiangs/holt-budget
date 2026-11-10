@@ -23,7 +23,7 @@ export type ViolationCode =
   | "assignmentInPlannedMonth"
   /** Rule 3 and decision 10: a transaction from the plan start on is never history. */
   | "historyFromPlanStart"
-  /** Rule 3 and decision 10: a transaction before the plan start is history. */
+  /** Rule 3 and decision 10: a transaction before the plan start is history, unless it is income that funds a month from the plan start on (decision 6 of 0047). */
   | "notHistoryBeforePlanStart"
   /** Rule 3: a split's allocations add up to the transaction exactly. */
   | "splitDoesNotAddUp"
@@ -48,13 +48,16 @@ export function violationIdentity(v: Violation): string {
   return `${v.code}\u0000${v.table}\u0000${v.key}\u0000${v.field ?? ""}`;
 }
 
-/** Rule 3 and decision 10, for a transaction's treatment against the plan start. Null when it fits. */
+/**
+ * Rule 3 and decision 10, for a transaction's treatment against the plan start. Null when it fits. Income
+ * booked before the plan start keeps its treatment when it funds a month from the plan start on, so October's
+ * contributions can fund a plan that starts in November.
+ */
 export function planStartFault(transaction: Pick<Transaction, "bookingDate" | "treatment">, planStart: Month): "historyFromPlanStart" | "notHistoryBeforePlanStart" | null {
-  const before = monthOf(transaction.bookingDate) < planStart;
-  const history = transaction.treatment.kind === "history";
-  if (before && !history) return "notHistoryBeforePlanStart";
-  if (!before && history) return "historyFromPlanStart";
-  return null;
+  const { treatment } = transaction;
+  if (monthOf(transaction.bookingDate) >= planStart) return treatment.kind === "history" ? "historyFromPlanStart" : null;
+  const fundsPlan = treatment.kind === "income" && treatment.fundsMonth >= planStart;
+  return treatment.kind === "history" || fundsPlan ? null : "notHistoryBeforePlanStart";
 }
 
 export function checkFacts(facts: Facts): Violation[] {
@@ -112,6 +115,7 @@ export function checkFacts(facts: Facts): Violation[] {
 
   for (const t of facts.transactions.values()) {
     refers("transactions", t.id, "accountId", "accounts", t.accountId);
+    if (t.ruleId !== undefined) refers("transactions", t.id, "ruleId", "rules", t.ruleId);
     whole("transactions", t.id, "amount", t.amount);
     const fault = planStartFault(t, planStart);
     if (fault !== null) flag(fault, "transactions", t.id, "treatment");
@@ -137,6 +141,12 @@ export function checkFacts(facts: Facts): Violation[] {
       case "needsYou":
         break;
     }
+  }
+
+  for (const rule of facts.rules.values()) {
+    const jobs = rule.result.kind === "job" ? [rule.result.jobId] : rule.result.shares.map((share) => share.jobId);
+    if (jobs.some((id) => !exists("jobs", id))) flag("missingReference", "rules", rule.id, "result");
+    if (rule.match.accountId !== undefined) refers("rules", rule.id, "match.accountId", "accounts", rule.match.accountId);
   }
 
   for (const move of facts.moves.values()) {

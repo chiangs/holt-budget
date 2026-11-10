@@ -6,9 +6,13 @@
 
 import type { FactsEditor, Patch } from "../patch.ts";
 import type { Violation } from "./check-facts.ts";
+import { importMessages } from "./imports.messages.ts";
+import { ruleMessages } from "./rules.messages.ts";
 
-const messages = {
+const baseMessages = {
   idTaken: "The app can't add this, because something with the same ID already exists.",
+  accountNumberTaken: "The app can't give two accounts the same account number.",
+  splitDoesNotAddUp: "You need the allocations to add up to the whole amount of the transaction.",
   nameMissing: "You need to give it a name.",
   negativeAmount: "You can't use a negative amount here.",
   amountNotPositive: "You need an amount above zero.",
@@ -33,12 +37,15 @@ const messages = {
   sameAccount: "You need two different accounts for a move at the bank.",
   moveNotToDo: "You can only mark a move at the bank as done or skipped while it's still to do.",
   historyFromPlanStart: "The app treats only transactions from before the plan start as history.",
-  notHistoryBeforePlanStart: "The app treats every transaction from before the plan start as history.",
+  notHistoryBeforePlanStart: "The app treats every transaction from before the plan start as history, except income that funds a month from the plan start on.",
   breaksFacts: "The app can't make this change, because it would leave your data inconsistent.",
   proposalNotSuggested: "You can only decide on a suggestion that's still waiting for you.",
   proposalNotAccepted: "The app applies a suggestion only once you accept it.",
   proposalStale: "Your data changed after the app worked out this suggestion, so the app won't apply it. The app will work it out again.",
 } as const satisfies Record<string, string>;
+
+/** Imports and rules keep their own messages in their own files, so they can grow without touching this one. */
+const messages = { ...baseMessages, ...importMessages, ...ruleMessages } as const satisfies Record<string, string>;
 
 export type RefusalCode = keyof typeof messages;
 

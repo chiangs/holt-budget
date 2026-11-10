@@ -97,6 +97,9 @@ function referenced(facts: Facts, jobId: JobId): boolean {
     if (treatment.kind === "split" && treatment.allocations.some((a) => a.jobId === jobId)) return true;
     if (treatment.kind === "history" && treatment.jobId === jobId) return true;
   }
+  for (const { result } of facts.rules.values()) {
+    if (result.kind === "job" ? result.jobId === jobId : result.shares.some((share) => share.jobId === jobId)) return true;
+  }
   return false;
 }
 

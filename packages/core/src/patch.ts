@@ -58,26 +58,48 @@ export type PatchResult =
   | { readonly ok: true; readonly facts: Facts }
   | { readonly ok: false; readonly mismatches: readonly RowMismatch[] };
 
+/**
+ * A private copy of the facts that patches apply to one after another. A table is copied the first time a
+ * patch touches it and changed in place after that, so many patches cost the rows they change plus one copy
+ * of each table they touch, not a copy of the table for every patch.
+ */
+export interface PatchBuilder {
+  /** Applies the changes in order, each checked against the rows as earlier changes left them. Returns the rows that were not as the patch expected. After any, the builder holds a half-applied patch and is only to be dropped. */
+  apply(patch: Patch): RowMismatch[];
+  /** The facts so far. The tables the patches never touched are the ones the builder started from. */
+  facts(): Facts;
+}
+
+export function patchBuilder(start: Facts): PatchBuilder {
+  const copies = new Map<TableName, LooseTable>();
+  return {
+    apply(patch) {
+      const mismatches: RowMismatch[] = [];
+      for (const change of patch) {
+        let table = copies.get(change.table);
+        if (table === undefined) {
+          table = new Map(looseTable(start, change.table));
+          copies.set(change.table, table);
+        }
+        const actual = table.get(change.key) ?? null;
+        if (!rowsEqual(actual, change.before)) {
+          mismatches.push({ table: change.table, key: change.key, expected: change.before, actual });
+          continue;
+        }
+        if (change.after === null) table.delete(change.key);
+        else table.set(change.key, change.after);
+      }
+      return mismatches;
+    },
+    facts: () => ({ ...start, ...Object.fromEntries(copies) }) as Facts,
+  };
+}
+
 /** Apply a patch without throwing. Changes apply in order, each checked against the rows as earlier changes left them. */
 export function tryApplyPatch(facts: Facts, patch: Patch): PatchResult {
-  const copies = new Map<TableName, LooseTable>();
-  const mismatches: RowMismatch[] = [];
-  for (const change of patch) {
-    let table = copies.get(change.table);
-    if (table === undefined) {
-      table = new Map(looseTable(facts, change.table));
-      copies.set(change.table, table);
-    }
-    const actual = table.get(change.key) ?? null;
-    if (!rowsEqual(actual, change.before)) {
-      mismatches.push({ table: change.table, key: change.key, expected: change.before, actual });
-      continue;
-    }
-    if (change.after === null) table.delete(change.key);
-    else table.set(change.key, change.after);
-  }
-  if (mismatches.length > 0) return { ok: false, mismatches };
-  return { ok: true, facts: { ...facts, ...Object.fromEntries(copies) } as Facts };
+  const builder = patchBuilder(facts);
+  const mismatches = builder.apply(patch);
+  return mismatches.length > 0 ? { ok: false, mismatches } : { ok: true, facts: builder.facts() };
 }
 
 /** Returns new facts and leaves the input alone. Throws a `PatchConflict` naming every row that does not match. */

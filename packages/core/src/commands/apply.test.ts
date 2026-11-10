@@ -11,14 +11,20 @@ import { arbitraryScript } from "../testing/arbitrary-commands.ts";
 import { accepted, changeMeta, commandHousehold, today } from "../testing/command-household.ts";
 import { evenOut, factsBuilder, kr, setAmount, testId } from "../testing/facts-builder.ts";
 import { type Command, type CommandKind, apply, commandKinds, commit } from "./apply.ts";
+import type { ImportCommand } from "./imports.ts";
+import type { RuleCommand } from "./rules.ts";
 import { checkFacts } from "./check-facts.ts";
 
 const h = commandHousehold();
 const fresh = (n: number) => testId(800_000 + n);
 const november = month("2026-11");
 
-/** An accepted case for every command kind, with what it changes. The type makes a new kind fail to compile until it has one. */
-const cases: { readonly [K in CommandKind]: { readonly command: Extract<Command, { readonly kind: K }>; readonly then: (after: Facts) => void } } = {
+/** An accepted case for every command kind this file owns, with what it changes. Imports, rules, plan start and batches have their own test files. The type makes a new kind fail to compile until it has one. */
+type OwnedElsewhere = ImportCommand["kind"] | RuleCommand["kind"] | "batch";
+type CoveredHere = Exclude<CommandKind, OwnedElsewhere>;
+const coveredHere = commandKinds.filter((kind): kind is CoveredHere => !["importFile", "undoImport", "mergeTransactions", "pairTransfers", "addRule", "changeRule", "deleteRule", "setPlanStart", "batch"].includes(kind));
+
+const cases: { readonly [K in CoveredHere]: { readonly command: Extract<Command, { readonly kind: K }>; readonly then: (after: Facts) => void } } = {
   changeHousehold: {
     command: { kind: "changeHousehold", changes: { name: "Home", evenOutStep: kr(100) } },
     then: (after) => expect(householdOf(after)).toMatchObject({ name: "Home", evenOutStep: kr(100), planStart: month("2026-10") }),
@@ -107,10 +113,14 @@ const cases: { readonly [K in CommandKind]: { readonly command: Extract<Command,
     },
     then: (after) => expect(after.transactions.get(h.transactions.shopping)?.treatment.kind).toBe("split"),
   },
+  setNote: {
+    command: { kind: "setNote", transactionId: h.transactions.shopping, note: "  Birthday present  " },
+    then: (after) => expect(after.transactions.get(h.transactions.shopping)?.note).toBe("Birthday present"),
+  },
 };
 
 describe("apply", () => {
-  it.each(commandKinds)("accepts %s", (kind) => {
+  it.each(coveredHere)("accepts %s", (kind) => {
     const { command, then } = cases[kind];
     const result = apply(h.facts, command, { asOf: today });
     then(accepted(result));
@@ -118,7 +128,7 @@ describe("apply", () => {
   });
 
   it("returns the facts its patch makes, so a saved change and its preview agree", () => {
-    for (const kind of commandKinds) {
+    for (const kind of coveredHere) {
       const result = apply(h.facts, cases[kind].command, { asOf: today });
       if (!result.ok) throw new Error(`${kind} was refused`);
       expect(result.patch.length).toBeGreaterThan(0);

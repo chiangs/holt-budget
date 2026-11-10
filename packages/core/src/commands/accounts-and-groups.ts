@@ -3,7 +3,8 @@
  * because changing either would adjust the balance the app checks against the bank (rule 5).
  */
 
-import type { Account, AccountKind, Group } from "../facts.ts";
+import type { AccountNumber } from "../account-number.ts";
+import type { Account, AccountKind, Facts, Group, ImportRhythm } from "../facts.ts";
 import type { AccountId, GroupId } from "../ids.ts";
 import { editFacts } from "../patch.ts";
 import type { Handlers } from "./apply.ts";
@@ -12,6 +13,9 @@ import { patched, refuse } from "./refusal.ts";
 export interface AccountChanges {
   readonly name?: string;
   readonly kind?: AccountKind;
+  /** null clears the number. */
+  readonly number?: AccountNumber | null;
+  readonly importRhythm?: ImportRhythm;
 }
 
 export interface GroupChanges {
@@ -26,10 +30,17 @@ export type AccountAndGroupCommand =
   | { readonly kind: "addGroup"; readonly group: Group }
   | { readonly kind: "changeGroup"; readonly groupId: GroupId; readonly changes: GroupChanges };
 
+function numberTaken(facts: Facts, number: AccountNumber | undefined, except: AccountId): boolean {
+  if (number === undefined) return false;
+  for (const other of facts.accounts.values()) if (other.id !== except && other.number === number) return true;
+  return false;
+}
+
 export const accountAndGroupHandlers: Handlers<AccountAndGroupCommand> = {
   addAccount(facts, { account }) {
     if (facts.accounts.has(account.id)) return refuse("idTaken");
     if (account.name.trim() === "") return refuse("nameMissing");
+    if (numberTaken(facts, account.number, account.id)) return refuse("accountNumberTaken");
     return patched(editFacts(facts).put("accounts", account));
   },
 
@@ -37,7 +48,11 @@ export const accountAndGroupHandlers: Handlers<AccountAndGroupCommand> = {
     const account = facts.accounts.get(accountId);
     if (account === undefined) return refuse("accountNotFound");
     if (changes.name?.trim() === "") return refuse("nameMissing");
-    return patched(editFacts(facts).put("accounts", { ...account, ...changes }));
+    const { number, ...rest } = changes;
+    if (number !== undefined && numberTaken(facts, number ?? undefined, accountId)) return refuse("accountNumberTaken");
+    const { number: _old, ...withoutNumber } = account;
+    const kept = number === undefined ? account.number : (number ?? undefined);
+    return patched(editFacts(facts).put("accounts", { ...withoutNumber, ...rest, ...(kept === undefined ? {} : { number: kept }) }));
   },
 
   addGroup(facts, { group }) {

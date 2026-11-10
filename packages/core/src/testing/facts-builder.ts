@@ -165,6 +165,9 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
     transactions: new Map(),
     moves: new Map(),
     enteredValues: new Map(),
+    importBatches: new Map(),
+    importRows: new Map(),
+    rules: new Map(),
   };
 
   let firstAccount: AccountId | undefined;
@@ -312,6 +315,9 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
       transactions: new Map(tables.transactions),
       moves: new Map(tables.moves),
       enteredValues: new Map(tables.enteredValues),
+      importBatches: new Map(tables.importBatches),
+      importRows: new Map(tables.importRows),
+      rules: new Map(tables.rules),
     }),
   };
 }
