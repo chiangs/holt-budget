@@ -8,6 +8,12 @@ function handlers(): { [K in keyof Handlers]: ReturnType<typeof vi.fn> } {
   return {
     "holt:app-info": vi.fn(() => ({ version: "1.0.0", storageBackend: "test" })),
     "holt:database-state": vi.fn(() => ({ state: "ready" as const })),
+    "holt:facts-snapshot": vi.fn(() => ({ kind: "empty" as const })),
+    "holt:run": vi.fn(),
+    "holt:history-step": vi.fn(),
+    "holt:import-open": vi.fn(() => ({ kind: "cancelled" as const })),
+    "holt:import-plan": vi.fn(() => ({ kind: "expired" as const })),
+    "holt:import-commit": vi.fn(() => ({ status: "expired" as const })),
   };
 }
 
@@ -75,7 +81,7 @@ describe("B3: the preload exposes exactly the shared channels", () => {
       return { ok: true, value: null };
     });
     expect(Object.keys(bridge).sort()).toEqual(Object.values(channelMethods).sort());
-    for (const method of Object.keys(bridge)) await (bridge as Record<string, () => Promise<unknown>>)[method]?.();
+    for (const method of Object.keys(bridge)) await (bridge as unknown as Record<string, () => Promise<unknown>>)[method]?.();
     expect(calls.sort()).toEqual([...channelNames].sort());
   });
 
@@ -86,5 +92,65 @@ describe("B3: the preload exposes exactly the shared channels", () => {
 
   it("has a schema for every channel and none extra", () => {
     expect(Object.keys(channels).sort()).toEqual([...channelNames].sort());
+  });
+});
+
+describe("the page cannot send what only the main process may", () => {
+  const id = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
+  const note = { kind: "setNote", transactionId: id(1), note: "Present" };
+
+  async function call(channel: string, ...args: unknown[]) {
+    const h = handlers();
+    const ipc = fakeIpcMain();
+    registerHandlers(ipc, h as unknown as Handlers);
+    return { result: await ipc.invoke(channel, ...args), h };
+  }
+
+  it("runs a command from the family", async () => {
+    const { result, h } = await call("holt:run", note);
+    expect(result).toMatchObject({ ok: true });
+    expect(h["holt:run"]).toHaveBeenCalledWith(note);
+  });
+
+  it("refuses an importFile command, alone or inside a batch, and never runs the handler", async () => {
+    const importFile = { kind: "importFile", batch: {}, rows: [], transactions: [] };
+    for (const command of [importFile, { kind: "batch", commands: [note, importFile] }]) {
+      const { result, h } = await call("holt:run", command);
+      expect(result).toMatchObject({ ok: false, error: { code: "invalid-arguments" } });
+      expect(h["holt:run"]).not.toHaveBeenCalled();
+    }
+  });
+
+  it("refuses a batch over 500 commands, an unknown kind and an unknown key", async () => {
+    const tooMany = { kind: "batch", commands: Array.from({ length: 501 }, () => note) };
+    for (const command of [tooMany, { kind: "deleteEverything" }, { ...note, extra: true }]) {
+      const { result, h } = await call("holt:run", command);
+      expect(result).toMatchObject({ ok: false, error: { code: "invalid-arguments" } });
+      expect(h["holt:run"]).not.toHaveBeenCalled();
+    }
+  });
+
+  it("accepts only undo and redo as a history step", async () => {
+    expect((await call("holt:history-step", "undo")).result).toMatchObject({ ok: true });
+    const bad = await call("holt:history-step", "rewind");
+    expect(bad.result).toMatchObject({ ok: false, error: { code: "invalid-arguments" } });
+    expect(bad.h["holt:history-step"]).not.toHaveBeenCalled();
+  });
+
+  it("checks what the family typed into an import before the main process sees it", async () => {
+    const entry = { balances: [{ accountId: id(2), value: 2_496_000, asOf: "2026-11-06" }], choices: [], suggest: true };
+    expect((await call("holt:import-plan", "session-1", entry)).result).toMatchObject({ ok: true });
+    const bad = [
+      { ...entry, balances: [{ accountId: "not-an-id", value: 1, asOf: "2026-11-06" }] },
+      { ...entry, balances: [{ accountId: id(2), value: 1.5, asOf: "2026-11-06" }] },
+      { ...entry, balances: [{ accountId: id(2), value: 1, asOf: "6 November" }] },
+      { ...entry, choices: [{ line: 0, treatment: { kind: "needsYou" } }] },
+      { ...entry, suggest: "yes" },
+    ];
+    for (const e of bad) {
+      const { result, h } = await call("holt:import-commit", "session-1", e);
+      expect(result).toMatchObject({ ok: false, error: { code: "invalid-arguments" } });
+      expect(h["holt:import-commit"]).not.toHaveBeenCalled();
+    }
   });
 });

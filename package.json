@@ -18,11 +18,13 @@
     "dist": "pnpm build && pnpm --filter @holt/desktop dist",
     "eval": "node tools/eval/run.ts",
     "lint:network": "node scripts/check-network.mjs",
+    "lint:facts": "node scripts/check-facts-boundary.mjs",
     "lint:strings": "node scripts/check-strings.mjs",
-    "test:e2e": "playwright test -c apps/desktop/playwright.config.ts",
+    "test:e2e": "pnpm --filter @holt/desktop build:e2e && playwright test -c apps/desktop/playwright.config.ts",
     "test:no-network": "bash scripts/no-network.sh",
     "test:packaging": "bash scripts/check-packaging.sh",
-    "bench:core": "node packages/core/src/testing/measure-figures.ts 60"
+    "bench:core": "node packages/core/src/testing/measure-figures.ts 60",
+    "bench:import": "HOLT_BENCH=1 vitest run --reporter=default apps/desktop/src/main/facts/import.bench.test.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

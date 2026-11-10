@@ -6,6 +6,12 @@
 export const channelMethods = {
   "holt:app-info": "appInfo",
   "holt:database-state": "databaseState",
+  "holt:facts-snapshot": "factsSnapshot",
+  "holt:run": "run",
+  "holt:history-step": "historyStep",
+  "holt:import-open": "importOpen",
+  "holt:import-plan": "importPlan",
+  "holt:import-commit": "importCommit",
 } as const;
 
 export type ChannelName = keyof typeof channelMethods;

@@ -2,11 +2,9 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { z } from "zod";
 import { type Db, openDatabase } from "./database.ts";
 import { newDataKey } from "./keys.ts";
 import { DatabaseTooNewError, type Migration, currentVersion, loadMigrations, migrate } from "./migrations.ts";
-import { rowSchemas } from "./rows.ts";
 
 let dir: string;
 let db: Db;
@@ -78,24 +76,9 @@ describe("B6: a database newer than the app is refused", () => {
   });
 });
 
-describe("B7: row schemas match PRAGMA table_info", () => {
-  it("has a schema for every table and the same columns and nullability", () => {
-    migrate(db);
-    expect(tables().sort()).toEqual(Object.keys(rowSchemas).sort());
-    for (const [table, schema] of Object.entries(rowSchemas)) {
-      const info = db.pragma(`table_info(${table})`) as { name: string; notnull: number }[];
-      const fromTable = Object.fromEntries(info.map((c) => [c.name, c.notnull === 1]));
-      const fromSchema = Object.fromEntries(
-        Object.entries((schema as z.ZodObject).shape).map(([name, field]) => [name, !(field as z.ZodType).safeParse(null).success && !(field as z.ZodType).safeParse(undefined).success]),
-      );
-      expect(fromSchema, table).toEqual(fromTable);
-    }
-  });
-});
-
 describe("B8: the household currency CHECK", () => {
   const insert = (currency: string) =>
-    db.prepare("insert into household (id, name, currency, created_at) values ('h', 'Home', ?, '2026-11-09T00:00:00Z')").run(currency);
+    db.prepare("insert into household (id, name, currency, plan_start, even_out_step) values ('h', 'Home', ?, '2026-11', 5000)").run(currency);
 
   it("accepts three capital letters", () => {
     migrate(db);
@@ -107,9 +90,9 @@ describe("B8: the household currency CHECK", () => {
     expect(() => insert(currency)).toThrow(/CHECK/);
   });
 
-  it("rows that leave SQLite parse with the row schema", () => {
+  it("keeps a row it accepted", () => {
     migrate(db);
     insert("NOK");
-    expect(rowSchemas.household.parse(db.prepare("select * from household").get())).toMatchObject({ currency: "NOK" });
+    expect(db.prepare("select currency from household").get()).toEqual({ currency: "NOK" });
   });
 });

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Packaging checks P1 to P5 (docs/milestone-1-test-plan.md). Builds Holt, so it takes a few minutes.
+# Packaging checks P1 to P6 (docs/milestone-1-test-plan.md). Builds Holt, so it takes a few minutes.
 #   scripts/check-packaging.sh
 # install.sh and uninstall.sh run against a scratch HOME. The real one is never touched.
 set -u
@@ -41,6 +41,14 @@ FOREIGN="$(find "$APP" \( -name '*darwin*' -o -name '*win32*' -o -name '*linuxmu
 check "P2 no foreign-platform files under node_modules" test -z "$FOREIGN"
 ASAR_FOREIGN="$(cd "$REPO" && pnpm dlx @electron/asar list "$APP/resources/app.asar" 2>/dev/null | grep -E 'prebuilds/(darwin|win32|linuxmusl|linux-arm64)|\.(dll|dylib)$' || true)"
 check "P2 no foreign-platform binaries inside app.asar" test -z "$ASAR_FOREIGN"
+
+# P6. The development seed and the end-to-end file picker are build options. The shipped bundle holds neither, and no invented household.
+ASAR_DIR="$SCRATCH/asar"
+(cd "$REPO" && pnpm dlx @electron/asar extract "$APP/resources/app.asar" "$ASAR_DIR" >/dev/null 2>&1)
+holds_no_seed() {
+  [ -f "$ASAR_DIR/out/main/index.js" ] && ! grep -rqE 'holt-dev-seed|HOLT_E2E_PICK_FILE|HOLT_RESEED|sample-imports' "$ASAR_DIR/out"
+}
+check "P6 the packaged app holds no development seed and no test file picker" holds_no_seed
 
 # The packaged app opens the encrypted database (decision 0041). It needs a keyring, so it uses a passphrase when there is none.
 if [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then

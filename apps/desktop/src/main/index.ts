@@ -1,8 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { app, safeStorage, shell } from "electron";
+import { mintId } from "../shared/ids.ts";
+import { systemClock } from "./clock.ts";
 import { registerIpc } from "./ipc.ts";
 import { lockDownNetwork } from "./network.ts";
 import { initAppDatabase } from "./storage/app-database.ts";
+import { createKeys, dataFolder, hasKeys } from "./storage/keystore.ts";
 import { createWindow } from "./window.ts";
 
 // ── 1. Key storage: never accept basic_text (technical-decisions.md §5) ─────
@@ -21,6 +24,10 @@ if (process.platform === "linux" && !app.commandLine.hasSwitch("password-store")
   app.commandLine.appendSwitch("password-store", "gnome-libsecret");
 }
 
+// Date fields follow Chromium's locale, which is US English by default ("11/09/2026" reads as 9 November or 11
+// September). The interface is British English until Norwegian arrives, so dates are written day first.
+app.commandLine.appendSwitch("lang", "en-GB");
+
 app.whenReady().then(async () => {
   const s2Check = app.commandLine.getSwitchValue("holt-s2-check");
   if (s2Check) {
@@ -31,9 +38,23 @@ app.whenReady().then(async () => {
 
   lockDownNetwork();
   registerIpc();
-  await initAppDatabase();
 
-  if (process.platform === "linux" && safeStorage.getSelectedStorageBackend() === "basic_text") {
+  // The seed and its passphrase exist only in builds that define __HOLT_DEV_SEED__, so the bundler drops this block from production.
+  let passphrase: string | undefined;
+  if (__HOLT_DEV_SEED__ && app.commandLine.hasSwitch("holt-seed")) {
+    const dev = await import("./dev/seed.ts");
+    passphrase = dev.devPassphrase;
+    await dev.seedDevData(dataFolder(), {
+      clock: systemClock,
+      mint: mintId,
+      packaged: app.isPackaged,
+      reseed: process.env["HOLT_RESEED"] === "1",
+      keys: { exists: hasKeys, create: createKeys },
+    });
+  }
+  await initAppDatabase(passphrase === undefined ? {} : { passphrase });
+
+  if (passphrase === undefined && process.platform === "linux" && safeStorage.getSelectedStorageBackend() === "basic_text") {
     // Spike S2: fall back to a passphrase (Argon2id) instead of storing the key unprotected.
     console.warn("[holt] No keyring available: the passphrase fallback is not built yet (spike S2).");
   }
