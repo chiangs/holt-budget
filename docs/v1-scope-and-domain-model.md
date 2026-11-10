@@ -86,7 +86,7 @@ No cloud services. Holt never uploads anything, though you can back up to a fold
 
 **8 Nov 2026 (architecture review)**
 
-10. **History and the plan start.** The family picks the first month Holt plans. Transactions before it are history. The estimates and recurring detection use them, and rules and recurring series sort them in bulk, but none of them wait in "needs you". Without this, a first import of 10 months would mean thousands of decisions before the first plan. Setup splits each account's balance at the plan start into buckets and an unbucketed remainder.
+10. **History and the plan start.** The family picks the first month Holt plans. Transactions before it are history, except income that funds a month from the plan start on: October's contributions still fund November. The estimates and recurring detection use them, and rules and recurring series sort them in bulk, but none of them wait in "needs you". Without this, a first import of 10 months would mean thousands of decisions before the first plan. Setup splits each account's balance at the plan start into buckets and an unbucketed remainder.
 11. **Moves at the bank.** Holt never moves money. When the plan needs money in another account, it lists a move for the family to make at the bank, and an import that shows the transfer marks it done. There are two kinds:
     - *one-off*, created by a plan change, such as seeding an evened-out bucket from Buffer;
     - *monthly*, each account's share of the month's plan, such as "each payday, move 22,060 kr to Regninger".
@@ -153,7 +153,7 @@ Each rule names what keeps it true. The table after the list says where each is 
    - Enforced by the branded `Money` type in core. Its constructor rejects anything that isn't a safe integer. Core has no conversion function, and an import refuses a file in another currency (decision 15).
 2. **Figures are calculated, never written by the AI.** The language model can choose a filter, propose a change or draft words. Every number the family sees is calculated by the app, estimates included. When the model writes words, it names each figure with a placeholder, and the app fills it in.
    - Enforced by the reply validator, which rejects any digit outside a placeholder (`technical-decisions.md` §6).
-3. **Every transaction in a shared account is accounted for, from the plan start on.** It is income, a transfer, or split across one or more jobs, with the splits summing exactly to the amount. Anything else sits in "needs you", in plain view. Earlier transactions are history (decision 10).
+3. **Every transaction in a shared account is accounted for, from the plan start on.** It is income, a transfer, or split across one or more jobs, with the splits summing exactly to the amount. Anything else sits in "needs you", in plain view. Earlier transactions are history (decision 10), except income that funds a month from the plan start on, which stays income.
    - Enforced by the transaction's treatment type in core. A split can only be built from allocations that sum to the amount.
 4. **Every unit of money has a job, or is visibly unassigned.** For each month: money available = unassigned carried in + income whose funds month is this month, which is usually money received in the previous month (decision 1). Unassigned = money available − total assigned. A negative figure is shown as "over-assigned", never hidden or fixed silently.
    - Enforced by core's single function for figures, with property tests.
@@ -183,11 +183,11 @@ Each rule names what keeps it true. The table after the list says where each is 
 | 2. Figures are calculated | Reply validator, Milestone 6 (not in core) |
 | 3. Every transaction accounted for | `facts.test.ts` (a split adds up) and `commands/check-facts.test.ts` |
 | 4. Every unit has a job, or is unassigned | `figures/months.test.ts`, a property over random plans |
-| 5. Accounts reconcile | `commands/apply.test.ts` (no command adjusts a balance); the balance check on import is Milestone 3 |
+| 5. Accounts reconcile | `commands/apply.test.ts` (no command adjusts a balance); `import/plan.test.ts` and `import/balance.test.ts` (the balance check on import flags a mismatch and never adjusts) |
 | 6. Buckets fit inside their account | `figures/accounts.test.ts`, a property |
 | 7. Transfers are not income or spending | `figures/accounts.test.ts`, a property |
 | 8. Nothing changes without approval | `proposal.test.ts` |
-| 9. Everything can be undone | `commands/apply.test.ts`, a property: undo all then redo all gives the same facts and figures at every step; `change-log.test.ts` |
+| 9. Everything can be undone | `commands/apply.test.ts`, a property: undo all then redo all gives the same facts and figures at every step; `change-log.test.ts`; `import/import.property.test.ts` (undoing an import restores the facts) |
 | 10. Entered values carry a date | `figures/entered-values.test.ts`, `commands/entered-values.test.ts` |
 | 11. Next month's money is not the buffer | `figures/buffer.test.ts` |
 | 12. Estimates are never actuals | `figures/jobs.test.ts`, `estimate.test.ts` |
@@ -201,7 +201,7 @@ Holt stores facts and works out figures. Only facts are saved, and undo only eve
 - one-off moves at the bank, and which moves are done
 - proposals and change records
 
-Everything else is a figure that one pure function in `packages/core` works out from the facts: bucket balances, unassigned and over-assigned money, money available, next month's money, the runway, estimates, contribution status, the calculated account balances, and each account's monthly move at the bank. A year of data is a few thousand rows, so working everything out again after each change takes milliseconds. Milestone 2 measured it: about 1.7 ms for a synthetic year of 3,500 transactions (`pnpm bench:core`). A monthly review keeps a frozen copy of its figures, which is how it shows that they changed after approval.
+Everything else is a figure that one pure function in `packages/core` works out from the facts: bucket balances, unassigned and over-assigned money, money available, next month's money, the runway, estimates, contribution status, the calculated account balances, and each account's monthly move at the bank. A year of data is a few thousand rows, so working everything out again after each change takes milliseconds. `pnpm bench:core` measures it, as a median of 100 runs on one core of a 32-thread desktop. A synthetic year of 3,547 transactions takes about 1.1 ms with the stand-in estimate and 1.8 ms with the real ones. The family's three years, 8,556 transactions with 8,500 import rows, take about 3 ms with 51 of them waiting in needs you, and about 4 ms with all of them waiting, as after a first import. The needs-you list and the import status are worked out when first read, so a pass that reads neither takes about 2 ms and 1 ms. The first pass in a new process takes 14 to 23 ms and the next eight 4 to 9 ms, while V8 optimises the code. A monthly review keeps a frozen copy of its figures, which is how it shows that they changed after approval.
 
 ## Changes are commands
 Every change is a command, whether the family makes it or accepts a proposal. "Assign 3,050 kr to Electricity in December" is a command, and so is "split this transaction". Core applies a command to the facts and works out the new figures. That one step serves four places:

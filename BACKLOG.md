@@ -27,11 +27,12 @@ Findings go in `docs/decisions/` as new records. Run them in the order S1, S2, S
 - [x] Tests for every rule in "Rules that must always hold", with fast-check property tests where the rule is an invariant.
 
 ## Milestone 3: Transactions
-- [ ] Import CSV/OFX with format profiles: import rows kept per file, duplicate matching that counts, the balance check, refusing a file in another currency, and undoing an import as a new command with a preview.
-- [ ] Transaction treatments (needs you, income with its funds month, transfer, split, history) and the plan start month.
-- [ ] Needs you, All and Imports tabs. Confirm or change a job, split, mark as transfer (pair matching), refund, note.
-- [ ] Rules ("always do this") and "same as last time" suggestions; the model only for the rest, as proposals.
-- [ ] "Up to date" status per account and import reminders.
+Built as decision 0047 describes. The model's job suggestions wait for the model adapter in Milestone 6.
+- [x] Import CSV/OFX with format profiles: import rows kept per file, duplicate matching that counts, the balance check, refusing a file in another currency, and undoing an import as a new command with a preview. (Formats are code and are recognised by their header, so no account stores a profile. Neither bank offers OFX; that reader was built from the format's published structure and has never met a real file.)
+- [x] Transaction treatments (needs you, income with its funds month, transfer, split, history) and the plan start month. (The plan start command exists and is tested. Its screen is Setup, Milestone 6.)
+- [x] Needs you, All and Imports tabs. Confirm or change a job, split, mark as transfer (pair matching), refund, note.
+- [x] Rules ("always do this") and "same as last time" suggestions. The model suggesting jobs for the rest, as proposals, moves to Milestone 6, with the model adapter.
+- [x] "Up to date" status per account and import reminders. (In the app: the account cards and the "Due" badge. Desktop notifications come with Settings in Milestone 6.)
 
 ## Milestone 4: Plan
 - [ ] Jobs table by group with assigned, spent and status. Assign and move money.
@@ -46,6 +47,7 @@ Findings go in `docs/decisions/` as new records. Run them in the order S1, S2, S
 ## Milestone 6: Setup, Recurring costs, Ask or find, Settings, Backup
 - [ ] Setup (7 steps), including the household's currency, the first import of the year so far, the plan start month with each account's balance split into buckets, runtime detection, the backup folder and the recovery code.
 - [ ] Recurring costs: detection, subscriptions shelf, cancel-and-watch, price-rise and new-charge flags, contract reminders.
+- [ ] The model suggests jobs for the transactions no rule and no earlier choice covers, as proposals with their evidence, from Milestone 3's Needs you list (moved here from Milestone 3 because it needs the model adapter). A dismissal for a suggestion (key X) needs somewhere to be remembered, so decide that with it.
 - [ ] Ask or find: Find (no AI) and Ask (filter → core → words), with show working.
 - [ ] Settings list, Follow my desktop (Caelestia), and backups: automatic and versioned, written to a temporary file and renamed into place, restored with the recovery code.
 

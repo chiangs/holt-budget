@@ -87,7 +87,7 @@ apps/desktop        Electron main (database, imports, AI client, files), preload
 
 ## 4. Storage: SQLite, encrypted
 - **One database file** in `$XDG_DATA_HOME/holt/` (usually `~/.local/share/holt/`), in WAL mode. `pnpm dev` uses `holt-dev` instead, filled with synthetic data, so development never opens the family's database (§13).
-- **Migrations** are plain SQL files, applied in order and tracked with `PRAGMA user_version`. No ORM. Each table has a small typed module in the main process, and rows are parsed with Zod (§15) as they leave SQLite. A test compares each row schema with `PRAGMA table_info`, so a migration and its type can't drift apart.
+- **Migrations** are plain SQL files, applied in order and tracked with `PRAGMA user_version`. No ORM. One registry in `apps/desktop/src/main/facts/columns.ts` maps every Facts table to its columns, and rows are parsed with Zod (§15) as they leave SQLite. A test compares the registry with `PRAGMA table_xinfo` and with the keys of each row schema, so a migration and its type can't drift apart. Only the folder's `index.ts` may be imported from outside it (`pnpm lint:facts`).
 - **Library: better-sqlite3-multiple-ciphers** (MIT): fast, synchronous, page-level encryption (default ChaCha20-Poly1305, with a SQLCipher-compatible mode). Plain `node:sqlite` has no encryption, and node-sqlite3 was archived in July 2026. The fallback is @signalapp/sqlcipher.
 - **Backups:** see §14.
 - **Undo** is built on the change-record table. Each record holds the command and every affected row before and after, as in the domain model.

@@ -35,10 +35,11 @@ The real files stay in `private/fixtures/` and are never committed.
   - the description and the amount as `Money` in øre;
   - the counterpart's account or name, the KID and the bank's type;
   - the original foreign amount, and the line number.
+  - a cleaned counterparty name (`cleanCounterparty`) and a `pending` flag. Neither bank marks pending rows, and none of the three real files contains one, so the flag is always false for them (Milestone 3).
 - `readCsv` reads quoted fields, doubled quotes, byte-order marks, and LF or CRLF line ends.
 - Errors name the line: "Line 3: "-20,0x" isn't an amount."
 - `scripts/make-synthetic.ts` (`pnpm --filter @holt/importers synthetic`) writes synthetic files in each bank's exact format to `fixtures/synthetic/`, and those are committed. Every name, account number and amount in them is invented.
-- There are 21 tests. 18 run on the synthetic files, and 3 run on the family's real files when `private/fixtures/` exists and skip otherwise. All three real files are read completely: 8,556, 32 and 4 rows.
+- Milestone 3 moved the row shape into core (`StatementRow`, `StatementFile`), added OFX 1.x and 2.x (built from the published structure with synthetic fixtures, because neither bank offers it), `decodeStatement` (UTF-8, else Windows-1252) and the synthetic generator as a function. There are now 198 tests. Most run on the synthetic files, and 3 run on the family's real files when `private/fixtures/` exists and skip otherwise. All three real files are read completely: 8,556, 32 and 4 rows.
 - `private/public-patterns.txt` now also blocks the family's account numbers (in both spellings), the loan payments and the loans' identifiers. A synthetic file once copied the real loan payment by accident, and this check missed it then.
 
 ## Open for Milestone 3

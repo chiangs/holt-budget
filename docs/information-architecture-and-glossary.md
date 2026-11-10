@@ -140,8 +140,8 @@ Single keys, no modifiers, designed for small keyboards.
 | Enter | Open the selected item |
 | E | Edit the selected item |
 | Space | Accept the selected suggestion (Transactions, Recurring costs) |
-| X | Dismiss the selected suggestion |
-| U | Undo the last change |
+| X | Dismiss the selected suggestion (not built yet: a dismissal needs somewhere to be remembered, see decision 0047) |
+| U | Undo the last change (on Transactions, the last change made on that screen) |
 | Shift U | Redo |
 | / | Filter or search within the current screen |
 | ? or H | Show all shortcuts |
