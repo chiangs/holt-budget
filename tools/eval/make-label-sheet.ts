@@ -5,7 +5,8 @@
 // Run: node tools/eval/make-label-sheet.ts   (writes private/labels/s3-labels.csv)
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { type ParsedRow, recogniseFormat } from "@holt/importers";
+import type { StatementRow } from "@holt/core";
+import { recogniseFormat } from "@holt/importers";
 
 const root = join(import.meta.dirname, "..", "..");
 const fixtures = join(root, "private", "fixtures");
@@ -21,7 +22,7 @@ if (existsSync(out)) {
   process.exit(1);
 }
 
-const rows: (ParsedRow & { file: string })[] = [];
+const rows: (StatementRow & { file: string })[] = [];
 for (const name of readdirSync(fixtures).filter((f) => f.toLowerCase().endsWith(".csv"))) {
   const text = readFileSync(join(fixtures, name), "utf8");
   const format = recogniseFormat(text);

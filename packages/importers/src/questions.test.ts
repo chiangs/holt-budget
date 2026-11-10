@@ -2,9 +2,9 @@
 // Both stay in private/, so this runs only on a machine that has them.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { AskReply, type QueryableTransaction, currency, evaluateTransactionQuery } from "@holt/core";
+import { AskReply, type QueryableTransaction, type StatementRow, currency, evaluateTransactionQuery } from "@holt/core";
 import { describe, expect, it } from "vitest";
-import { type ParsedRow, recogniseFormat } from "./index.ts";
+import { recogniseFormat } from "./index.ts";
 
 const privateFolder = join(import.meta.dirname, "..", "..", "..", "private");
 const questionsFile = join(privateFolder, "questions.json");
@@ -18,7 +18,7 @@ interface Question {
 }
 
 function realTransactions(): QueryableTransaction[] {
-  const rows: (ParsedRow & { file: string })[] = [];
+  const rows: (StatementRow & { file: string })[] = [];
   for (const name of readdirSync(fixtures).filter((f) => f.toLowerCase().endsWith(".csv"))) {
     const text = readFileSync(join(fixtures, name), "utf8");
     for (const row of recogniseFormat(text)!.parse(text).rows) rows.push({ ...row, file: name });
