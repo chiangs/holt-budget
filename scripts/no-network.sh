@@ -11,6 +11,10 @@
 # Needs: unshare, ip, tcpdump, bash. Build first: pnpm --filter @holt/desktop build
 # The app must accept --holt-smoke-exit: log "[holt] smoke-exit: window loaded"
 # once the main window has loaded, then quit with status 0.
+#
+# HOLT_NO_NETWORK_SEEDED=1 runs a development or e2e build on the synthetic household (the seed exists in no
+# production build), so the check also covers the app with a database open, figures worked out and a
+# store loaded. The default run checks the production build as it ships.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -67,7 +71,12 @@ electron="$root/apps/desktop/node_modules/.bin/electron"
 log="$work/app.log"
 status=0
 # --map-root-user makes the app run as root, which Chromium refuses with its sandbox on.
-timeout 90 "$electron" --no-sandbox "$root/apps/desktop" --holt-smoke-exit >"$log" 2>&1 || status=$?
+run_app=(timeout 90 "$electron" --no-sandbox "$root/apps/desktop" --holt-smoke-exit)
+if [[ "${HOLT_NO_NETWORK_SEEDED:-}" == "1" ]]; then
+  run_app=(timeout 90 env XDG_DATA_HOME="$work/data" XDG_CONFIG_HOME="$work/config" XDG_CACHE_HOME="$work/cache"
+    "$electron" --no-sandbox "$root/apps/desktop" --user-data-dir="$work/profile" --holt-seed --password-store=basic --holt-smoke-exit)
+fi
+"${run_app[@]}" >"$log" 2>&1 || status=$?
 
 sleep 0.5
 if [[ $(wc -l <"$capture") -gt $seen_before ]]; then
@@ -80,4 +89,7 @@ if [[ $status -ne 0 ]]; then
   die "the app exited with status $status (124 means it never finished: does it support --holt-smoke-exit?)"
 fi
 grep -qF "$marker" "$log" || { tail -n 30 "$log" >&2; die "the app exited but never reported that its window loaded"; }
+if [[ "${HOLT_NO_NETWORK_SEEDED:-}" == "1" ]]; then
+  grep -qF "holt-dev-seed:" "$log" || die "the seeded run never reported that it seeded the household"
+fi
 echo "no-network: ok. The window loaded, the app exited cleanly and no packet left the machine."

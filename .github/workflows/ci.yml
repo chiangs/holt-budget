@@ -12,6 +12,7 @@ jobs:
       - run: git diff --exit-code packages/ui/src/tokens.css
       - run: pnpm lint:colours
       - run: pnpm lint:network
+      - run: pnpm lint:facts
       - run: pnpm lint:strings
       - run: pnpm typecheck
       - run: pnpm test
@@ -40,6 +41,8 @@ jobs:
       - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: pnpm build
       - run: pnpm test:no-network
+      - run: pnpm --filter @holt/desktop build:e2e
+      - run: HOLT_NO_NETWORK_SEEDED=1 pnpm test:no-network
 
   packaging:
     runs-on: ubuntu-latest
