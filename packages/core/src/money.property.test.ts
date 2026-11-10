@@ -50,7 +50,8 @@ describe("rule 1: money is whole minor units", () => {
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 100_000_000 }), fc.integer({ min: 0, max: 99 }), fc.boolean(), (whole, cents, negative) => {
         const text = `${negative ? "-" : ""}${whole},${String(cents).padStart(2, "0")}`;
-        const expected = (negative ? -1 : 1) * (whole * 100 + cents);
+        const magnitude = whole * 100 + cents;
+        const expected = negative && magnitude !== 0 ? -magnitude : magnitude;
         expect(parseMoney(text, NOK)).toBe(expected);
       }),
     );

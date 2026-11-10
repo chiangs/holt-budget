@@ -6,3 +6,7 @@ release/
 .DS_Store
 # The first household's details and real bank exports stay on this machine
 private/
+
+# Test run output
+test-results/
+.vitest/
