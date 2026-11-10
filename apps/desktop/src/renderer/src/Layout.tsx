@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router";
 import { useIntl } from "react-intl";
 import { Cpu, Search } from "lucide-react";
 import { AskOverlay } from "./AskOverlay.tsx";
+import { TransactionsBadge } from "./routes/transactions/TransactionsBadge.tsx";
 import { askKey, screens, type Screen } from "./screens.ts";
 
 const isTextField = (target: EventTarget | null): boolean =>
@@ -53,6 +54,7 @@ function NavRow({ screen }: { screen: Screen }) {
     <NavLink to={path} end={path === "/"} className="nav-row" aria-keyshortcuts={key}>
       <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
       <span className="nav-label">{intl.formatMessage({ id: navId })}</span>
+      {path === "/transactions" && <TransactionsBadge />}
       <KeyChip letter={key} />
     </NavLink>
   );

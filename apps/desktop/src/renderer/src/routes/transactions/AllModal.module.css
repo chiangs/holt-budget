@@ -1,0 +1,30 @@
+/* Shared by the browse dialogs. Tokens only; glass follows the same rules as the Ask dialog in styles.css. */
+
+.dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  margin: auto;
+  padding: var(--space-5) var(--space-6);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+  overflow: auto;
+}
+
+.wide {
+  width: min(720px, calc(100vw - 32px));
+}
+
+.dialog::backdrop {
+  background: var(--scrim);
+}
+
+[data-glass="on"] .dialog {
+  background: var(--glass-panel-strong);
+  border-color: var(--glass-edge);
+  box-shadow: var(--shadow-glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}

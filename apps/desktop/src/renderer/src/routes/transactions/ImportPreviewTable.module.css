@@ -1,0 +1,98 @@
+.wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+}
+.table th {
+  padding: var(--space-3) var(--space-3);
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.table td {
+  padding: var(--space-2) var(--space-3);
+  vertical-align: middle;
+  border-top: 1px solid var(--line);
+}
+.table tbody tr:first-child td {
+  border-top: 0;
+}
+.table th.amountHead {
+  text-align: right;
+}
+.date {
+  white-space: nowrap;
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.description {
+  min-width: 140px;
+  overflow-wrap: anywhere;
+}
+.amount {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.job {
+  min-width: 170px;
+}
+.why {
+  color: var(--text-muted);
+  min-width: 160px;
+}
+.waiting td {
+  background: var(--attention-soft);
+}
+.waiting td:first-child {
+  box-shadow: inset 4px 0 0 var(--attention);
+}
+.pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pick:hover {
+  background: var(--surface-raised);
+}
+.pick:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.pickWaiting {
+  border-color: var(--attention);
+  font-weight: 600;
+}
+.pickText {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pick svg {
+  flex: 0 0 auto;
+}
+.plain {
+  display: inline-block;
+  padding: 0 var(--space-3);
+}

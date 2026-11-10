@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import { RouterProvider } from "react-router/dom";
 import { AppearanceProvider } from "./appearance.tsx";
+import { LedgerProvider } from "./data/ledger.tsx";
 import { locale, messages } from "./i18n/messages.ts";
 import { router } from "./router.tsx";
 // Fonts are bundled from npm (SIL OFL 1.1), never loaded from the internet.
@@ -22,7 +23,7 @@ createRoot(root).render(
   <StrictMode>
     <IntlProvider locale={locale} messages={messages}>
       <AppearanceProvider>
-        <RouterProvider router={router} />
+        <LedgerProvider><RouterProvider router={router} /></LedgerProvider>
       </AppearanceProvider>
     </IntlProvider>
   </StrictMode>,

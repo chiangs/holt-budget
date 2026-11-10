@@ -1,0 +1,30 @@
+.check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.suggest {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--target-min);
+  cursor: pointer;
+}
+.suggest input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+  accent-color: var(--accent);
+}
+.help {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-muted);
+}
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

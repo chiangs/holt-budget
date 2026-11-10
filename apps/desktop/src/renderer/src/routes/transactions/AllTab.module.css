@@ -1,0 +1,78 @@
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.count {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.problem {
+  background: var(--attention-soft);
+}
+
+.noticeText {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.empty p {
+  margin: 0;
+}
+
+.browse {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.withDetail {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+}
+
+.detail {
+  position: sticky;
+  top: var(--space-4);
+  max-height: calc(100vh - var(--space-8));
+  min-width: 0;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+}
+
+.detail:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+[data-glass="on"] .empty {
+  background: var(--glass-panel-strong);
+  border-color: var(--glass-edge);
+}

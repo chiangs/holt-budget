@@ -1,0 +1,60 @@
+.tab { display: flex; flex-direction: column; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+.intro { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.keys { color: var(--text-muted); font-size: 13px; line-height: 18px; }
+
+.feedback { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.feedback:not(:empty), .alert:not(:empty) { margin-bottom: var(--space-3); }
+.problem { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--danger-soft); color: var(--text); }
+.said { margin: 0; }
+
+.box {
+  container-type: inline-size;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+:global([data-glass="on"]) .box {
+  background: var(--glass-panel-strong); border-color: var(--glass-edge); box-shadow: var(--shadow-glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%); backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+/* One set of columns for every row, so the suggestions line up whatever buttons each row has. */
+.list {
+  display: grid; margin: 0; padding: 0; list-style: none;
+  grid-template-columns: calc(4.5rem + var(--space-4) + 3px) minmax(0, 1.2fr) 8.5rem minmax(0, 1.5fr) max-content;
+}
+
+.row {
+  grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; column-gap: var(--space-4); row-gap: var(--space-2);
+  grid-template-areas: "when who amount why actions";
+  padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); border-left: 3px solid transparent;
+}
+.row:last-child { border-bottom: 0; }
+.row[data-selected="true"] { background: var(--accent-soft); border-left-color: var(--accent); }
+.row:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+.when { grid-area: when; font-family: var(--font-data); font-size: 13px; line-height: 20px; }
+.who { grid-area: who; display: flex; flex-direction: column; min-width: 0; }
+.name { font-weight: 600; overflow-wrap: anywhere; }
+.meta { color: var(--text-muted); font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
+.amount { grid-area: amount; font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.why { grid-area: why; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.job { font-weight: 500; overflow-wrap: anywhere; }
+.none { color: var(--text-muted); font-weight: 400; }
+.because { color: var(--text-muted); font-size: 13px; line-height: 18px; }
+.actions { grid-area: actions; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); }
+
+.full { grid-column: 1 / -1; }
+.note { margin: 0; color: var(--text-muted); font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
+.menu { display: flex; flex-wrap: wrap; gap: var(--space-2); padding-top: var(--space-2); border-top: 1px dashed var(--line); }
+.noteForm { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.noteField { flex: 1 1 14rem; min-width: 0; }
+
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-8) var(--space-4); text-align: center; }
+.empty p { margin: 0; }
+.more { align-self: center; margin-top: var(--space-4); }
+
+@container (max-width: 880px) {
+  .list { grid-template-columns: calc(4.5rem + var(--space-4) + 3px) minmax(0, 1fr) auto; }
+  .row { grid-template-areas: "when who amount" "why why why" "actions actions actions"; }
+  .actions { justify-content: flex-start; }
+}

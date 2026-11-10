@@ -1,0 +1,39 @@
+/* Buttons, fields and small labels that the Transactions screen shares. Tokens only. */
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 40px; padding: 0 var(--space-4); border-radius: var(--radius-md);
+  border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  font: inherit; font-weight: 500; cursor: pointer; white-space: nowrap;
+}
+.button:hover:not(:disabled) { background: var(--surface-raised); }
+.button:disabled { color: var(--text-muted); cursor: default; }
+
+.primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
+.primary:disabled { border-color: var(--line); background: var(--surface-raised); color: var(--text-muted); }
+
+.large { min-height: var(--target-min); padding: 0 var(--space-5); }
+
+.key {
+  min-width: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid currentColor;
+  font-family: var(--font-data); font-size: 11px; line-height: 18px; text-align: center; opacity: 0.75;
+}
+
+.field {
+  min-height: 40px; padding: 0 var(--space-3); border-radius: var(--radius-md);
+  border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit;
+}
+.field:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--accent); }
+
+.pill {
+  display: inline-flex; align-items: center; padding: 0 var(--space-2); border-radius: var(--radius-full);
+  background: var(--surface-raised); color: var(--text); font-size: 12px; line-height: 20px;
+}
+.attention { background: var(--attention-soft); }
+.good { background: var(--accent-soft); }
+
+.visuallyHidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

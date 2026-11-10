@@ -1,8 +1,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { refusalCodes } from "@holt/core";
 import { createIntl } from "react-intl";
 import { describe, expect, it } from "vitest";
-import { locale, messages } from "./messages.ts";
+import { locale, mergeMessages, messages } from "./messages.ts";
 
 const sourceRoot = join(import.meta.dirname, "..");
 
@@ -25,10 +26,15 @@ function usedIds(): Map<string, string> {
   return used;
 }
 
-// Messages kept for screens that arrive later in Milestone 1 or after.
-const reserved = new Set<string>([]);
+// Messages kept for screens that arrive later in Milestone 1 or after, and the refusal words, which refusal.ts looks up by code.
+const reserved = new Set<string>(refusalCodes.map((code) => `refusal.${code}`));
 
 describe("message files", () => {
+  it("an ID in two message files is an error, so screens can't silently overwrite each other", () => {
+    expect(() => mergeMessages({ "a.b": "One" }, { "a.b": "Two" })).toThrow(/two message files/);
+    expect(mergeMessages({ "a.b": "One" }, { "a.c": "Two" })).toEqual({ "a.b": "One", "a.c": "Two" });
+  });
+
   it("M2: every message ID used in the code exists in the en-GB file", () => {
     const missing = [...usedIds()].filter(([id]) => !(id in messages)).map(([id, file]) => `${id} in ${file}`);
     expect(missing).toEqual([]);

@@ -4,14 +4,7 @@ import { createRequire } from "node:module";
 import { expect, test, type Page } from "@playwright/test";
 import { launchHolt, type HoltApp } from "./launch.ts";
 
-const messages: Record<string, string> = JSON.parse(
-  readFileSync(join(import.meta.dirname, "../src/renderer/src/messages/en-GB.json"), "utf8"),
-);
-const say = (id: string): string => {
-  const text = messages[id];
-  if (text === undefined) throw new Error(`No message ${id}`);
-  return text;
-};
+import { say } from "./messages.ts";
 
 // The screen map (information-architecture-and-glossary.md). Ask or find is not a route.
 const routes = [

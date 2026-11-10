@@ -1,0 +1,96 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-muted);
+}
+.accounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.account {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto auto minmax(150px, 1.4fr);
+  align-items: end;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.name {
+  font-weight: 600;
+}
+.rows {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-muted);
+}
+.fields {
+  display: contents;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-muted);
+}
+.field input {
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+.amount input {
+  width: 190px;
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.field input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 14px;
+  line-height: 20px;
+}
+.wide {
+  grid-column: 1 / -1;
+}
+.quiet {
+  color: var(--text-muted);
+}
+.problem {
+  color: var(--danger);
+}
+
+@media (max-width: 1000px) {
+  .account {
+    grid-template-columns: 1fr 1fr;
+  }
+  .identity,
+  .result {
+    grid-column: 1 / -1;
+  }
+  .amount input {
+    width: 100%;
+  }
+}
