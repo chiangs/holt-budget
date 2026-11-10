@@ -147,7 +147,7 @@ erDiagram
 Buckets and estimates aren't in the diagram, because the app works them out instead of storing them (see "Facts and figures").
 
 ## Rules that must always hold
-Each rule names what keeps it true. Most of these mechanisms are still to build, and each lands with its milestone in `BACKLOG.md`.
+Each rule names what keeps it true. The table after the list says where each is proved. Core (Milestone 2) enforces rules 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 and 12. Rule 2 lands with the reply validator in Milestone 6, and rule 13 is enforced by Milestone 1's checks.
 
 1. **Money is whole minor units, in one currency.** Amounts are stored as integers in the currency's smallest unit (øre for NOK, cents for EUR and USD, whole yen for JPY) and shown in the household's currency. The household has one currency and nothing converts. No fractions, no rounding drift.
    - Enforced by the branded `Money` type in core. Its constructor rejects anything that isn't a safe integer. Core has no conversion function, and an import refuses a file in another currency (decision 15).
@@ -176,6 +176,23 @@ Each rule names what keeps it true. Most of these mechanisms are still to build,
 13. **Nothing leaves the machine.**
     - Enforced by one loopback-only function for all main-process HTTP, a lint rule against other network modules, and a no-network test in a loopback-only network namespace (`technical-decisions.md` §3).
 
+### Where each rule is proved
+| Rule | Test |
+|---|---|
+| 1. Whole minor units | `packages/core/src/money.property.test.ts` |
+| 2. Figures are calculated | Reply validator, Milestone 6 (not in core) |
+| 3. Every transaction accounted for | `facts.test.ts` (a split adds up) and `commands/check-facts.test.ts` |
+| 4. Every unit has a job, or is unassigned | `figures/months.test.ts`, a property over random plans |
+| 5. Accounts reconcile | `commands/apply.test.ts` (no command adjusts a balance); the balance check on import is Milestone 3 |
+| 6. Buckets fit inside their account | `figures/accounts.test.ts`, a property |
+| 7. Transfers are not income or spending | `figures/accounts.test.ts`, a property |
+| 8. Nothing changes without approval | `proposal.test.ts` |
+| 9. Everything can be undone | `commands/apply.test.ts`, a property: undo all then redo all gives the same facts and figures at every step; `change-log.test.ts` |
+| 10. Entered values carry a date | `figures/entered-values.test.ts`, `commands/entered-values.test.ts` |
+| 11. Next month's money is not the buffer | `figures/buffer.test.ts` |
+| 12. Estimates are never actuals | `figures/jobs.test.ts`, `estimate.test.ts` |
+| 13. Nothing leaves the machine | `pnpm lint:network` and `pnpm test:no-network` (Milestone 1) |
+
 ## Facts and figures
 Holt stores facts and works out figures. Only facts are saved, and undo only ever restores facts:
 - transactions, import rows and allocations
@@ -184,7 +201,7 @@ Holt stores facts and works out figures. Only facts are saved, and undo only eve
 - one-off moves at the bank, and which moves are done
 - proposals and change records
 
-Everything else is a figure that one pure function in `packages/core` works out from the facts: bucket balances, unassigned and over-assigned money, money available, next month's money, the runway, estimates, contribution status, the calculated account balances, and each account's monthly move at the bank. A year of data is a few thousand rows, so working everything out again after each change should take milliseconds. Milestone 2 measures it. A monthly review keeps a frozen copy of its figures, which is how it shows that they changed after approval.
+Everything else is a figure that one pure function in `packages/core` works out from the facts: bucket balances, unassigned and over-assigned money, money available, next month's money, the runway, estimates, contribution status, the calculated account balances, and each account's monthly move at the bank. A year of data is a few thousand rows, so working everything out again after each change takes milliseconds. Milestone 2 measured it: about 1.7 ms for a synthetic year of 3,500 transactions (`pnpm bench:core`). A monthly review keeps a frozen copy of its figures, which is how it shows that they changed after approval.
 
 ## Changes are commands
 Every change is a command, whether the family makes it or accepts a proposal. "Assign 3,050 kr to Electricity in December" is a command, and so is "split this transaction". Core applies a command to the facts and works out the new figures. That one step serves four places:

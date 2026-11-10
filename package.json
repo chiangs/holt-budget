@@ -21,7 +21,8 @@
     "lint:strings": "node scripts/check-strings.mjs",
     "test:e2e": "playwright test -c apps/desktop/playwright.config.ts",
     "test:no-network": "bash scripts/no-network.sh",
-    "test:packaging": "bash scripts/check-packaging.sh"
+    "test:packaging": "bash scripts/check-packaging.sh",
+    "bench:core": "node packages/core/src/testing/measure-figures.ts 60"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

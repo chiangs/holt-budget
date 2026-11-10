@@ -21,10 +21,10 @@ Findings go in `docs/decisions/` as new records. Run them in the order S1, S2, S
 - [ ] Fix the app icon in the AppImage. `linux.icon` in `apps/desktop/electron-builder.yml` isn't picked up, so electron-builder warns that it uses the default Electron icon. Not a priority.
 
 ## Milestone 2: Core money model
-- [ ] `packages/core`: money (minor units of the household's one currency), branded dates (`LocalDate`, `Month`) and IDs, household, accounts, groups, jobs (three kinds, each with the account where its money sits; spend jobs planned with Set amount, Follow the bills or Even it out), the buffer, budget months (planned, open, closed, reopened), assignments, buckets as the money a job keeps, unassigned and over-assigned, next month's money, moves at the bank, entered values.
-- [ ] One pure function that works out every figure from the facts. Measure it on a year of synthetic data.
-- [ ] Commands: one `apply` for previews, proposals and changes; change records with each row before and after; undo and redo.
-- [ ] Tests for every rule in "Rules that must always hold", with fast-check property tests where the rule is an invariant.
+- [x] `packages/core`: money (minor units of the household's one currency), branded dates (`LocalDate`, `Month`) and IDs, household, accounts, groups, jobs (three kinds, each with the account where its money sits; spend jobs planned with Set amount, Follow the bills or Even it out), the buffer, budget months (planned, open, closed, reopened), assignments, buckets as the money a job keeps, unassigned and over-assigned, next month's money, moves at the bank, entered values.
+- [x] One pure function that works out every figure from the facts. Measure it on a year of synthetic data.
+- [x] Commands: one `apply` for previews, proposals and changes; change records with each row before and after; undo and redo.
+- [x] Tests for every rule in "Rules that must always hold", with fast-check property tests where the rule is an invariant.
 
 ## Milestone 3: Transactions
 - [ ] Import CSV/OFX with format profiles: import rows kept per file, duplicate matching that counts, the balance check, refusing a file in another currency, and undoing an import as a new command with a preview.
@@ -48,6 +48,12 @@ Findings go in `docs/decisions/` as new records. Run them in the order S1, S2, S
 - [ ] Recurring costs: detection, subscriptions shelf, cancel-and-watch, price-rise and new-charge flags, contract reminders.
 - [ ] Ask or find: Find (no AI) and Ask (filter → core → words), with show working.
 - [ ] Settings list, Follow my desktop (Caelestia), and backups: automatic and versioned, written to a temporary file and renamed into place, restored with the recovery code.
+
+## To decide
+- [ ] **An updater for the installed copy** (Stephen, 9 Nov 2026: "like it does in Fenmyr"). It conflicts with "No auto-updater" and "nothing leaves the machine" (`technical-decisions.md` §3, decision 0042), so it needs a decision before any code. Options:
+  - Keep `./install.sh --update` (git pull and rebuild, exists today), and add a menu or Settings line that shows how to run it. No network call from Holt.
+  - A button in Settings → Data that runs the update on request, with no background check. The one network call is `git` talking to GitHub, started by you, and outside Holt's own process.
+  - A background check for a new version. This is a network call from Holt and needs a written exception to the rule and a switch in Settings.
 
 ## v1.x (after three real monthly cycles)
 - [ ] Insurance.
