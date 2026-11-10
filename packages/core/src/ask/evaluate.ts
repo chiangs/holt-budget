@@ -33,7 +33,7 @@ export interface AskContext {
 /** A sum, average or monthly average is money; a count is a number of transactions. */
 export type Value = { readonly kind: "money"; readonly amount: Money } | { readonly kind: "count"; readonly count: number };
 
-export interface Group {
+export interface ResultGroup {
   readonly key: string;
   readonly value: Value;
   readonly transactions: number;
@@ -45,7 +45,7 @@ export interface TransactionResult {
   readonly from: string;
   readonly to: string;
   readonly value: Value;
-  readonly groups?: readonly Group[];
+  readonly groups?: readonly ResultGroup[];
   /** Every matching transaction, for "show working"; for a list with `top`, only the ones kept. */
   readonly matched: readonly QueryableTransaction[];
 }
@@ -179,7 +179,7 @@ export function evaluateTransactionQuery(
     const key = groupKey(t, query.groupBy);
     byKey.set(key, [...(byKey.get(key) ?? []), t]);
   }
-  let groups: Group[] = [...byKey].map(([key, members]) => ({ key, value: measure(query, members, months), transactions: members.length }));
+  let groups: ResultGroup[] = [...byKey].map(([key, members]) => ({ key, value: measure(query, members, months), transactions: members.length }));
   groups = query.top === undefined
     ? groups.toSorted((a, b) => a.key.localeCompare(b.key))
     : groups.toSorted((a, b) => size(b.value) - size(a.value) || a.key.localeCompare(b.key)).slice(0, query.top);

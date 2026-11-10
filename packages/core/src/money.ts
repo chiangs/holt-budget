@@ -26,7 +26,8 @@ export function money(value: number): Money {
   if (!Number.isSafeInteger(value)) {
     throw new MoneyError(`Not a whole number of minor units: ${value}`);
   }
-  return value as Money;
+  // Math.ceil(-0.4) is -0. It is a safe integer, but it is not equal to 0 under Object.is, so keep it out of every amount.
+  return (value === 0 ? 0 : value) as Money;
 }
 
 /** Check a currency code. Throws unless it is an ISO 4217 code that the runtime knows. */
