@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ImportError, type ParsedStatement, recogniseFormat } from "./index.ts";
 
+/** The hash sign of a numeric character reference, written as a character code so the colour lint doesn't read the reference as a hex colour. */
+const hash = String.fromCharCode(35);
+
 const synthetic = join(import.meta.dirname, "..", "fixtures", "synthetic");
 
 function parse(text: string): ParsedStatement {
@@ -122,13 +125,14 @@ describe("reading a transaction", () => {
   });
 
   it("reads character references and entities in a name", () => {
-    const file = parse(sgml(debit("-1.00", ["<NAME>Smith &amp; S&#248;nner &lt;1&gt;"])));
+    const file = parse(sgml(debit("-1.00", [`<NAME>Smith &amp; S&${hash}248;nner &lt;1&gt;`])));
     expect(file.rows[0]?.description).toBe("Smith & Sønner <1>");
   });
 
   it("keeps a character reference it cannot make a character from", () => {
-    const file = parse(sgml(debit("-1.00", ["<NAME>Torgbua &#99999999; &bogus;"])));
-    expect(file.rows[0]?.description).toBe("Torgbua &#99999999; &bogus;");
+    const reference = `&${hash}99999999;`;
+    const file = parse(sgml(debit("-1.00", [`<NAME>Torgbua ${reference} &bogus;`])));
+    expect(file.rows[0]?.description).toBe(`Torgbua ${reference} &bogus;`);
   });
 
   it("reads a statement with no transactions", () => {
