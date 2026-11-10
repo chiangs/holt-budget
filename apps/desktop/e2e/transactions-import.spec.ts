@@ -102,6 +102,8 @@ test.describe.serial("importing a bank file on the synthetic household", () => {
     mkdirSync(samples, { recursive: true });
     const eur = readFileSync(join(import.meta.dirname, "../../../packages/importers/fixtures/synthetic/statement-1x.ofx"), "utf8").replace("<CURDEF>NOK", "<CURDEF>EUR");
     writeFileSync(join(samples, "euro.ofx"), eur);
+    // The same synthetic OFX file, for the household's Everyday account (the fixture's own account is not in the household).
+    writeFileSync(join(samples, "known.ofx"), eur.replace("<CURDEF>EUR", "<CURDEF>NOK").replace("97600060001", "97101110001"));
     writeFileSync(join(samples, "notes.txt"), "These are my notes, not a bank file.\n");
     const header = readFileSync(join(samples, importedFile), "utf8").split("\n")[0];
     const known = "2026-11-05;-70,00;-70,00;NOK;;Kiosk;Mat;9710.11.10003;Betaling;Kiosk;;Mat;Dagligvarer";
@@ -340,6 +342,20 @@ test.describe.serial("importing a bank file on the synthetic household", () => {
       expect(await list.innerText(), how).toBe(listed);
       expect(await counts(), how).toEqual(state);
     }
+  });
+
+  test("an OFX file is read, and the screen says the app has never read a real bank file in that format", async () => {
+    await pick("known.ofx");
+    await openImport();
+    await expect(dialog().getByRole("heading", { name: say("import.dialog.checkTitle") })).toBeVisible();
+    await expect(dialog().getByText(say("import.notice.unproven"), { exact: true })).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await pick(importedFile);
+    await openImport();
+    await expect(dialog().getByRole("heading", { name: say("import.dialog.checkTitle") })).toBeVisible();
+    await expect(dialog().getByText(say("import.notice.unproven"), { exact: true })).toHaveCount(0);
+    await page.keyboard.press("Escape");
   });
 
   test("a file in another currency, one the app doesn't know, one it can't read and one that isn't there each say why", async () => {

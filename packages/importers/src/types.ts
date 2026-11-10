@@ -18,6 +18,8 @@ export type BankFormatId = "bulder-csv" | "sparebank1-csv" | "ofx";
 export interface BankFormat {
   readonly id: BankFormatId;
   readonly bank: string;
+  /** False until the format has read a real file from a bank's own export. Mirrors `unprovenFormats`, which the page reads. */
+  readonly proven: boolean;
   /** True when the start of the file is this format's header. The text may start with a byte-order mark. */
   readonly recognises: (text: string) => boolean;
   readonly parse: (text: string) => ParsedStatement;

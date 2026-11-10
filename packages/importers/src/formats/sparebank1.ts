@@ -19,6 +19,7 @@ const columns = ["Dato", "Beskrivelse", "Rentedato", "Inn", "Ut", "Til konto", "
 export const sparebank1: BankFormat = {
   id: "sparebank1-csv",
   bank: "SpareBank 1",
+  proven: true,
   recognises: (text) => (startOf(text).split(/\r?\n/, 1)[0] ?? "") === "Dato;Beskrivelse;Rentedato;Inn;Ut;Til konto;Fra konto;",
   parse(text) {
     const [header, ...records] = readCsv(text, ";");

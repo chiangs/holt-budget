@@ -113,6 +113,7 @@ function ofxAccount(text: string, line: number) {
 /**
  * Open Financial Exchange statements, read from the published structure of OFX 1.x and 2.x (section 11.4 of the 2.2 specification).
  * Neither of the household's banks offers OFX, so this has never met a real file: it is tested on synthetic files only.
+ * UNPROVEN: the import screen says so (`unprovenFormats` in ../proven.ts). Remove it from that list once a real file has read cleanly.
  *
  * Each statement (STMTRS for a bank account, CCSTMTRS for a card) names its account (ACCTID) and its currency (CURDEF), so the
  * currency check in the import is exercised by a real field here. LEDGERBAL is a closing balance the file states.
@@ -124,6 +125,7 @@ function ofxAccount(text: string, line: number) {
 export const ofx: BankFormat = {
   id: "ofx",
   bank: "OFX",
+  proven: false,
   recognises: (text) => {
     const head = startOf(text);
     return /^OFXHEADER\s*:/i.test(head) || /^(?:<\?xml[^>]*\?>\s*)?(?:<\?OFX[^>]*\?>\s*)?<OFX[\s>]/i.test(head);

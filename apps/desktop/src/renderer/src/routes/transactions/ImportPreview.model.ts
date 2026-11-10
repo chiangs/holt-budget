@@ -1,4 +1,5 @@
 import type { AccountId, Facts, ImportCounts, ImportPreview, LeftOutAccount, LocalDate, Money, NewTransactionLine } from "@holt/core";
+import { isUnprovenFormat } from "@holt/importers/proven";
 import type { Words } from "./ImportSay.ts";
 import type { PickableJob } from "./jobs.ts";
 import { type JobCell, type WhyContext, jobCell, whyWords } from "./ImportWhy.model.ts";
@@ -33,6 +34,11 @@ export function dottedAccountNumber(digits: string): string {
 export function leftOutNotice(preview: ImportPreview): { readonly words: Words; readonly accounts: readonly LeftOutAccount[] } | null {
   if (preview.leftOut.length === 0) return null;
   return { words: { id: "import.notice.leftOut", values: { rows: preview.counts.leftOut, accounts: preview.leftOut.length } }, accounts: preview.leftOut };
+}
+
+/** A format that has never read a real file from a bank. The family is asked to check the rows and the balance with extra care. */
+export function unprovenNotice(preview: ImportPreview): Words | null {
+  return isUnprovenFormat(preview.format) ? { id: "import.notice.unproven" } : null;
 }
 
 export function nearMatchNotice(preview: ImportPreview): Words | null {

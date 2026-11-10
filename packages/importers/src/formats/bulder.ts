@@ -30,6 +30,7 @@ const columns = [
 export const bulder: BankFormat = {
   id: "bulder-csv",
   bank: "Bulder",
+  proven: true,
   recognises: (text) => startOf(text).startsWith("Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;"),
   parse(text) {
     const [header, ...records] = readCsv(text, ";");

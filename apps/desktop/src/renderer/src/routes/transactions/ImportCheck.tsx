@@ -5,7 +5,7 @@ import { useIntl } from "react-intl";
 import { entryOf, type Action, type Checking } from "./ImportFlow.model.ts";
 import { ImportBalances } from "./ImportBalances.tsx";
 import { ImportPreviewTable } from "./ImportPreviewTable.tsx";
-import { chipsOf, dottedAccountNumber, leftOutNotice, nearMatchNotice, pickableJobs, rowViews, shownWords, type RowView } from "./ImportPreview.model.ts";
+import { chipsOf, dottedAccountNumber, leftOutNotice, nearMatchNotice, unprovenNotice, pickableJobs, rowViews, shownWords, type RowView } from "./ImportPreview.model.ts";
 import { say } from "./ImportSay.ts";
 import { type WhyContext, signedAmount } from "./ImportWhy.model.ts";
 import { formatMoney } from "../../i18n/money.ts";
@@ -37,6 +37,7 @@ export function ImportCheck({ check, facts, busy, dispatch }: ImportCheckProps) 
   const { problems } = entryOf(check);
   const leftOut = leftOutNotice(preview);
   const near = nearMatchNotice(preview);
+  const unproven = unprovenNotice(preview);
 
   /** The picker returns focus to what opened it, and this makes sure of it: the row's button is the same element after the plan moves on. */
   const backToRow = (line: number): void => {
@@ -53,6 +54,15 @@ export function ImportCheck({ check, facts, busy, dispatch }: ImportCheckProps) 
           </li>
         ))}
       </ul>
+
+      {unproven !== null && (
+        <div className={kit.notice} data-notice="unproven">
+          <TriangleAlert size={18} strokeWidth={1.75} aria-hidden="true" />
+          <div className={kit.noticeBody}>
+            <p>{say(intl, currency, unproven)}</p>
+          </div>
+        </div>
+      )}
 
       {leftOut !== null && (
         <div className={kit.notice}>

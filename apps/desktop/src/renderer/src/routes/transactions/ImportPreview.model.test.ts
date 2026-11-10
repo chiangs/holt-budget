@@ -2,7 +2,7 @@ import { type ImportCounts, type NewTransactionLine, accountId, localDate, trans
 import { kr, testId } from "@holt/core/testing";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { addWords, bankWords, chipsOf, dottedAccountNumber, leftOutNotice, nearMatchNotice, pickableJobs, readAsWords, rowViews, shownWords, stableOrder } from "./ImportPreview.model.ts";
+import { addWords, bankWords, chipsOf, dottedAccountNumber, leftOutNotice, nearMatchNotice, unprovenNotice, pickableJobs, readAsWords, rowViews, shownWords, stableOrder } from "./ImportPreview.model.ts";
 import { english, importHousehold, noEntry, numbers, previewOf, replan, statement } from "./ImportTestKit.ts";
 
 const counts: ImportCounts = { rows: 23, created: 21, matched: 2, pending: 0, leftOut: 0, history: 0, byRule: 0, suggested: 0, chosen: 0, transfers: 0, needsYou: 2 };
@@ -35,6 +35,14 @@ describe("the counts above the table", () => {
 
 describe("notices", () => {
   const h = importHousehold();
+  it("warns that a format that has never read a real bank file is unproven, and says nothing for the banks' own CSV", () => {
+    const plan = replan(h.facts(), statement([{ account: numbers.everyday, date: "2026-11-02", amount: kr(-120), description: "Kiwi" }]), noEntry, "unproven");
+    const preview = previewOf(plan);
+    expect(unprovenNotice({ ...preview, format: "ofx" })).toEqual({ id: "import.notice.unproven" });
+    expect(unprovenNotice({ ...preview, format: "bulder-csv" })).toBeNull();
+    expect(unprovenNotice({ ...preview, format: "sparebank1-csv" })).toBeNull();
+  });
+
   it("calls out rows for accounts the household doesn't have, and rows that may duplicate one it has", () => {
     const first = replan(h.facts(), statement([{ account: numbers.everyday, date: "2026-11-02", amount: kr(-120), description: "Kiwi" }]), noEntry, "one");
     expect(nearMatchNotice(previewOf(first))).toBeNull();

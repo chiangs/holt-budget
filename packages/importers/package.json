@@ -6,7 +6,8 @@
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
-    "./synthetic": "./src/synthetic.ts"
+    "./synthetic": "./src/synthetic.ts",
+    "./proven": "./src/proven.ts"
   },
   "dependencies": {
     "@holt/core": "workspace:*"

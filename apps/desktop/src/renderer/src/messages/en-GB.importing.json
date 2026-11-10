@@ -7,6 +7,7 @@
   "import.close": "Close",
   "import.chooseAnother": "Choose another file",
   "import.file": "{fileName} · {readAs}",
+  "import.notice.unproven": "The app has only read files like this one from invented examples, never from a real bank. Check the rows and your bank's balance carefully before you add it.",
   "import.readAs": "{format, select, bulderCsv {the app read it as a Bulder export} sparebank1Csv {the app read it as a SpareBank 1 SR-Bank export} ofx {the app read it as an OFX file} other {the app read it in a format it knows}}",
   "import.bank": "{format, select, bulderCsv {Bulder} sparebank1Csv {SpareBank 1 SR-Bank} ofx {OFX file} other {Another bank}}",
 
