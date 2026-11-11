@@ -75,7 +75,7 @@ pnpm dist            # package the AppImage with electron-builder
 - **No hard-coded colours outside the tokens.** Colour values (hex, `rgb()`, `hsl()`, `oklch()`, named colours) appear only in the top-level declarations in `design/design-system/tokens.json` and the CSS generated from it (`packages/ui/src/tokens.css`). Everything else (CSS Modules, components, inline styles, chart code, SVG `fill` and `stroke`) uses `var(--token)`, `currentColor` or `inherit`. For a translucent or mixed colour, add a token or use `color-mix()` on tokens; never type a new literal. If a role is missing, add a token in `tokens.json` for every theme, then use it. This keeps retheming, Follow my desktop and the contrast guarantees to one place. The app icon masters are the one exception, because the icon is the same in every theme.
 
 ## How to work
-- Start with the spikes in `BACKLOG.md`. Record what each spike found in `docs/decisions/` (a new record, or an update to an open one).
+- Start with the spikes in `BACKLOG.md`. Record what each spike found in `docs/decisions/` (a new record, or an update to an open one), following the `decision-record` skill in `.claude/skills/`.
 - If the code needs to differ from a document, change the document in the same change and say why. Don't let them drift.
 - Product decisions (what Holt does, what it's called, what it shows) belong to Stephen. Propose; don't decide silently.
 - Keep the app lean: one window, lazy routes, virtualised long lists, no heavyweight UI kits.

@@ -298,7 +298,10 @@ A save-up job with a fixed role. There is exactly one per household. It can't be
 A month, a job and an amount. It is the plan for that month. Assignments exist only for open and closed months; planned months show projections instead (decision 12). Past months' assignments are kept, so reviews can compare plan against actual.
 
 ### Bucket
-The money a job keeps in the account where its money sits. A bucket isn't stored on its own. Core works out its balance from the job's opening amount in Setup (decision 10), its assignments and the allocations against it, so nobody types it in. The interface calls it a bucket, and "Where the money sits" in Plan lists the buckets in each account.
+The money a job keeps in the account where its money sits. A bucket isn't stored on its own. Core works out its balance from the job's opening amount in Setup (decision 10), its assignments, the moves between buckets and the allocations against it, so nobody types it in. The interface calls it a bucket, and "Where the money sits" in Plan lists the buckets in each account.
+
+### Bucket transfer
+A move of money from one job's bucket to another's in a month the family has opened: an amount, the two jobs and a reason. Taking money out of the buffer needs a reason, and it shows in the monthly review as a withdrawal (see "The buffer"). It changes no account's balance when both buckets sit in the same account. When they sit in different accounts, the family also makes a move at the bank, and until it is made the receiving account shows its buckets as more than its balance.
 
 ### Move at the bank
 A transfer the plan needs the family to make at the bank (decision 11). Holt never moves money itself.
