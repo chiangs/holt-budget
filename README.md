@@ -24,6 +24,8 @@ pnpm tokens
 pnpm test
 pnpm dev
 ```
+`./run.sh` builds this copy as it is now, committed or not, and opens it once, without hot reload, on the synthetic household in `~/.local/share/holt-dev`. Use it to see the latest code. The copy that `./install.sh` puts in your launcher is a production build, which has no seed and no Setup yet, so it opens empty. `./run.sh --reseed` starts the synthetic household again, and `./run.sh --no-build` opens the last build.
+
 See `CLAUDE.md` for the rules, layout and conventions, and `docs/` for the decisions behind them.
 
 ## Licence
