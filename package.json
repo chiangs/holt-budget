@@ -20,6 +20,8 @@
     "lint:network": "node scripts/check-network.mjs",
     "lint:facts": "node scripts/check-facts-boundary.mjs",
     "lint:strings": "node scripts/check-strings.mjs",
+    "version:check": "node scripts/check-version.mjs",
+    "version:bump": "node scripts/bump-version.mjs",
     "test:e2e": "pnpm --filter @holt/desktop build:e2e && playwright test -c apps/desktop/playwright.config.ts",
     "test:no-network": "bash scripts/no-network.sh",
     "test:packaging": "bash scripts/check-packaging.sh",

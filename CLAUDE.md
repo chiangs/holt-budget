@@ -55,6 +55,8 @@ pnpm dev             # run the desktop app with hot reload
 pnpm build           # production build
 pnpm dist            # package the AppImage with electron-builder
 ./install.sh         # build and install Holt into ~/.local (./uninstall.sh removes it)
+pnpm version:check   # fail if the app's version is not the one the plan allows
+pnpm version:bump    # set the next version from the plan (see "Versioning")
 ```
 
 ## Writing conventions (interface text, docs, commit messages)
@@ -73,6 +75,11 @@ pnpm dist            # package the AppImage with electron-builder
 - Use the Electricity figures in `design/README.md` as fixtures for the estimate and bucket logic.
 - Accessibility: keyboard-first (see the IA keyboard section), visible focus, 4.5:1 contrast, no meaning by colour alone, respects reduced motion and reduced transparency.
 - **No hard-coded colours outside the tokens.** Colour values (hex, `rgb()`, `hsl()`, `oklch()`, named colours) appear only in the top-level declarations in `design/design-system/tokens.json` and the CSS generated from it (`packages/ui/src/tokens.css`). Everything else (CSS Modules, components, inline styles, chart code, SVG `fill` and `stroke`) uses `var(--token)`, `currentColor` or `inherit`. For a translucent or mixed colour, add a token or use `color-mix()` on tokens; never type a new literal. If a role is missing, add a token in `tokens.json` for every theme, then use it. This keeps retheming, Follow my desktop and the contrast guarantees to one place. The app icon masters are the one exception, because the icon is the same in every theme.
+
+## Versioning
+- The app's version is one number, in `apps/desktop/package.json`. While the plan in `BACKLOG.md` still has work, it is `0.M.0-alpha.N`, with M the number of complete milestones. When every milestone is done it is `0.7.0-beta.N`, until Stephen declares v1. After the v1 declaration it is `1.0.0`, then ordinary semver.
+- An agent does not choose the version: `pnpm version:check` fails when the number does not match the plan (CI runs it), and `pnpm version:bump` sets the next one. Tag the commit afterwards (like `v0.3.0-alpha.1`). A version is never lowered or reused.
+- Decision 0049 holds the rule and its reasons.
 
 ## How to work
 - Start with the spikes in `BACKLOG.md`. Record what each spike found in `docs/decisions/` (a new record, or an update to an open one), following the `decision-record` skill in `.claude/skills/`.

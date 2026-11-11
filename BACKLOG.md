@@ -57,6 +57,9 @@ Built as decision 0047 describes. The model's job suggestions wait for the model
   - A button in Settings → Data that runs the update on request, with no background check. The one network call is `git` talking to GitHub, started by you, and outside Holt's own process.
   - A background check for a new version. This is a network call from Holt and needs a written exception to the rule and a switch in Settings.
 
+## v1 (when Stephen says it is ready)
+- [ ] **v1.0.0.** Stephen declares Holt ready for v1, and the version leaves `0.7.0-beta.N` for `1.0.0` (decision 0049). Ticking this box is the declaration; the code keeps running either way.
+
 ## v1.x (after three real monthly cycles)
 - [ ] Prove the OFX reader on a real bank file when one is available, then take `ofx` out of `unprovenFormats` (`packages/importers/src/proven.ts`) so the import screen stops warning (decision 0047, item 8).
 - [ ] Insurance.

@@ -1,6 +1,6 @@
 {
   "name": "@holt/desktop",
-  "version": "0.0.0",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "description": "Holt: a household budget planner for Linux.",
   "license": "MIT",
