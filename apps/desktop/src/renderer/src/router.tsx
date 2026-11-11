@@ -4,10 +4,11 @@ import { Layout } from "./Layout.tsx";
 import { NotFound } from "./routes/NotFound.tsx";
 import { Screen } from "./routes/Screen.tsx";
 import { Settings } from "./routes/Settings.tsx";
+import { Plan } from "./routes/plan/Plan.tsx";
 import { Transactions } from "./routes/transactions/Transactions.tsx";
 import { screens } from "./screens.ts";
 
-const built: Record<string, ReactElement> = { "/settings": <Settings />, "/transactions": <Transactions /> };
+const built: Record<string, ReactElement> = { "/settings": <Settings />, "/transactions": <Transactions />, "/plan": <Plan /> };
 
 const children: RouteObject[] = screens.map((screen) => {
   const element = built[screen.path] ?? <Screen titleId={screen.titleId} questionId={screen.questionId} />;

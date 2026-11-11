@@ -1,6 +1,7 @@
 /**
  * A small, sound household for command tests, built with the facts builder. The plan starts in October 2026;
- * October is closed, November is open and December is planned. Today is 9 November 2026.
+ * October is closed, November is open and December is planned. Today is 9 November 2026. Alex, an adult,
+ * pays 9,000 kr into the everyday account on the 20th, and Mia is a child.
  */
 
 import type { ChangeAuthor } from "../change-log.ts";
@@ -34,8 +35,20 @@ export function commandHousehold() {
   const earlier = b.history({ date: "2026-09-12", amount: kr(-300), jobId: food });
   const done = b.move({ from: everyday, to: savings, amount: kr(1_000), month: "2026-10", status: "done" });
   const toDo = b.move({ from: everyday, to: savings, amount: kr(4_000), month: "2026-11" });
+  const alex = b.person({ name: "Alex" });
+  const mia = b.person({ name: "Mia", kind: "child", birthMonth: "2018-04" });
+  const contribution = b.agreement({ person: alex, accountId: everyday, amount: kr(9_000), day: 20, from: "2026-10" });
   const facts: Facts = b.facts();
-  return { facts, accounts: { everyday, savings, child }, living, jobs: { buffer, food, holiday, unused }, transactions: { salary, shopping, earlier }, moves: { done, toDo } };
+  return {
+    facts,
+    accounts: { everyday, savings, child },
+    living,
+    jobs: { buffer, food, holiday, unused },
+    transactions: { salary, shopping, earlier },
+    moves: { done, toDo },
+    people: { alex, mia },
+    agreements: { contribution },
+  };
 }
 
 export function changeMeta(n: number, by: ChangeAuthor = { kind: "family" }): ChangeMeta {

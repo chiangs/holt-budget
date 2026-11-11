@@ -65,6 +65,15 @@ const jobChanges = z.strictObject({
   ofKind: kindChanges.exactOptional(),
 });
 
+const personChanges = z.strictObject({ name: text.exactOptional(), birthMonth: MonthSchema.nullable().exactOptional() });
+
+const agreementChanges = z.strictObject({
+  amount: MoneySchema.exactOptional(),
+  day: wholeNumber().exactOptional(),
+  accountId: ids.account.exactOptional(),
+  to: MonthSchema.nullable().exactOptional(),
+});
+
 const ruleChanges = z.strictObject({ match: RuleMatchSchema.exactOptional(), result: RuleResultSchema.exactOptional(), priority: wholeNumber().exactOptional() });
 
 const transferPair = z.strictObject({ a: ids.transaction, b: ids.transaction, completesMove: ids.move.exactOptional() });
@@ -111,6 +120,12 @@ const singles = {
   changeRule: z.strictObject({ kind: z.literal("changeRule"), ruleId: ids.rule, changes: ruleChanges }),
   deleteRule: z.strictObject({ kind: z.literal("deleteRule"), ruleId: ids.rule }),
   setPlanStart: z.strictObject({ kind: z.literal("setPlanStart"), planStart: MonthSchema }),
+  addPerson: z.strictObject({ kind: z.literal("addPerson"), person: TableSchemas.people }),
+  changePerson: z.strictObject({ kind: z.literal("changePerson"), personId: ids.person, changes: personChanges }),
+  deletePerson: z.strictObject({ kind: z.literal("deletePerson"), personId: ids.person }),
+  addAgreement: z.strictObject({ kind: z.literal("addAgreement"), agreement: TableSchemas.contributionAgreements }),
+  changeAgreement: z.strictObject({ kind: z.literal("changeAgreement"), agreementId: ids.agreement, changes: agreementChanges }),
+  moveBucket: z.strictObject({ kind: z.literal("moveBucket"), transfer: TableSchemas.bucketTransfers }),
 } satisfies { readonly [K in SingleKind]: z.ZodType<Extract<Command, { kind: K }>> };
 
 interface Batch<C> {

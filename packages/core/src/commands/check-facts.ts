@@ -7,7 +7,10 @@
 
 import { type Month, monthOf } from "../dates.ts";
 import { type Facts, type TableName, type Transaction, householdOf } from "../facts.ts";
+import { transferFaults } from "./bucket-transfers.ts";
+import { agreementFaults } from "./contributions.ts";
 import { jobAmounts } from "./jobs.ts";
+import type { RefusalCode } from "./refusal.ts";
 
 export type ViolationCode =
   /** A row refers to a row that doesn't exist. */
@@ -32,7 +35,36 @@ export type ViolationCode =
   /** An evened-out spend job keeps its money (decision 6). */
   | "evenOutKeepsMoney"
   /** Rule 1: money is a safe integer of minor units. */
-  | "notWholeMoney";
+  | "notWholeMoney"
+  /** A contribution agreement is for an adult (decision 0048). */
+  | "agreementPersonNotAdult"
+  /** A contribution lands in a shared account. */
+  | "agreementAccountNotShared"
+  | "agreementAmountNotPositive"
+  /** The usual day is a day every month has, 1 to 28. */
+  | "agreementDayOutOfRange"
+  | "agreementEndsBeforeStart"
+  /** A bucket transfer moves money between two different jobs. */
+  | "transferSameJob"
+  | "transferAmountNotPositive"
+  /** A transfer belongs to a month the family has opened, so it has a budget month row. */
+  | "transferMonthNotStarted"
+  /** Both jobs of a transfer keep their money: only a bucket can give or get money. */
+  | "transferJobKeepsNoMoney"
+  /** Taking money out of the buffer is an event with a reason (domain model, "The buffer"). */
+  | "transferOutOfBufferNeedsReason"
+  /** Only a contribution can name the agreement it pays. */
+  | "incomeAgreementNotContribution";
+
+/**
+ * One thing wrong with a row, as the violation `checkFacts` flags and as the refusal a command gets for it.
+ * A row's faults are listed in one place, so a command's refusal and the check on stored facts cannot disagree.
+ */
+export interface Fault {
+  readonly violation: ViolationCode;
+  readonly refusal: Exclude<RefusalCode, "breaksFacts">;
+  readonly field: string;
+}
 
 export interface Violation {
   readonly code: ViolationCode;
@@ -138,6 +170,11 @@ export function checkFacts(facts: Facts): Violation[] {
         if (treatment.partner !== null) refers("transactions", t.id, "treatment.partner", "transactions", treatment.partner);
         break;
       case "income":
+        if (treatment.agreement !== undefined) {
+          refers("transactions", t.id, "treatment.agreement", "contributionAgreements", treatment.agreement);
+          if (treatment.source !== "contribution") flag("incomeAgreementNotContribution", "transactions", t.id, "treatment.agreement");
+        }
+        break;
       case "needsYou":
         break;
     }
@@ -154,6 +191,16 @@ export function checkFacts(facts: Facts): Violation[] {
     refers("moves", move.id, "to", "accounts", move.to);
     if (move.completedBy !== null) refers("moves", move.id, "completedBy", "transactions", move.completedBy);
     whole("moves", move.id, "amount", move.amount);
+  }
+
+  for (const agreement of facts.contributionAgreements.values()) {
+    whole("contributionAgreements", agreement.id, "amount", agreement.amount);
+    for (const fault of agreementFaults(facts, agreement)) flag(fault.violation, "contributionAgreements", agreement.id, fault.field);
+  }
+
+  for (const transfer of facts.bucketTransfers.values()) {
+    whole("bucketTransfers", transfer.id, "amount", transfer.amount);
+    for (const fault of transferFaults(facts, transfer)) flag(fault.violation, "bucketTransfers", transfer.id, fault.field);
   }
 
   for (const value of facts.enteredValues.values()) {

@@ -9,6 +9,8 @@ import { accountNumber } from "../account-number.ts";
 import { localDate, month } from "../dates.ts";
 import {
   accountId,
+  agreementId,
+  bucketTransferId,
   changeId,
   enteredValueId,
   groupId,
@@ -17,6 +19,7 @@ import {
   importRowId,
   jobId,
   moveId,
+  personId,
   proposalId,
   ruleId,
   transactionId,
@@ -85,4 +88,7 @@ export const ids = {
   importBatch: checked(z.string(), importBatchId),
   importRow: checked(z.string(), importRowId),
   rule: checked(z.string(), ruleId),
+  person: checked(z.string(), personId),
+  agreement: checked(z.string(), agreementId),
+  bucketTransfer: checked(z.string(), bucketTransferId),
 };

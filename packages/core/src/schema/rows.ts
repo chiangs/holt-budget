@@ -48,10 +48,15 @@ const JobSchema = z.discriminatedUnion("kind", [
 
 const AllocationSchema = z.strictObject({ jobId: ids.job, amount: MoneySchema });
 
+/** Income names the agreement it pays only when it is a contribution (decision 0048). */
+const IncomeSchema = z
+  .strictObject({ kind: z.literal("income"), fundsMonth: MonthSchema, source: z.enum(["contribution", "recurring", "other"]), agreement: ids.agreement.exactOptional() })
+  .refine((income) => income.agreement === undefined || income.source === "contribution", { message: "Only a contribution can name the agreement it pays.", path: ["agreement"] });
+
 /** A treatment as a command carries it: a split is plain allocations, and `treatmentFor` checks they add up. */
 export const TreatmentInputSchema = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("needsYou") }),
-  z.strictObject({ kind: z.literal("income"), fundsMonth: MonthSchema, source: z.enum(["contribution", "recurring", "other"]) }),
+  IncomeSchema,
   z.strictObject({ kind: z.literal("transfer"), partner: ids.transaction.nullable() }),
   z.strictObject({ kind: z.literal("split"), allocations: atLeastOne(AllocationSchema, "A split needs at least one allocation.") }),
   z.strictObject({ kind: z.literal("history"), jobId: ids.job.nullable() }),
@@ -166,4 +171,15 @@ export const TableSchemas = {
     backs: ids.transaction.nullable(),
   }),
   rules: z.strictObject({ id: ids.rule, match: RuleMatchSchema, result: RuleResultSchema, origin: z.enum(["set", "learned", "accepted"]), priority: wholeNumber() }),
+  people: z.strictObject({ id: ids.person, name: text, kind: z.enum(["adult", "child"]), birthMonth: MonthSchema.exactOptional() }),
+  contributionAgreements: z.strictObject({
+    id: ids.agreement,
+    personId: ids.person,
+    accountId: ids.account,
+    amount: MoneySchema,
+    day: wholeNumber(),
+    from: MonthSchema,
+    to: MonthSchema.exactOptional(),
+  }),
+  bucketTransfers: z.strictObject({ id: ids.bucketTransfer, month: MonthSchema, from: ids.job, to: ids.job, amount: MoneySchema, reason: text }),
 } satisfies { readonly [T in TableName]: z.ZodType<RowOf<T>> };

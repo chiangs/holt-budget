@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router";
 import { useIntl } from "react-intl";
 import { Cpu, Search } from "lucide-react";
 import { AskOverlay } from "./AskOverlay.tsx";
+import { PlanBadge } from "./routes/plan/PlanBadge.tsx";
 import { TransactionsBadge } from "./routes/transactions/TransactionsBadge.tsx";
 import { askKey, screens, type Screen } from "./screens.ts";
 
@@ -55,6 +56,7 @@ function NavRow({ screen }: { screen: Screen }) {
       <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
       <span className="nav-label">{intl.formatMessage({ id: navId })}</span>
       {path === "/transactions" && <TransactionsBadge />}
+      {path === "/plan" && <PlanBadge />}
       <KeyChip letter={key} />
     </NavLink>
   );

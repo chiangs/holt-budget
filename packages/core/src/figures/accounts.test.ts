@@ -1,6 +1,8 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { localDate, month } from "../dates.ts";
+import type { Facts } from "../facts.ts";
+import type { AccountId } from "../ids.ts";
 import { money } from "../money.ts";
 import { arbitraryHousehold } from "../testing/arbitrary-facts.ts";
 import { averageEstimate } from "../testing/estimates.ts";
@@ -215,5 +217,106 @@ describe("the buckets in an account", () => {
       const listed = accountIn(computeFigures(f, localDate("2026-01-15"), { estimate: averageEstimate }), everyday).buckets.map((x) => x.jobId);
       expect(listed).toEqual([...ids].sort());
     }
+  });
+});
+
+describe("the monthly move counts the contributions still expected (0048)", () => {
+  /** Food (25,000 kr) is paid from Everyday and the bills (5,000 kr) from Regninger. Robin and Sam agree to pay 30,000 kr into Everyday for December. */
+  const household = (samEnds = false) => {
+    const b = factsBuilder({ planStart: "2026-01" });
+    const everyday = b.account({ name: "Everyday" });
+    const regninger = b.account({ name: "Regninger", kind: "bills" });
+    b.spendJob({ name: "Food", accountId: everyday, plan: setAmount(kr(25_000)) });
+    b.spendJob({ name: "Bills", accountId: regninger, plan: setAmount(kr(5_000)) });
+    const robin = b.person({ name: "Robin" });
+    const sam = b.person({ name: "Sam" });
+    const robinPays = b.agreement({ person: robin, accountId: everyday, amount: kr(20_000), day: 15 });
+    const samPays = b.agreement({ person: sam, accountId: everyday, amount: kr(10_000), day: 25, ...(samEnds ? { to: "2026-11" } : {}) });
+    return { b, everyday, regninger, robinPays, samPays };
+  };
+  const withoutAgreements = (b: ReturnType<typeof factsBuilder>): Facts => ({ ...b.facts(), contributionAgreements: new Map() });
+  const moveIn = (facts: Facts, account: AccountId, m: string, asOf = "2026-11-10") =>
+    accountIn(computeFigures(facts, localDate(asOf), { estimate: averageEstimate }), account).monthlyMoves.get(month(m));
+
+  it("is the whole month's assignments without an agreement, as it was", () => {
+    const { b, everyday, regninger } = household();
+    const plain = withoutAgreements(b);
+    expect(moveIn(plain, everyday, "2026-12")).toEqual({ kind: "moveIn", amount: kr(25_000) });
+    expect(moveIn(plain, regninger, "2026-12")).toEqual({ kind: "moveIn", amount: kr(5_000) });
+  });
+
+  it("is smaller before payday by what the agreements expect, and a surplus when they expect more than the account needs", () => {
+    const { b, everyday, regninger } = household();
+    expect(moveIn(b.facts(), everyday, "2026-12")).toEqual({ kind: "surplus", amount: kr(5_000) });
+    expect(moveIn(b.facts(), regninger, "2026-12")).toEqual({ kind: "moveIn", amount: kr(5_000) });
+  });
+
+  it("stays the same as the money arrives, because the income that arrived replaces the income that was expected", () => {
+    const { b, everyday, robinPays, samPays } = household();
+    b.income({ date: "2026-11-15", amount: kr(20_000), fundsMonth: "2026-12", agreement: robinPays });
+    expect(moveIn(b.facts(), everyday, "2026-12", "2026-11-16")).toEqual({ kind: "surplus", amount: kr(5_000) });
+    b.income({ date: "2026-11-25", amount: kr(10_000), fundsMonth: "2026-12", agreement: samPays });
+    expect(moveIn(b.facts(), everyday, "2026-12", "2026-11-26")).toEqual({ kind: "surplus", amount: kr(5_000) });
+  });
+
+  it("counts only what is left of a part payment, and still counts a payment that is overdue", () => {
+    const { b, everyday, robinPays } = household();
+    expect(moveIn(b.facts(), everyday, "2026-12", "2026-11-30")).toEqual({ kind: "surplus", amount: kr(5_000) });
+    b.income({ date: "2026-11-15", amount: kr(15_000), fundsMonth: "2026-12", agreement: robinPays });
+    expect(moveIn(b.facts(), everyday, "2026-12", "2026-11-30")).toEqual({ kind: "surplus", amount: kr(5_000) });
+  });
+
+  it("counts a contribution nobody has linked as income and still waits for the agreement, until it is linked", () => {
+    const { b, everyday, robinPays } = household();
+    const unlinked = b.income({ date: "2026-11-15", amount: kr(20_000), fundsMonth: "2026-12" });
+    expect(moveIn(b.facts(), everyday, "2026-12", "2026-11-16")).toEqual({ kind: "surplus", amount: kr(25_000) });
+    const facts = b.facts();
+    const row = facts.transactions.get(unlinked);
+    if (row === undefined) throw new Error("missing transaction");
+    const linked: Facts = { ...facts, transactions: new Map(facts.transactions).set(unlinked, { ...row, treatment: { kind: "income", fundsMonth: month("2026-12"), source: "contribution", agreement: robinPays } }) };
+    expect(moveIn(linked, everyday, "2026-12", "2026-11-16")).toEqual({ kind: "surplus", amount: kr(5_000) });
+  });
+
+  it("stops counting an agreement after its last month", () => {
+    const { b, everyday } = household(true);
+    expect(moveIn(b.facts(), everyday, "2026-12")).toEqual({ kind: "moveIn", amount: kr(5_000) });
+    expect(moveIn(b.facts(), everyday, "2026-11")).toEqual({ kind: "surplus", amount: kr(5_000) });
+  });
+
+  it("counts the account the agreement pays into and no other", () => {
+    const b = factsBuilder({ planStart: "2026-01" });
+    const everyday = b.account({ name: "Everyday" });
+    const regninger = b.account({ name: "Regninger", kind: "bills" });
+    b.spendJob({ accountId: regninger, plan: setAmount(kr(5_000)) });
+    b.agreement({ accountId: everyday, amount: kr(4_000) });
+    expect(moveIn(b.facts(), regninger, "2026-12")).toEqual({ kind: "moveIn", amount: kr(5_000) });
+    expect(moveIn(b.facts(), everyday, "2026-12")).toEqual({ kind: "surplus", amount: kr(4_000) });
+  });
+
+  it("starts with the current month, leaves the months that have ended as they were, and goes to the horizon", () => {
+    const { b, everyday } = household();
+    expect(moveIn(b.facts(), everyday, "2026-10")).toEqual({ kind: "moveIn", amount: kr(25_000) });
+    expect(moveIn(b.facts(), everyday, "2026-11")).toEqual({ kind: "surplus", amount: kr(5_000) });
+    expect(moveIn(b.facts(), everyday, "2027-11")).toEqual({ kind: "surplus", amount: kr(5_000) });
+  });
+
+  it("is the move the shortfall flag names for the current month", () => {
+    const b = factsBuilder({ planStart: "2026-01" });
+    const savings = b.account({ name: "Savings", kind: "savings" });
+    b.saveUpJob({ accountId: savings, target: monthlySaving(kr(1_000)), opening: kr(3_000) });
+    b.spendJob({ accountId: savings, plan: setAmount(kr(7_000)) });
+    b.agreement({ accountId: savings, amount: kr(2_000) });
+    expect(accountIn(figuresOf(b, "2026-11-10"), savings).remainder).toMatchObject({ kind: "bucketsExceedBalance", monthlyMove: { kind: "moveIn", amount: kr(6_000) } });
+  });
+
+  it("never changes money available, which counts only what has arrived (rule 4)", () => {
+    const { b, robinPays } = household();
+    const availableOf = (facts: Facts, asOf: string) =>
+      [...computeFigures(facts, localDate(asOf), { estimate: averageEstimate }).months.values()].map((m) => [m.month, m.available, m.unassigned]);
+    expect(availableOf(b.facts(), "2026-11-10")).toEqual(availableOf(withoutAgreements(b), "2026-11-10"));
+    expect(computeFigures(b.facts(), localDate("2026-11-10"), { estimate: averageEstimate }).months.get(month("2026-12"))?.available).toBe(0);
+
+    b.income({ date: "2026-11-15", amount: kr(20_000), fundsMonth: "2026-12", agreement: robinPays });
+    expect(computeFigures(b.facts(), localDate("2026-11-16"), { estimate: averageEstimate }).months.get(month("2026-12"))?.available).toBe(kr(20_000));
   });
 });

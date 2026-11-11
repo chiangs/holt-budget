@@ -47,6 +47,9 @@ const changeSchemas = {
   importBatches: changeOf("importBatches", TableSchemas.importBatches),
   importRows: changeOf("importRows", TableSchemas.importRows),
   rules: changeOf("rules", TableSchemas.rules),
+  people: changeOf("people", TableSchemas.people),
+  contributionAgreements: changeOf("contributionAgreements", TableSchemas.contributionAgreements),
+  bucketTransfers: changeOf("bucketTransfers", TableSchemas.bucketTransfers),
 } satisfies { readonly [T in TableName]: z.ZodType<Extract<RowChange, { table: T }>> };
 
 const rowChange = z.discriminatedUnion("table", Object.values(changeSchemas) as unknown as [z.core.$ZodTypeDiscriminable, ...z.core.$ZodTypeDiscriminable[]]) as unknown as z.ZodType<RowChange>;

@@ -76,6 +76,10 @@ describe("P6: the column registry is the migration's tables", () => {
     "rules.match.accountId": "account_id",
     "rules.match.min": "min_amount",
     "rules.match.max": "max_amount",
+    "contributionAgreements.from": "from_month",
+    "contributionAgreements.to": "to_month",
+    "bucketTransfers.from": "from_job",
+    "bucketTransfers.to": "to_job",
   };
   const snake = (field: string): string => field.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
@@ -117,10 +121,32 @@ describe("indexes under the foreign keys of rows that can be deleted", () => {
     ["moves", "completed_by"],
     ["assignments", "job_id"],
     ["transactions", "rule_id"],
+    ["contribution_agreements", "person_id"],
+    ["contribution_agreements", "account_id"],
+    ["bucket_transfers", "from_job"],
+    ["bucket_transfers", "to_job"],
   ])("%s.%s leads an index", (table, column) => {
     database = testDatabase();
     const leaders = (database.db.pragma(`index_list(${table})`) as { name: string }[]).map((index) => (database!.db.pragma(`index_info(${index.name})`) as { seqno: number; name: string }[]).find((c) => c.seqno === 0)?.name);
     expect(leaders).toContain(column);
+  });
+});
+
+describe("every column that holds a foreign key leads an index", () => {
+  // The four indexes above are the ones a deletion needs today. For the tables of Milestone 4, every child column of a foreign key leads an index, so a later delete command can't turn into a scan.
+  it.each(["people", "contribution_agreements", "bucket_transfers"])("in %s", (table) => {
+    database = testDatabase();
+    const leaders = new Set((database.db.pragma(`index_list(${table})`) as { name: string }[]).map((index) => (database!.db.pragma(`index_info(${index.name})`) as { seqno: number; name: string }[]).find((c) => c.seqno === 0)?.name));
+    const children = (database.db.pragma(`foreign_key_list(${table})`) as { from: string }[]).map((fk) => fk.from);
+    expect(children.filter((column) => !leaders.has(column))).toEqual([]);
+  });
+
+  it("finds the foreign keys of the new tables", () => {
+    database = testDatabase();
+    const children = (table: string) => (database!.db.pragma(`foreign_key_list(${table})`) as { from: string; table: string }[]).map((fk) => `${fk.from}>${fk.table}`).sort();
+    expect(children("contribution_agreements")).toEqual(["account_id>accounts", "person_id>people"]);
+    expect(children("bucket_transfers")).toEqual(["from_job>jobs", "to_job>jobs"]);
+    expect(children("people")).toEqual([]);
   });
 });
 
@@ -133,6 +159,27 @@ describe("binding and reading rows", () => {
     expect(bound.import_rhythm).toBeNull();
     const move = bind("moves", { id: "m", from: "a", to: "b", amount: 1, month: "2026-03", reason: "r", status: "todo", completedBy: null });
     expect(move.completed_by).toBeNull();
+  });
+
+  it("writes the new rows' fields to the columns they are named for, so no two columns can swap", () => {
+    expect(bind("bucketTransfers", { id: "t", month: "2026-11", from: "job-a", to: "job-b", amount: 410_000, reason: "Start" })).toEqual({
+      id: "t",
+      month: "2026-11",
+      from_job: "job-a",
+      to_job: "job-b",
+      amount: 410_000,
+      reason: "Start",
+    });
+    expect(bind("contributionAgreements", { id: "a", personId: "p", accountId: "acc", amount: 900_000, day: 20, from: "2026-10" })).toEqual({
+      id: "a",
+      person_id: "p",
+      account_id: "acc",
+      amount: 900_000,
+      day: 20,
+      from_month: "2026-10",
+      to_month: null,
+    });
+    expect(bind("people", { id: "p", name: "Mia", kind: "child", birthMonth: "2018-04" })).toEqual({ id: "p", name: "Mia", kind: "child", birth_month: "2018-04" });
   });
 
   it("writes booleans as 0 or 1 and unions as JSON with sorted keys", () => {

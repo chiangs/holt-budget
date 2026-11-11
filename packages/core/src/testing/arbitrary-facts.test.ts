@@ -26,6 +26,17 @@ describe("arbitraryFacts", () => {
     for (const field of ["accountId", "min", "max"] as const) expect(sometimesPresentAndAbsent(all, (f) => [...f.rules.values()].map((r) => r.match), field), `rule match ${field}`).toBe(true);
   });
 
+  it("fills the new tables and their optional fields some of the time: people, agreements that end or run on, transfers, and an income that names its agreement", () => {
+    const all = samples();
+    expect(sometimesPresentAndAbsent(all, (f) => f.people.values(), "birthMonth"), "person birthMonth").toBe(true);
+    expect(sometimesPresentAndAbsent(all, (f) => f.contributionAgreements.values(), "to"), "agreement to").toBe(true);
+    expect(new Set(all.flatMap((f) => [...f.people.values()].map((p) => p.kind)))).toEqual(new Set(["adult", "child"]));
+    expect(all.some((f) => f.bucketTransfers.size > 0)).toBe(true);
+    const incomes = all.flatMap((f) => [...f.transactions.values()].flatMap((t) => (t.treatment.kind === "income" ? [t.treatment] : [])));
+    expect(incomes.some((t) => t.agreement !== undefined)).toBe(true);
+    expect(incomes.some((t) => t.agreement === undefined)).toBe(true);
+  });
+
   it("makes every import rhythm, both kinds of rule result and every rule origin, and live and undone batches with and without rows", () => {
     const all = samples();
     const accounts = all.flatMap((f) => [...f.accounts.values()]);
@@ -71,6 +82,25 @@ describe("arbitraryFacts", () => {
         if (rule.match.accountId !== undefined) expect(facts.accounts.has(rule.match.accountId)).toBe(true);
       }
       for (const t of facts.transactions.values()) if (t.ruleId !== undefined) expect(facts.rules.has(t.ruleId)).toBe(true);
+      for (const agreement of facts.contributionAgreements.values()) {
+        expect(facts.people.get(agreement.personId)?.kind).toBe("adult");
+        expect(facts.accounts.get(agreement.accountId)?.scope).toBe("shared");
+        expect(agreement.amount).toBeGreaterThan(0);
+        expect(agreement.day).toBeGreaterThanOrEqual(1);
+        expect(agreement.day).toBeLessThanOrEqual(28);
+        if (agreement.to !== undefined) expect(agreement.to >= agreement.from).toBe(true);
+      }
+      for (const transfer of facts.bucketTransfers.values()) {
+        expect(facts.jobs.has(transfer.from) && facts.jobs.has(transfer.to)).toBe(true);
+        expect(transfer.from).not.toBe(transfer.to);
+        expect(transfer.amount).toBeGreaterThan(0);
+      }
+      for (const t of facts.transactions.values()) {
+        if (t.treatment.kind === "income" && t.treatment.agreement !== undefined) {
+          expect(facts.contributionAgreements.has(t.treatment.agreement)).toBe(true);
+          expect(t.treatment.source).toBe("contribution");
+        }
+      }
     }
   });
 });

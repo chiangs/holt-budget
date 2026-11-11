@@ -15,6 +15,8 @@ export interface SyntheticOptions {
   readonly to: LocalDate;
   /** The same seed gives the same shops and amounts. */
   readonly seed: number;
+  /** The last day of Bulder's older file. The newer file starts two weeks before it. Four weeks before `to` unless given. */
+  readonly olderEnd?: LocalDate;
 }
 
 /** The range and seed of the committed fixtures in fixtures/synthetic/. */
@@ -89,7 +91,30 @@ const own = ({ name, number }: { name: string; number: AccountNumber }): Party =
 const outside = ({ number }: { number: AccountNumber }): Party => ({ name: "", number: dotted(number) });
 const shop = (name: string): Party => ({ name: "", number: name });
 
-const { bulder: bulderAccounts, sparebank1: sr, outside: others } = syntheticAccounts;
+const { bulder: bulderAccounts, sparebank1: sr, outside: others, children } = syntheticAccounts;
+
+/** What each adult pays into the everyday account on the 20th, and the day the second part of a split payment lands. Whole kroner. */
+export const syntheticContributions = [
+  { name: "Stephen", parts: [{ day: 20, kroner: 32_000 }] },
+  { name: "Partner", parts: [{ day: 20, kroner: 20_000 }, { day: 22, kroner: 8_000 }] },
+] as const;
+
+/** The monthly payment into each child's savings account, in whole kroner. */
+export const syntheticChildSaving = 500;
+
+const childAccounts = [
+  { name: "Eldest", account: children.eldest },
+  { name: "Second", account: children.second },
+  { name: "Third", account: children.third },
+  { name: "Youngest", account: children.youngest },
+] as const;
+
+/**
+ * The electricity bill for each calendar month, January first, in whole kroner. Winter is dear and summer cheap. The ten
+ * months from January to October add up to 28,800 and the twelve from November to October to 36,300, the figures in
+ * design/README.md, so the household's year is the one the Plan mockups show.
+ */
+export const syntheticElectricityBills = [4_420, 3_980, 3_300, 2_700, 2_194, 1_870, 1_820, 2_760, 2_910, 2_846, 3_300, 4_200] as const;
 const shops = ["Nærbutikken Fjord", "Kaffebaren Torget", "Bokhandel Strand", "Byggvare Nord", "Apoteket Sentrum", "Torgkafeen - Vipps", "FJORDMAT 1132"];
 const bills = [
   { payee: others.energy, kid: "0012345678903", type: "Avtalegiro" },
@@ -103,7 +128,18 @@ function bulderMonth(seed: number, year: number, month: number): BulderRow[] {
 
   rows.push({ date: day(20), amount: 4_250_000, to: own(bulderAccounts.everyday), from: outside(others.employer), type: "Inntekt", text: "Lønn Eksempel AS", category: ["Inntekter", "Lønn"] });
   for (const { payee, kid, type } of bills) {
-    rows.push({ date: day(15), amount: -between(40_000, 180_000), to: outside(payee), from: own(bulderAccounts.bills), type, text: payee.name, kid, category: ["Bolig", "Strøm"] });
+    // Both bills draw, so the other rows of the month stay as they were.
+    const drawn = between(40_000, 180_000);
+    const amount = payee === others.energy ? syntheticElectricityBills[month - 1]! * 100 : drawn;
+    rows.push({ date: day(15), amount: -amount, to: outside(payee), from: own(bulderAccounts.bills), type, text: payee.name, kid, category: ["Bolig", "Strøm"] });
+  }
+  for (const { name, parts } of syntheticContributions) {
+    for (const { day: paid, kroner: amount } of parts) {
+      rows.push({ date: day(paid), amount: amount * 100, to: own(bulderAccounts.everyday), type: "Betaling", text: `Fra: ${name} Betalt: ${pad(paid)}.${pad(month)}.${String(year).slice(2)}` });
+    }
+  }
+  for (const { name, account } of childAccounts) {
+    rows.push({ date: day(20), amount: -syntheticChildSaving * 100, to: outside(account), from: own(bulderAccounts.everyday), type: "Overføring", text: `Barnesparing ${name}` });
   }
   // A transfer between two of the household's Bulder accounts: one row on each account.
   const move = between(500_000, 900_000);
@@ -124,6 +160,8 @@ function bulderMonth(seed: number, year: number, month: number): BulderRow[] {
   for (let copy = 0; copy < 3; copy++) {
     rows.push({ date: day(9), amount: -4_500, to: shop("Kaffebaren Torget"), from: own(bulderAccounts.food), type: "Betaling", text: "Kaffebaren Torget", category: ["Mat", "Kafé"] });
   }
+  // A fee on the 28th, so the newer file has a row the older one lacks when the older ends on the 22nd.
+  rows.push({ date: day(28), amount: -2_900, from: own(bulderAccounts.everyday), type: "Gebyr", text: "Kontogebyr" });
   // An e-invoice for nothing has no sign.
   rows.push({ date: day(16), amount: 0, to: outside(others.housing), from: own(bulderAccounts.everyday), type: "Efaktura", text: "Eksempel Borettslag" });
   // The monthly loan payment, to the household's SpareBank 1 account.
@@ -202,7 +240,7 @@ function sparebank1Csv(rows: readonly SrRow[]): string {
  * file and a newer one, and the two overlap by two weeks, so importing both has to match the repeated rows by count.
  * SpareBank 1 gives one file per account. A range under six weeks leaves the older file empty.
  */
-export function syntheticStatements({ from, to, seed }: SyntheticOptions): SyntheticStatements {
+export function syntheticStatements({ from, to, seed, olderEnd = addDays(to, -28) }: SyntheticOptions): SyntheticStatements {
   const inRange = (date: LocalDate) => date >= from && date <= to;
   const months = monthsBetween(from, to);
 
@@ -210,7 +248,6 @@ export function syntheticStatements({ from, to, seed }: SyntheticOptions): Synth
     .flatMap(({ year, month }) => bulderMonth(seed, year, month))
     .filter((row) => inRange(row.date))
     .sort((a, b) => a.date.localeCompare(b.date));
-  const olderEnd = addDays(to, -28);
   const newerStart = addDays(olderEnd, -13);
 
   const interestFrom = addDays(to, -75);

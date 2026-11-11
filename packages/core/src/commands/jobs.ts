@@ -1,7 +1,8 @@
 /**
  * Jobs (domain model, "Job" and "The buffer"). A job's kind and the buffer's role never change. An evened-out
  * spend job always keeps its money. The buffer can't be deleted or stop being active. Any other job can be
- * deleted only while nothing refers to it and its bucket is empty; otherwise the family archives it.
+ * deleted only while nothing refers to it and its bucket is empty; otherwise the family archives it. A job a
+ * move between buckets names keeps its row, because the move is part of the history of both buckets.
  */
 
 import type { Facts, Job, JobStatus, SaveUpTarget, SpendJob, SpendPlan } from "../facts.ts";
@@ -62,7 +63,7 @@ export function jobAmounts(job: Job): readonly (readonly [string, Money])[] {
   return amounts;
 }
 
-function isBuffer(job: Job): boolean {
+export function isBuffer(job: Job): boolean {
   return job.kind === "saveUp" && job.role === "buffer";
 }
 
@@ -103,6 +104,11 @@ function referenced(facts: Facts, jobId: JobId): boolean {
   return false;
 }
 
+function namedByTransfer(facts: Facts, jobId: JobId): boolean {
+  for (const transfer of facts.bucketTransfers.values()) if (transfer.from === jobId || transfer.to === jobId) return true;
+  return false;
+}
+
 export const jobHandlers: Handlers<JobCommand> = {
   addJob(facts, { job }) {
     if (facts.jobs.has(job.id)) return refuse("idTaken");
@@ -124,6 +130,7 @@ export const jobHandlers: Handlers<JobCommand> = {
     const bucket = computeFigures(facts, asOf, { horizonMonths: 0 }).jobs.get(jobId)?.bucket;
     if (bucket?.kind === "kept" && bucket.balance !== 0) return refuse("bucketHoldsMoney");
     if (referenced(facts, jobId)) return refuse("jobInUse");
+    if (namedByTransfer(facts, jobId)) return refuse("jobHasTransfers");
     return patched(editFacts(facts).remove("jobs", jobId));
   },
 };

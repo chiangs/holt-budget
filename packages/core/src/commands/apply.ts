@@ -11,13 +11,16 @@ import type { Facts } from "../facts.ts";
 import type { ChangeId } from "../ids.ts";
 import { type Patch, PatchConflict, type PatchBuilder, diffFacts, patchBuilder } from "../patch.ts";
 import { type AccountAndGroupCommand, accountAndGroupHandlers } from "./accounts-and-groups.ts";
+import { type BucketTransferCommand, bucketTransferHandlers } from "./bucket-transfers.ts";
 import { addedViolations } from "./check-facts.ts";
+import { type ContributionCommand, contributionHandlers } from "./contributions.ts";
 import { type EnteredValueCommand, enteredValueHandlers } from "./entered-values.ts";
 import { type HouseholdCommand, householdHandlers } from "./household.ts";
 import { type ImportCommand, importHandlers } from "./imports.ts";
 import { type JobCommand, jobHandlers } from "./jobs.ts";
 import { type MonthCommand, monthHandlers } from "./months.ts";
 import { type MoveCommand, moveHandlers } from "./moves.ts";
+import { type PersonCommand, personHandlers } from "./people.ts";
 import { type Outcome, type Refusal, breaksFacts } from "./refusal.ts";
 import { type RuleCommand, ruleHandlers } from "./rules.ts";
 import { type TransactionCommand, transactionHandlers } from "./transactions.ts";
@@ -37,7 +40,10 @@ type SingleCommand =
   | EnteredValueCommand
   | TransactionCommand
   | ImportCommand
-  | RuleCommand;
+  | RuleCommand
+  | PersonCommand
+  | ContributionCommand
+  | BucketTransferCommand;
 
 export type Command = SingleCommand | BatchCommand;
 
@@ -63,6 +69,9 @@ const handlers: Handlers<SingleCommand> = {
   ...transactionHandlers,
   ...importHandlers,
   ...ruleHandlers,
+  ...personHandlers,
+  ...contributionHandlers,
+  ...bucketTransferHandlers,
 };
 
 export const commandKinds = [...Object.keys(handlers), "batch"] as readonly CommandKind[];

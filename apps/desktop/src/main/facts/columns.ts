@@ -164,6 +164,24 @@ export const columns = {
     text("origin", "origin"),
     int("priority", "priority"),
   ]),
+  people: table("people", "people", [text("id", "id", key), text("name", "name"), text("kind", "kind"), text("birthMonth", "birth_month", optional)]),
+  contributionAgreements: table("contributionAgreements", "contribution_agreements", [
+    text("id", "id", key),
+    text("personId", "person_id"),
+    text("accountId", "account_id"),
+    int("amount", "amount"),
+    int("day", "day"),
+    text("from", "from_month"),
+    text("to", "to_month", optional),
+  ]),
+  bucketTransfers: table("bucketTransfers", "bucket_transfers", [
+    text("id", "id", key),
+    text("month", "month"),
+    text("from", "from_job"),
+    text("to", "to_job"),
+    int("amount", "amount"),
+    text("reason", "reason"),
+  ]),
 } as const satisfies { readonly [T in TableName]: TableDef<FieldOf<T>> };
 
 const defs: Readonly<Record<TableName, TableDef>> = columns;

@@ -19,7 +19,7 @@ describe("P8: migrating a version 1 database", () => {
     expect(currentVersion(database.db)).toBeGreaterThanOrEqual(2);
     expect(columnsOf("household")).toEqual(["id", "name", "currency", "plan_start", "even_out_step"]);
     const tables = (database.db.prepare("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'").all() as { name: string }[]).map((t) => t.name);
-    expect(tables).toEqual(expect.arrayContaining(["accounts", "groups", "jobs", "budget_months", "assignments", "transactions", "moves", "entered_values", "import_batches", "import_rows", "rules", "changes"]));
+    expect(tables).toEqual(expect.arrayContaining(["accounts", "groups", "jobs", "budget_months", "assignments", "transactions", "moves", "entered_values", "import_batches", "import_rows", "rules", "changes", "people", "contribution_agreements", "bucket_transfers"]));
   });
 
   it("refuses to drop a household row, and changes nothing", () => {
@@ -29,6 +29,18 @@ describe("P8: migrating a version 1 database", () => {
     expect(() => migrate(database!.db, shipped)).toThrow(/CHECK/);
     expect(currentVersion(database.db)).toBe(1);
     expect(database.db.prepare("select name from household").get()).toEqual({ name: "Home" });
+  });
+
+  it("adds the tables of Milestone 4 to a version 2 database without touching a row that is there", () => {
+    versionTwoDatabase();
+    const { db } = database!;
+    expect(currentVersion(db)).toBe(2);
+    const before = { transactions: db.prepare("select * from transactions").all(), changes: db.prepare("select * from changes").all(), jobs: db.prepare("select * from jobs").all() };
+    expect(migrate(db, shipped)).toBe(latestVersion(shipped));
+    expect(currentVersion(db)).toBeGreaterThanOrEqual(3);
+    for (const table of ["people", "contribution_agreements", "bucket_transfers"]) expect(db.prepare(`select count(*) as n from ${table}`).get()).toEqual({ n: 0 });
+    expect({ transactions: db.prepare("select * from transactions").all(), changes: db.prepare("select * from changes").all(), jobs: db.prepare("select * from jobs").all() }).toEqual(before);
+    expect(db.pragma("foreign_key_check")).toEqual([]);
   });
 
   it("numbers the shipped migrations without a gap", () => {

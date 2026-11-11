@@ -8,7 +8,10 @@ import { type DecideResult, accept, commitProposal, suggest } from "../proposal.
 import { changeMeta, commandHousehold, today } from "../testing/command-household.ts";
 import { kr, setAmount, testId } from "../testing/facts-builder.ts";
 import { type ApplyResult, type Command, type CommitResult, apply, commit } from "./apply.ts";
+import { bucketTransferMessages } from "./bucket-transfers.messages.ts";
+import { contributionMessages } from "./contributions.messages.ts";
 import { importMessages } from "./imports.messages.ts";
+import { personMessages } from "./people.messages.ts";
 import { type Refusal, type RefusalCode, messageFor, refusalCodes } from "./refusal.ts";
 import { ruleMessages } from "./rules.messages.ts";
 
@@ -30,8 +33,9 @@ if (!accepted.ok) throw new Error("A suggested proposal can be accepted");
 type Result = ApplyResult | CommitResult | DecideResult<Command>;
 
 /** One way to reach each refusal. The type makes a new code fail to compile until it has a case. */
-type CodesHere = Exclude<RefusalCode, keyof typeof importMessages | keyof typeof ruleMessages>;
-const codesHere = refusalCodes.filter((code): code is CodesHere => !(code in importMessages) && !(code in ruleMessages));
+type CodesHere = Exclude<RefusalCode, keyof typeof importMessages | keyof typeof ruleMessages | keyof typeof personMessages | keyof typeof contributionMessages | keyof typeof bucketTransferMessages>;
+const ownedElsewhere = [importMessages, ruleMessages, personMessages, contributionMessages, bucketTransferMessages];
+const codesHere = refusalCodes.filter((code): code is CodesHere => !ownedElsewhere.some((messages) => code in messages));
 
 const reach: { readonly [C in CodesHere]: () => Result } = {
   accountNumberTaken: () => {

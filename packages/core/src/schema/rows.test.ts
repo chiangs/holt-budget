@@ -44,6 +44,9 @@ const transaction = { id: id(4), accountId: id(1), bookingDate: "2026-02-03", am
 const batch = { id: id(5), fileName: "march.csv", fingerprint: "a".repeat(64), format: "bulder-csv", importedAt: "2026-03-01T10:00:00.000Z", from: "2026-02-01", to: "2026-02-28", rows: 1, created: 1, matched: 0, pending: 0, undone: false };
 const importRow = { id: id(6), batchId: id(5), line: 1, accountId: id(1), bookingDate: "2026-02-03", description: "Card", amount: -10_000, fingerprint: "f", pending: false, backs: null };
 const rule = { id: id(7), match: { counterparty: "Kiwi" }, result: { kind: "job", jobId: id(2) }, origin: "set", priority: 1 };
+const person = { id: id(12), name: "Mia", kind: "child", birthMonth: "2018-04" };
+const agreement = { id: id(13), personId: id(12), accountId: id(1), amount: 900_000, day: 20, from: "2026-10", to: "2027-09" };
+const bucketTransfer = { id: id(14), month: "2026-11", from: id(2), to: id(15), amount: 410_000, reason: "Start evening out" };
 const enteredValue = { id: id(8), kind: "figure", subject: "gross-income", value: 1.5, unit: "percent", asOf: "2026-01-01", source: "you" };
 
 const good = {
@@ -59,6 +62,9 @@ const good = {
   importBatches: batch,
   importRows: importRow,
   rules: rule,
+  people: person,
+  contributionAgreements: agreement,
+  bucketTransfers: bucketTransfer,
 } satisfies { [T in TableName]: unknown };
 
 describe("the examples used below", () => {
@@ -142,6 +148,29 @@ describe("a row that does not belong is refused, and the problem names where it 
     expect(refused("enteredValues", { ...enteredValue, value: Number.NaN })).toEqual([expect.stringMatching(/^value: /)]);
   });
 
+  it("for a person, an agreement or a transfer that does not fit", () => {
+    expect(refused("people", { ...person, kind: "pet" })).toEqual([expect.stringMatching(/^kind: /)]);
+    expect(refused("people", { ...person, birthMonth: "2018-4" })).toEqual([expect.stringMatching(/^birthMonth: /)]);
+    expect(refused("contributionAgreements", { ...agreement, day: 0.5 })).toEqual([expect.stringMatching(/^day: /)]);
+    expect(refused("contributionAgreements", { ...agreement, from: "October" })).toEqual([expect.stringMatching(/^from: /)]);
+    expect(refused("bucketTransfers", { ...bucketTransfer, amount: 1.5 })).toEqual([expect.stringMatching(/^amount: /)]);
+    expect(refused("bucketTransfers", { ...bucketTransfer, reason: undefined })).toEqual([expect.stringMatching(/^reason: /)]);
+  });
+
+  it("for a key the new rows do not have", () => {
+    expect(refused("people", { ...person, nickname: "M" })).toEqual([expect.stringMatching(/^: .*"nickname"/)]);
+    expect(refused("contributionAgreements", { ...agreement, status: "arrived" })).toEqual([expect.stringMatching(/^: .*"status"/)]);
+    expect(refused("bucketTransfers", { ...bucketTransfer, note: "x" })).toEqual([expect.stringMatching(/^: .*"note"/)]);
+  });
+
+  it("for an income that names an agreement when it is not a contribution", () => {
+    const income = (source: string, extra: object = { agreement: id(13) }) => ({ ...transaction, treatment: { kind: "income", fundsMonth: "2026-03", source, ...extra } });
+    expect(problems(TableSchemas.transactions.safeParse(income("contribution")))).toEqual([]);
+    expect(problems(TableSchemas.transactions.safeParse(income("recurring", {})))).toEqual([]);
+    for (const source of ["recurring", "other"]) expect(refused("transactions", income(source))).toEqual([expect.stringMatching(/^treatment\.agreement: .*contribution/)]);
+    expect(refused("transactions", income("contribution", { agreement: "nope" }))).toEqual([expect.stringMatching(/^treatment\.agreement: /)]);
+  });
+
   it("for a field that is missing", () => {
     const { name: _, ...withoutName } = account;
     expect(refused("accounts", withoutName)).toEqual([expect.stringMatching(/^name: /)]);
@@ -158,6 +187,9 @@ describe("an optional field", () => {
     const parsed = TableSchemas.accounts.parse(account);
     expect(Object.keys(parsed).sort()).toEqual(Object.keys(account).sort());
     expect(Object.hasOwn(TableSchemas.transactions.parse(transaction), "counterparty")).toBe(false);
+    expect(Object.hasOwn(TableSchemas.people.parse({ id: id(12), name: "Alex", kind: "adult" }), "birthMonth")).toBe(false);
+    const { to: _, ...running } = agreement;
+    expect(Object.hasOwn(TableSchemas.contributionAgreements.parse(running), "to")).toBe(false);
   });
 
   it("is refused when it is present and undefined, because the type allows absent but not undefined", () => {

@@ -1,7 +1,7 @@
 /**
  * Random command scripts for property tests. A script starts from a sound household that commands built
  * (shared accounts and a paid-into one, groups, the buffer, jobs of every kind and history before the plan
- * start), then runs random steps of every command kind. Each step is a recipe read against the facts as
+ * start) and people, then runs random steps of every command kind. Each step is a recipe read against the facts as
  * they stand, so later commands refer to rows that earlier ones made, and some are refused, as in real use.
  */
 
@@ -9,6 +9,7 @@ import fc from "fast-check";
 import { type ApplyContext, type Command, apply } from "../commands/apply.ts";
 import type { JobChanges } from "../commands/jobs.ts";
 import { nextMonthToOpen } from "../commands/months.ts";
+import { keepsMoney } from "../figures/jobs.ts";
 import { type LocalDate, type Month, addMonths, localDate, month, monthOf } from "../dates.ts";
 import {
   type AccountKind,
@@ -24,7 +25,7 @@ import {
   makeSplit,
   overrideSubject,
 } from "../facts.ts";
-import { accountId, enteredValueId, groupId, householdId, jobId, moveId, transactionId } from "../ids.ts";
+import { accountId, agreementId, bucketTransferId, enteredValueId, groupId, householdId, jobId, moveId, personId, transactionId } from "../ids.ts";
 import { type Money, currency, money } from "../money.ts";
 import { NOK, testId } from "./facts-builder.ts";
 
@@ -107,11 +108,51 @@ const stepRecipe = fc.oneof(
   { weight: 2, arbitrary: fc.record({ kind: fc.constant("enterValue"), what: fc.constantFrom("bufferMonths", "override", "balance", "figure"), pick: fc.nat(), monthIndex: fc.integer({ min: 0, max: 9 }), value: fc.integer({ min: 0, max: 600_000 }), date: dayIn(-3, 8) }) },
   { weight: 4, arbitrary: fc.record({ kind: fc.constant("recordTransaction"), account: fc.nat(), date: dayIn(-4, 8), amount: signedAmount(20_000), treatment: treatmentRecipe }) },
   { weight: 2, arbitrary: fc.record({ kind: fc.constant("setTreatment"), pick: fc.nat(), treatment: treatmentRecipe }) },
+  fc.record({ kind: fc.constant("addPerson"), name: fc.constantFrom("Alex", "Sam", "Robin", "  "), child: fc.boolean(), birthMonth: maybe(fc.integer({ min: -200, max: 8 })) }),
+  fc.record({ kind: fc.constant("changePerson"), pick: fc.nat(), name: maybe(fc.constantFrom("Renamed", "Sam", "")), birthMonth: maybe(fc.integer({ min: -200, max: 8 })), clearBirthMonth: fc.boolean() }),
+  fc.record({ kind: fc.constant("deletePerson"), pick: fc.nat() }),
+  {
+    weight: 4,
+    arbitrary: fc.record({
+      kind: fc.constant("addAgreement"),
+      person: fc.nat(),
+      account: fc.nat(),
+      amount: fc.oneof({ weight: 1, arbitrary: fc.constant(money(0)) }, { weight: 6, arbitrary: amountUpTo(30_000) }),
+      day: fc.integer({ min: 0, max: 30 }),
+      fromIndex: fc.integer({ min: 0, max: 6 }),
+      lastOffset: maybe(fc.integer({ min: -2, max: 6 })),
+    }),
+  },
+  {
+    weight: 3,
+    arbitrary: fc.record({
+      kind: fc.constant("changeAgreement"),
+      pick: fc.nat(),
+      amount: maybe(fc.oneof({ weight: 1, arbitrary: fc.constant(money(0)) }, { weight: 6, arbitrary: amountUpTo(30_000) })),
+      day: maybe(fc.integer({ min: 0, max: 30 })),
+      account: maybe(fc.nat()),
+      lastOffset: maybe(fc.integer({ min: -2, max: 6 })),
+      clearEnd: fc.boolean(),
+    }),
+  },
+  {
+    weight: 4,
+    arbitrary: fc.record({
+      kind: fc.constant("moveBucket"),
+      month: fc.nat(),
+      from: fc.nat(),
+      to: fc.nat(),
+      /** Mostly small, so the bucket holds it. */
+      amount: fc.oneof({ weight: 1, arbitrary: fc.constant(money(0)) }, { weight: 6, arbitrary: fc.integer({ min: 1, max: 50_000 }).map(money) }, { weight: 2, arbitrary: fc.integer({ min: 1, max: 600_000 }).map(money) }),
+      reason: fc.constantFrom("Seed the bucket", "Seed the bucket", ""),
+    }),
+  },
   fc.record({ kind: fc.constant("changeHousehold"), name: maybe(fc.constantFrom("Renamed", "Home", "")), step: maybe(fc.constantFrom(0, 2_500, 10_000, 20_000)), currency: maybe(fc.constantFrom("NOK", "EUR")), planStart: maybe(fc.integer({ min: -2, max: 2 })) }),
 );
 type StepRecipe = typeof stepRecipe extends fc.Arbitrary<infer R> ? R : never;
 
 const setupRecipe = fc.record({
+  people: fc.array(fc.boolean(), { minLength: 1, maxLength: 3 }),
   shared: fc.array(fc.record({ kind: accountKind, openingBalance: signedAmount(50_000) }), { minLength: 1, maxLength: 3 }),
   groups: fc.integer({ min: 1, max: 3 }),
   buffer: fc.record({ monthly: amountUpTo(5_000), opening: amountUpTo(60_000), account: fc.nat() }),
@@ -305,6 +346,57 @@ function commandFrom(facts: Facts, step: StepRecipe, id: string): Command {
       if (transaction === undefined) return { kind: "setTreatment", transactionId: transactionId(id), treatment: { kind: "needsYou" } };
       return { kind: "setTreatment", transactionId: transaction.id, treatment: treatmentFor(facts, step.treatment, transaction.bookingDate, transaction.amount).treatment };
     }
+    case "addPerson":
+      return { kind: "addPerson", person: { id: personId(id), name: step.name, kind: step.child ? "child" : "adult", ...optional("birthMonth", step.birthMonth === null ? null : monthAt(step.birthMonth)) } };
+    case "changePerson":
+      return {
+        kind: "changePerson",
+        personId: at(keys(facts.people), step.pick) ?? personId(id),
+        changes: { ...optional("name", step.name), ...(step.clearBirthMonth ? { birthMonth: null } : optional("birthMonth", step.birthMonth === null ? null : monthAt(step.birthMonth))) },
+      };
+    case "deletePerson":
+      return { kind: "deletePerson", personId: at(keys(facts.people), step.pick) ?? personId(id) };
+    case "addAgreement": {
+      const adults = [...facts.people.values()].filter((p) => p.kind === "adult").map((p) => p.id);
+      const from = monthAt(step.fromIndex);
+      return {
+        kind: "addAgreement",
+        agreement: {
+          id: agreementId(id),
+          personId: at(adults, step.person) ?? personId(id),
+          accountId: at(sharedAccounts(facts), step.account) ?? accountId(id),
+          amount: step.amount,
+          day: step.day,
+          from,
+          ...optional("to", step.lastOffset === null ? null : addMonths(from, step.lastOffset)),
+        },
+      };
+    }
+    case "changeAgreement": {
+      const agreement = at(keys(facts.contributionAgreements), step.pick) ?? agreementId(id);
+      const from = facts.contributionAgreements.get(agreement)?.from ?? scriptPlanStart;
+      return {
+        kind: "changeAgreement",
+        agreementId: agreement,
+        changes: {
+          ...optional("amount", step.amount),
+          ...optional("day", step.day),
+          ...optional("accountId", step.account === null ? null : (at(sharedAccounts(facts), step.account) ?? null)),
+          ...(step.clearEnd ? { to: null } : optional("to", step.lastOffset === null ? null : addMonths(from, step.lastOffset))),
+        },
+      };
+    }
+    case "moveBucket": {
+      const months = [...facts.budgetMonths.keys()];
+      // Mostly between two different jobs that keep their money, since a transfer only fits those.
+      const keeping = [...facts.jobs.values()].filter(keepsMoney).map((job) => job.id);
+      const from = at(keeping, step.from) ?? anyJob(step.from);
+      const to = at(
+        keeping.filter((job) => job !== from),
+        step.to,
+      ) ?? anyJob(step.to);
+      return { kind: "moveBucket", transfer: { id: bucketTransferId(id), month: at(months, step.month) ?? scriptPlanStart, from, to, amount: step.amount, reason: step.reason } };
+    }
     case "changeHousehold":
       return {
         kind: "changeHousehold",
@@ -338,6 +430,7 @@ function startingHousehold(setup: typeof setupRecipe extends fc.Arbitrary<infer 
     facts = result.facts;
   };
 
+  setup.people.forEach((child, i) => run({ kind: "addPerson", person: { id: personId(nextId()), name: `Person ${i + 1}`, kind: child ? "child" : "adult" } }));
   setup.shared.forEach((a, i) => run({ kind: "addAccount", account: { id: accountId(nextId()), name: `Shared ${i + 1}`, kind: a.kind, scope: "shared", openingBalance: a.openingBalance, openingDate: localDate("2026-02-28") } }));
   run({ kind: "addAccount", account: { id: accountId(nextId()), name: "Child", kind: "savings", scope: "paidInto", openingBalance: money(100_000), openingDate: localDate("2026-02-28") } });
   for (let i = 0; i < setup.groups; i++) run({ kind: "addGroup", group: { id: groupId(nextId()), name: `Group ${i + 1}`, order: i, countsTowardsSavingsRate: i === 0 } });

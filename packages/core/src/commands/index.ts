@@ -1,12 +1,15 @@
 export type { AccountAndGroupCommand, AccountChanges, GroupChanges } from "./accounts-and-groups.ts";
 export { type BatchCommand, type ApplyContext, type ApplyResult, type ChangeMeta, type Command, type CommandKind, type CommitResult, apply, commandKinds, commit } from "./apply.ts";
+export type { BucketTransferCommand } from "./bucket-transfers.ts";
 export { type Violation, type ViolationCode, checkFacts } from "./check-facts.ts";
+export type { AgreementChanges, ContributionCommand } from "./contributions.ts";
 export type { EnteredValueCommand } from "./entered-values.ts";
 export type { ImportCommand, TransferPair } from "./imports.ts";
 export type { HouseholdChanges, HouseholdCommand } from "./household.ts";
 export type { JobChanges, JobCommand, PayIntoJobChanges, SaveUpJobChanges, SpendJobChanges } from "./jobs.ts";
 export { type MonthCommand, nextMonthToOpen } from "./months.ts";
 export type { MoveCommand, MoveOutcome, NewMove } from "./moves.ts";
+export type { PersonChanges, PersonCommand } from "./people.ts";
 export { type Refusal, type RefusalCode, messageFor, refusalCodes } from "./refusal.ts";
 export type { RuleChanges, RuleCommand } from "./rules.ts";
 export { type TransactionCommand, type TreatmentInput, treatmentFor } from "./transactions.ts";

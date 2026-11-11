@@ -2,13 +2,14 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { apply } from "../commands/apply.ts";
 import { checkFacts } from "../commands/check-facts.ts";
+import { localDate } from "../dates.ts";
 import type { Facts, Transaction } from "../facts.ts";
 import type { JobId, TransactionId } from "../ids.ts";
 import { money } from "../money.ts";
 import { ruleOf, withRules, withTransaction } from "../rules/rule-fixtures.ts";
 import { accepted, today } from "../testing/command-household.ts";
 import { type FactsBuilder, factsBuilder, kr, setAmount } from "../testing/facts-builder.ts";
-import { computeFigures } from "./index.ts";
+import { computeFigures, contributionStatuses } from "./index.ts";
 import { type NeedsYouSuggestion, needsYouItems } from "./needs-you.ts";
 
 interface Setup {
@@ -372,7 +373,7 @@ describe("needsYouItems", () => {
               expect(from.counterparty?.trim().toLowerCase()).toBe(item.transaction.counterparty?.trim().toLowerCase());
               expect(from.bookingDate < item.transaction.bookingDate || (from.bookingDate === item.transaction.bookingDate && from.id < item.transaction.id)).toBe(true);
             }
-            expect(accepted(apply(facts, s.command, { asOf: today })).transactions.get(item.transaction.id)?.treatment.kind).toBe("split");
+            expect(accepted(apply(facts, s.command, { asOf: today })).transactions.get(item.transaction.id)?.treatment.kind).toBe(s.kind === "contribution" ? "income" : "split");
           }
         }),
       );
@@ -399,5 +400,216 @@ describe("needsYouItems", () => {
         }),
       );
     });
+  });
+});
+
+describe("a payment under a contribution agreement", () => {
+  /** Robin agrees to pay 20,000 kr on the 15th and Sam 10,000 kr on the 25th, into Everyday, from October. */
+  function household() {
+    const s = setUp();
+    const robin = s.b.person({ name: "Robin" });
+    const sam = s.b.person({ name: "Sam" });
+    const robinPays = s.b.agreement({ person: robin, accountId: s.everyday, amount: kr(20_000), day: 15, from: "2026-10" });
+    const samPays = s.b.agreement({ person: sam, accountId: s.everyday, amount: kr(10_000), day: 25, from: "2026-10" });
+    return { ...s, robinPays, samPays };
+  }
+  const suggestionFor = (facts: Facts, id: TransactionId) => needsYouItems(facts).find((i) => i.transaction.id === id)?.suggestion ?? null;
+
+  it("is offered as linking the payment to the agreement, for the month after the one it is booked in", () => {
+    const { b, robinPays } = household();
+    const payment = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+    expect(suggestionFor(b.facts(), payment)).toEqual({
+      kind: "contribution",
+      agreementId: robinPays,
+      personName: "Robin",
+      command: { kind: "setTreatment", transactionId: payment, treatment: { kind: "income", fundsMonth: "2026-12", source: "contribution", agreement: robinPays } },
+    });
+  });
+
+  it("funds January for a payment booked in December", () => {
+    const { b } = household();
+    const payment = b.needsYou({ date: "2026-12-14", amount: kr(20_000) });
+    expect(treatmentSet(suggestionFor(b.facts(), payment))).toMatchObject({ fundsMonth: "2027-01" });
+  });
+
+  it("makes the payment arrived when the family accepts it, and the transaction leaves needs you", () => {
+    const { b, robinPays } = household();
+    const payment = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+    const suggestion = suggestionFor(b.facts(), payment);
+    if (suggestion === null) throw new Error("no suggestion");
+    const after = accepted(apply(b.facts(), suggestion.command, { asOf: today }));
+    expect(checkFacts(after)).toEqual([]);
+    expect(ids(needsYouItems(after))).toEqual([]);
+    expect(contributionStatuses(after, localDate("2026-11-16")).find((s) => s.agreementId === robinPays && s.fundsMonth === "2026-12")).toMatchObject({ state: "arrived", transactionIds: [payment] });
+  });
+
+  describe("the day", () => {
+    it.each([
+      ["8", true],
+      ["7", false],
+      ["15", true],
+      ["22", true],
+      ["23", false],
+    ])("for an agreement for the 15th, a payment on day %s of the month is offered: %s", (day, offered) => {
+      const { b } = household();
+      const payment = b.needsYou({ date: `2026-11-${day.padStart(2, "0")}`, amount: kr(20_000) });
+      expect(suggestionFor(b.facts(), payment) !== null).toBe(offered);
+    });
+  });
+
+  describe("the amount", () => {
+    it("is offered for exactly the amount and not for a cent more", () => {
+      const { b } = household();
+      const exact = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      const over = b.needsYou({ date: "2026-11-16", amount: money(kr(20_000) + 1) });
+      expect(suggestionFor(b.facts(), exact)?.kind).toBe("contribution");
+      expect(suggestionFor(b.facts(), over)).toBeNull();
+    });
+
+    it("is offered for a part of the amount when nothing has arrived", () => {
+      const { b } = household();
+      const part = b.needsYou({ date: "2026-11-15", amount: money(kr(20_000) - 1) });
+      expect(suggestionFor(b.facts(), part)?.kind).toBe("contribution");
+    });
+
+    it("is offered for a part that fits what is left, and for exactly what is left, not for more", () => {
+      const { b, robinPays } = household();
+      b.income({ date: "2026-11-10", amount: kr(12_000), fundsMonth: "2026-12", agreement: robinPays });
+      const rest = b.needsYou({ date: "2026-11-15", amount: kr(8_000) });
+      const less = b.needsYou({ date: "2026-11-16", amount: kr(3_000) });
+      const more = b.needsYou({ date: "2026-11-17", amount: money(kr(8_000) + 1) });
+      const whole = b.needsYou({ date: "2026-11-18", amount: kr(20_000) });
+      const facts = b.facts();
+      expect(suggestionFor(facts, rest)?.kind).toBe("contribution");
+      expect(suggestionFor(facts, less)?.kind).toBe("contribution");
+      expect(suggestionFor(facts, more)).toBeNull();
+      expect(suggestionFor(facts, whole)).toBeNull();
+    });
+
+    it("is not offered when the month has been paid in full", () => {
+      const { b, robinPays } = household();
+      b.income({ date: "2026-11-10", amount: kr(20_000), fundsMonth: "2026-12", agreement: robinPays });
+      const second = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      expect(suggestionFor(b.facts(), second)).toBeNull();
+    });
+
+    it("is not offered for money out, for nothing, or for a payment that is not an amount of money in", () => {
+      const { b } = household();
+      const out = b.needsYou({ date: "2026-11-15", amount: kr(-20_000) });
+      const nothing = b.needsYou({ date: "2026-11-15", amount: money(0) });
+      expect(suggestionFor(b.facts(), out)).toBeNull();
+      expect(suggestionFor(b.facts(), nothing)).toBeNull();
+    });
+  });
+
+  describe("the account and the months", () => {
+    it("is offered only in the agreement's account", () => {
+      const { b, savings } = household();
+      const elsewhere = b.needsYou({ date: "2026-11-15", amount: kr(20_000), accountId: savings });
+      expect(suggestionFor(b.facts(), elsewhere)).toBeNull();
+    });
+
+    it("is not offered for a month the agreement does not fund", () => {
+      const s = setUp();
+      s.b.agreement({ accountId: s.everyday, amount: kr(7_000), day: 10, from: "2026-12", to: "2026-12" });
+      const early = s.b.needsYou({ date: "2026-10-10", amount: kr(7_000) });
+      const inside = s.b.needsYou({ date: "2026-11-10", amount: kr(7_000) });
+      const late = s.b.needsYou({ date: "2026-12-10", amount: kr(7_000) });
+      const facts = s.b.facts();
+      expect(suggestionFor(facts, early)).toBeNull();
+      expect(suggestionFor(facts, inside)?.kind).toBe("contribution");
+      expect(suggestionFor(facts, late)).toBeNull();
+    });
+
+    it("is not offered when the month it would fund is before the plan starts", () => {
+      const s = setUp();
+      s.b.agreement({ accountId: s.everyday, amount: kr(7_000), day: 10, from: "2026-01" });
+      const history = s.b.needsYou({ date: "2026-08-10", amount: kr(7_000) });
+      expect(suggestionFor(s.b.facts(), history)).toBeNull();
+    });
+  });
+
+  describe("when two agreements fit", () => {
+    it("offers nothing when they fit equally well", () => {
+      const s = setUp();
+      s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 15, from: "2026-10" });
+      s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 15, from: "2026-10" });
+      const payment = s.b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      expect(suggestionFor(s.b.facts(), payment)).toBeNull();
+    });
+
+    it("offers nothing for a payment the same number of days from each", () => {
+      const s = setUp();
+      s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 13, from: "2026-10" });
+      s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 17, from: "2026-10" });
+      const payment = s.b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      expect(suggestionFor(s.b.facts(), payment)).toBeNull();
+    });
+
+    it("offers the agreement whose day is nearer", () => {
+      const s = setUp();
+      const early = s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 13, from: "2026-10" });
+      s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 20, from: "2026-10" });
+      const payment = s.b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      expect(suggestionFor(s.b.facts(), payment)).toMatchObject({ kind: "contribution", agreementId: early });
+    });
+
+    it("offers the agreement the whole amount fits over one it is only a part of, even when that one is nearer", () => {
+      const s = setUp();
+      s.b.agreement({ accountId: s.everyday, amount: kr(50_000), day: 15, from: "2026-10" });
+      const whole = s.b.agreement({ accountId: s.everyday, amount: kr(20_000), day: 21, from: "2026-10" });
+      const payment = s.b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      expect(suggestionFor(s.b.facts(), payment)).toMatchObject({ kind: "contribution", agreementId: whole });
+    });
+
+    it("offers the two payments to the two people when each fits only one", () => {
+      const { b, robinPays, samPays } = household();
+      const robin = b.needsYou({ date: "2026-11-16", amount: kr(20_000) });
+      const sam = b.needsYou({ date: "2026-11-24", amount: kr(10_000) });
+      const facts = b.facts();
+      expect(suggestionFor(facts, robin)).toMatchObject({ agreementId: robinPays });
+      expect(suggestionFor(facts, sam)).toMatchObject({ agreementId: samPays });
+    });
+  });
+
+  describe("against the other suggestions", () => {
+    it("loses to a rule", () => {
+      const { b, car } = household();
+      const payment = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      const rule = ruleOf({ n: 1, counterparty: "robin", result: { kind: "job", jobId: car } });
+      expect(suggestionFor(withRules(named(b.facts(), [[payment, "Robin"]]), rule), payment)).toMatchObject({ kind: "rule", ruleId: rule.id });
+    });
+
+    it("wins over same as last time", () => {
+      const { b, food, robinPays } = household();
+      const earlier = b.spend({ date: "2026-10-02", amount: kr(-300), jobId: food });
+      const payment = b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+      const facts = named(b.facts(), [[earlier, "Robin"], [payment, "Robin"]]);
+      expect(suggestionFor(facts, payment)).toMatchObject({ kind: "contribution", agreementId: robinPays });
+    });
+
+    it("leaves same as last time for a payment no agreement fits", () => {
+      const { b, food } = household();
+      const earlier = b.spend({ date: "2026-10-02", amount: kr(-300), jobId: food });
+      const payment = b.needsYou({ date: "2026-11-02", amount: kr(-90) });
+      expect(suggestionFor(named(b.facts(), [[earlier, "Kiwi"], [payment, "Kiwi"]]), payment)?.kind).toBe("sameAsLast");
+    });
+
+    it("loses to a merge into a transaction that may be the same payment", () => {
+      const { b } = household();
+      const decided = b.income({ date: "2026-11-14", amount: kr(20_000), fundsMonth: "2026-12", source: "other", description: "Overføring" });
+      const payment = b.needsYou({ date: "2026-11-15", amount: kr(20_000), description: "Overføring" });
+      expect(suggestionFor(b.facts(), payment)).toEqual({ kind: "merge", command: { kind: "mergeTransactions", keep: decided, drop: payment } });
+    });
+  });
+
+  it("gives the same lists whatever order the rows are held in", () => {
+    const { b } = household();
+    b.needsYou({ date: "2026-11-15", amount: kr(20_000) });
+    b.needsYou({ date: "2026-11-25", amount: kr(10_000) });
+    b.needsYou({ date: "2026-11-26", amount: kr(1_000) });
+    const facts = b.facts();
+    const reversed: Facts = { ...facts, transactions: new Map([...facts.transactions].reverse()), contributionAgreements: new Map([...facts.contributionAgreements].reverse()) };
+    expect(needsYouItems(reversed)).toEqual(needsYouItems(facts));
   });
 });

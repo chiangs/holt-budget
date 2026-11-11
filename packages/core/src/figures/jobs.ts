@@ -44,6 +44,10 @@ export interface JobMonth {
   readonly assigned: Assigned;
   /** Minus the allocations to the job in the month, so a refund reduces it. */
   readonly spent: Money;
+  /** Bucket money other jobs gave this job in the month (0048). Not income and not spending. */
+  readonly transfersIn: Money;
+  /** Bucket money this job gave other jobs in the month. */
+  readonly transfersOut: Money;
   readonly money: JobMonthMoney;
   readonly cost: Cost;
 }
@@ -111,10 +115,14 @@ export function projection(job: Job, m: Month, bucketBefore: Money, estimateFor:
   }
 }
 
-/** Where the job's money stands at the end of the month. `start` is the bucket before the month, for a job that keeps its money. */
-export function monthMoney(keeps: boolean, start: Money, assigned: Money, spent: Money, ended: boolean): JobMonthMoney {
+/**
+ * Where the job's money stands at the end of the month. `start` is the bucket before the month, for a job that keeps its money.
+ * A bucket ends the month at what it started with, plus what the job was assigned and what other buckets gave it, less what
+ * it spent and what it gave other buckets (0048).
+ */
+export function monthMoney(keeps: boolean, start: Money, assigned: Money, spent: Money, ended: boolean, transfersIn: Money, transfersOut: Money): JobMonthMoney {
   if (keeps) {
-    const end = money(start + assigned - spent);
+    const end = money(start + assigned + transfersIn - transfersOut - spent);
     return end < 0 ? { kind: "short", start, end } : { kind: "bucket", start, end };
   }
   const leftover = assigned - spent;

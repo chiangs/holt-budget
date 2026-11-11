@@ -4,7 +4,7 @@ import { accountNumber } from "../account-number.ts";
 import { type Command, apply, commandKinds } from "../commands/apply.ts";
 import { localDate, month } from "../dates.ts";
 import { type Facts, makeSplit } from "../facts.ts";
-import { accountId, enteredValueId, groupId, importBatchId, importRowId, jobId, moveId, ruleId, transactionId } from "../ids.ts";
+import { accountId, agreementId, bucketTransferId, enteredValueId, groupId, importBatchId, importRowId, jobId, moveId, personId, ruleId, transactionId } from "../ids.ts";
 import { currency, money } from "../money.ts";
 import { rowsEqual } from "../patch.ts";
 import { arbitraryFacts } from "../testing/arbitrary-facts.ts";
@@ -21,6 +21,9 @@ const otherTx = transactionId(testId(5));
 const batchId = importBatchId(testId(6));
 const rule = ruleId(testId(7));
 const mv = moveId(testId(8));
+const person = personId(testId(13));
+const agreement = agreementId(testId(14));
+const transferId = bucketTransferId(testId(15));
 
 const accountRow = { id: account, name: "Everyday", kind: "everyday", scope: "shared", openingBalance: money(0), openingDate: localDate("2026-01-01"), number: accountNumber("12345678901"), importRhythm: "weekly" } as const;
 const transaction = {
@@ -74,6 +77,12 @@ const examples = {
   changeRule: { kind: "changeRule", ruleId: rule, changes: { match: ruleRow.match, result: { kind: "job", jobId: job }, priority: 9 } },
   deleteRule: { kind: "deleteRule", ruleId: rule },
   setPlanStart: { kind: "setPlanStart", planStart: month("2026-02") },
+  addPerson: { kind: "addPerson", person: { id: person, name: "Mia", kind: "child", birthMonth: month("2018-04") } },
+  changePerson: { kind: "changePerson", personId: person, changes: { name: "Mia Rose", birthMonth: month("2018-05") } },
+  deletePerson: { kind: "deletePerson", personId: person },
+  addAgreement: { kind: "addAgreement", agreement: { id: agreement, personId: person, accountId: account, amount: money(900_000), day: 20, from: month("2026-10"), to: month("2027-09") } },
+  changeAgreement: { kind: "changeAgreement", agreementId: agreement, changes: { amount: money(950_000), day: 21, accountId: account, to: month("2027-12") } },
+  moveBucket: { kind: "moveBucket", transfer: { id: transferId, month: month("2026-11"), from: job, to: jobId(testId(10)), amount: money(410_000), reason: "Start evening out" } },
   batch: { kind: "batch", commands: [{ kind: "deleteRule", ruleId: rule }, { kind: "batch", commands: [{ kind: "setNote", transactionId: tx, note: "x" }] }] },
 } as const satisfies { [K in Command["kind"]]: Extract<Command, { kind: K }> };
 
@@ -90,6 +99,14 @@ const moreExamples: readonly Command[] = [
   { kind: "setTreatment", transactionId: tx, treatment: { kind: "history", jobId: null } },
   { kind: "setTreatment", transactionId: tx, treatment: { kind: "needsYou" } },
   { kind: "changeRule", ruleId: rule, changes: {} },
+  { kind: "changePerson", personId: person, changes: {} },
+  { kind: "changePerson", personId: person, changes: { birthMonth: null } },
+  { kind: "addPerson", person: { id: person, name: "Alex", kind: "adult" } },
+  { kind: "changeAgreement", agreementId: agreement, changes: {} },
+  { kind: "changeAgreement", agreementId: agreement, changes: { to: null } },
+  { kind: "addAgreement", agreement: { id: agreement, personId: person, accountId: account, amount: money(1), day: 1, from: month("2026-10") } },
+  { kind: "recordTransaction", transaction: { ...transaction, treatment: { kind: "income", fundsMonth: month("2026-11"), source: "contribution", agreement } } },
+  { kind: "setTreatment", transactionId: tx, treatment: { kind: "income", fundsMonth: month("2026-11"), source: "contribution", agreement } },
   { kind: "batch", commands: [] },
 ];
 
@@ -219,6 +236,19 @@ describe("a command that does not belong is refused, and the problem names where
   it("for an account number that is not one, and for a missing number that was written as undefined", () => {
     expect(refused(CommandSchema, { ...examples.changeAccount, changes: { number: "abc" } })).toEqual([expect.stringMatching(/^changes\.number: /)]);
     expect(refused(CommandSchema, { ...examples.changeAccount, changes: { number: undefined } })).toEqual([expect.stringMatching(/^changes\.number: /)]);
+  });
+
+  it("for a person of a kind that does not exist, or a day or birth month that is not one", () => {
+    expect(refused(CommandSchema, { ...examples.addPerson, person: { id: person, name: "Mia", kind: "pet" } })).toEqual([expect.stringMatching(/^person\.kind: /)]);
+    expect(refused(CommandSchema, { ...examples.addPerson, person: { id: person, name: "Mia", kind: "child", birthMonth: "2018-13" } })).toEqual([expect.stringMatching(/^person\.birthMonth: /)]);
+    expect(refused(CommandSchema, { ...examples.addAgreement, agreement: { ...examples.addAgreement.agreement, day: 20.5 } })).toEqual([expect.stringMatching(/^agreement\.day: /)]);
+    expect(refused(CommandSchema, { ...examples.changeAgreement, changes: { to: undefined } })).toEqual([expect.stringMatching(/^changes\.to: /)]);
+  });
+
+  it("for an income that names an agreement without being a contribution", () => {
+    const income = (source: string) => ({ kind: "setTreatment", transactionId: tx, treatment: { kind: "income", fundsMonth: "2026-11", source, agreement } });
+    expect(CommandSchema.safeParse(income("contribution")).success).toBe(true);
+    for (const source of ["recurring", "other"]) expect(refused(CommandSchema, income(source))).toEqual([expect.stringMatching(/^treatment\.agreement: .*contribution/)]);
   });
 
   it("for a bad row inside an import", () => {

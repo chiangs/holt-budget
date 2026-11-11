@@ -1,0 +1,9 @@
+.badge {
+  flex: 0 0 auto; padding: 0 7px; border-radius: var(--radius-full); background: var(--surface-raised); color: var(--text);
+  font-family: var(--font-data); font-size: 11px; line-height: 18px; font-weight: 500; white-space: nowrap;
+}
+.badge[data-kind="overAssigned"] { background: var(--attention-soft); }
+.hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

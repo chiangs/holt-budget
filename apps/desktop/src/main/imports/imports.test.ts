@@ -215,9 +215,11 @@ describe("adding a file", () => {
   });
 
   it("gives a new row the job of the last one from the same payee only when suggestions are on", () => {
+    // A payee with no rule whose monthly row falls after the older file ends, so the later file adds it.
+    const payee = "Kontogebyr";
     add("bulder.csv");
     const earlier = [...rig.facts().transactions.values()]
-      .filter((t) => t.counterparty === "Eksempel Venn" && t.treatment.kind === "needsYou" && t.amount < 0)
+      .filter((t) => t.counterparty === payee && t.treatment.kind === "needsYou" && t.amount < 0)
       .sort((a, b) => b.bookingDate.localeCompare(a.bookingDate));
     expect(earlier.length).toBeGreaterThan(1);
     const hobbies = rig.job("Hobbies");
@@ -234,7 +236,7 @@ describe("adding a file", () => {
     expect(off.preview.counts.needsYou).toBe(on.preview.counts.needsYou + on.preview.counts.suggested);
 
     applied(rig.imports.commit(later.session, entry({ suggest: false })));
-    const suggestedAnyway = [...rig.facts().transactions.values()].filter((t) => t.counterparty === "Eksempel Venn" && t.treatment.kind === "split" && t.id !== latest.id);
+    const suggestedAnyway = [...rig.facts().transactions.values()].filter((t) => t.counterparty === payee && t.treatment.kind === "split" && t.id !== latest.id);
     expect(suggestedAnyway).toHaveLength(0);
   });
 
@@ -255,9 +257,10 @@ describe("adding a file", () => {
     if (quiet.kind !== "planned") throw new Error("Expected a plan");
     expect(quiet.preview.accounts.find((a) => a.accountId === everyday)?.balance.kind).toBe("notChecked");
 
+    const heldBefore = new Set(rig.facts().enteredValues.keys());
     applied(rig.imports.commit(file.session, entry({ balances: [{ accountId: everyday, value: wrong.calculated, asOf }] })));
-    const kept = [...rig.facts().enteredValues.values()].filter((v) => v.kind === "accountBalance");
-    expect(kept).toMatchObject([{ subject: everyday, value: wrong.calculated, asOf }]);
+    const kept = [...rig.facts().enteredValues.values()].filter((v) => !heldBefore.has(v.id));
+    expect(kept).toMatchObject([{ kind: "accountBalance", subject: everyday, value: wrong.calculated, asOf }]);
   });
 });
 

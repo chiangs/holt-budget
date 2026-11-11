@@ -1,7 +1,8 @@
 /**
  * The plan, month by month (decision record 0046; rule 4; decisions 1, 2 and 13). A month's money is
  * what it carries in plus the income that funds it. Buckets run on from the month before, and an ended
- * month's leftovers return to unassigned, so the months are worked out in order.
+ * month's leftovers return to unassigned, so the months are worked out in order. A transfer between buckets
+ * moves a bucket and nothing else: it is neither assigned nor spent, so unassigned money stays as it was (0048).
  */
 
 import type { Month } from "../dates.ts";
@@ -43,6 +44,25 @@ export interface PlanFigures {
   readonly jobs: ReadonlyMap<JobId, JobFigures>;
 }
 
+/** What each job gave and got through bucket transfers, by job and month. */
+type TransferTotals = ReadonlyMap<JobId, ReadonlyMap<Month, { readonly in: number; readonly out: number }>>;
+
+function transferTotals(facts: Facts): TransferTotals {
+  const totals = new Map<JobId, Map<Month, { in: number; out: number }>>();
+  const side = (job: JobId, m: Month) => {
+    const months = totals.get(job) ?? new Map<Month, { in: number; out: number }>();
+    totals.set(job, months);
+    const sums = months.get(m) ?? { in: 0, out: 0 };
+    months.set(m, sums);
+    return sums;
+  };
+  for (const t of facts.bucketTransfers.values()) {
+    side(t.from, t.month).out += t.amount;
+    side(t.to, t.month).in += t.amount;
+  }
+  return totals;
+}
+
 export function planFigures(facts: Facts, planMonths: readonly Month[], current: Month, index: TransactionIndex, estimateFor: EstimateFor): PlanFigures {
   const jobs = [...facts.jobs.values()].map((job) => ({ job, keeps: keepsMoney(job), months: new Map<Month, JobMonth>() }));
   const bucketBefore = new Map<JobId, Money>(jobs.map(({ job }) => [job.id, job.opening]));
@@ -50,6 +70,7 @@ export function planFigures(facts: Facts, planMonths: readonly Month[], current:
   const bucketNow = new Map(bucketBefore);
   const months = new Map<Month, MonthFigures>();
   let carriedIn = money(0);
+  const transfers = transferTotals(facts);
 
   for (const m of planMonths) {
     const state: MonthState = facts.budgetMonths.get(m)?.state ?? "planned";
@@ -67,8 +88,11 @@ export function planFigures(facts: Facts, planMonths: readonly Month[], current:
           ? projection(job, m, start, estimateFor)
           : { kind: "assignment", amount: facts.assignments.get(assignmentKey(m, job.id))?.amount ?? money(0) };
       const spent = index.spent.get(job.id)?.get(m) ?? money(0);
-      const jobMoney = monthMoney(keeps, start, assigned.amount, spent, ended);
-      const jobMonth: JobMonth = { month: m, assigned, spent, money: jobMoney, cost: costOf(job, m, spent, ended, estimateFor) };
+      const moved = transfers.get(job.id)?.get(m);
+      const transfersIn = money(moved?.in ?? 0);
+      const transfersOut = money(moved?.out ?? 0);
+      const jobMoney = monthMoney(keeps, start, assigned.amount, spent, ended, transfersIn, transfersOut);
+      const jobMonth: JobMonth = { month: m, assigned, spent, transfersIn, transfersOut, money: jobMoney, cost: costOf(job, m, spent, ended, estimateFor) };
 
       jobsInMonth.set(job.id, jobMonth);
       jobMonths.set(m, jobMonth);

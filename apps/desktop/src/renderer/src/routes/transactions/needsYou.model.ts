@@ -5,10 +5,14 @@
  */
 
 import {
+  type AgreementId,
+  type ContributionAgreement,
   type Facts,
   type FamilyCommand,
+  type IncomeSource,
   type JobId,
   type LocalDate,
+  type Month,
   type NeedsYouItem,
   type NeedsYouSuggestion,
   type RuleShare,
@@ -17,6 +21,8 @@ import {
   type TreatmentInput,
   maxBatchCommands,
 } from "@holt/core";
+import { defaultFundsMonth } from "./commands.model.ts";
+import type { Words } from "./ImportSay.ts";
 
 /** Everything a row can offer. Which ones it does depends on the row (`actionsFor`). */
 export type RowAction = "accept" | "chooseJob" | "split" | "transfer" | "income" | "refund" | "note" | "alwaysDoThis";
@@ -24,19 +30,33 @@ export type RowAction = "accept" | "chooseJob" | "split" | "transfer" | "income"
 /** What accepting a suggestion would give a transaction, as the words need it: one job by name, or a split over several. */
 export type JobLabel = { readonly kind: "job"; readonly name: string } | { readonly kind: "split"; readonly jobs: number };
 
-export interface RowSuggestion {
-  readonly kind: NeedsYouSuggestion["kind"];
+/** What a contribution suggestion says about the money in: whose agreement it pays, and the month it would fund. */
+export interface ContributionSuggestion {
+  readonly agreementId: AgreementId;
+  /** Null when the agreement's person cannot be found, which a household that has kept its people never sees. */
+  readonly personName: string | null;
+  readonly fundsMonth: Month;
+}
+
+interface SuggestionBase {
   /** What Space runs: the suggestion's own command. For a merge it is the merge. */
   readonly command: FamilyCommand;
-  /** The job or split accepting would give, or null for a merge, which removes this transaction instead. */
+  /** The job or split accepting would give, or null for a merge or a contribution, which have no job. */
   readonly result: JobLabel | null;
-  /** The jobs accepting would use, each once. Empty for a merge. */
+  /** The jobs accepting would use, each once. Empty for a merge or a contribution. */
   readonly jobs: readonly JobId[];
-  /** Those jobs with the share each takes, so a rule can remember the same split. Null for a merge. */
+  /** Those jobs with the share each takes, so a rule can remember the same split. Null for a merge or a contribution. */
   readonly shares: readonly [RuleShare, ...RuleShare[]] | null;
   /** The earlier transaction the suggestion rests on: the one it copies, or the one it would keep. */
   readonly basis: { readonly date: LocalDate; readonly description: string } | null;
 }
+
+type WithKind<K extends NeedsYouSuggestion["kind"]> = K extends "contribution"
+  ? SuggestionBase & { readonly kind: K; readonly contribution: ContributionSuggestion }
+  : SuggestionBase & { readonly kind: K; readonly contribution?: undefined };
+
+/** A suggestion as the row shows it. Only a contribution carries the agreement, and it always does. */
+export type RowSuggestion = WithKind<NeedsYouSuggestion["kind"]>;
 
 export interface NeedsYouRow {
   readonly id: TransactionId;
@@ -90,13 +110,19 @@ function sharesOf(treatment: TreatmentInput): RowSuggestion["shares"] {
   return first === undefined ? null : [first, ...rest];
 }
 
-function suggestionView(suggestion: NeedsYouSuggestion, facts: Facts): RowSuggestion {
+function suggestionView(suggestion: NeedsYouSuggestion, facts: Facts, transaction: Transaction): RowSuggestion {
   const earlier = (id: TransactionId): RowSuggestion["basis"] => {
     const found = facts.transactions.get(id);
     return found === undefined ? null : { date: found.bookingDate, description: found.counterparty ?? found.description };
   };
   if (suggestion.kind === "merge") return { kind: "merge", command: suggestion.command, result: null, jobs: [], shares: null, basis: earlier(suggestion.command.keep) };
   const { treatment } = suggestion.command;
+  if (suggestion.kind === "contribution") {
+    // Core's suggestion always sets income. Money funds the month after it arrives (decision 1) if it ever did not.
+    const fundsMonth = treatment.kind === "income" ? treatment.fundsMonth : defaultFundsMonth(transaction.bookingDate);
+    const contribution: ContributionSuggestion = { agreementId: suggestion.agreementId, personName: suggestion.personName ?? null, fundsMonth };
+    return { kind: "contribution", command: suggestion.command, result: null, jobs: [], shares: null, basis: null, contribution };
+  }
   return {
     kind: suggestion.kind,
     command: suggestion.command,
@@ -107,11 +133,107 @@ function suggestionView(suggestion: NeedsYouSuggestion, facts: Facts): RowSugges
   };
 }
 
+/** What a suggestion offers as the answer: a job by its own name, or words for a split, a merge or a contribution. */
+export type Headline = { readonly kind: "job"; readonly name: string } | { readonly kind: "words"; readonly words: Words };
+
+/** Everything the words about one suggestion need: what it offers, why, and what to say once it is accepted. */
+export interface SuggestionText {
+  readonly headline: Headline;
+  readonly because: Words;
+  readonly done: Words;
+}
+
+type TextOf = {
+  readonly [K in NeedsYouSuggestion["kind"]]: (row: Pick<NeedsYouRow, "who" | "transaction">, suggestion: Extract<RowSuggestion, { readonly kind: K }>) => SuggestionText;
+};
+
+const dayOf = (suggestion: RowSuggestion): string | { readonly day: LocalDate } => (suggestion.basis === null ? "" : { day: suggestion.basis.date });
+
+/** A job's name for one job, words for several. A rule and the same-as-last suggestion are always a split. */
+function resultHeadline(suggestion: RowSuggestion): Headline {
+  const { result } = suggestion;
+  if (result?.kind === "job") return { kind: "job", name: result.name };
+  return { kind: "words", words: { id: "needsYou.suggest.split", values: { jobs: result?.kind === "split" ? result.jobs : 0 } } };
+}
+
+const sorted: Words = { id: "needsYou.done.sorted", values: { count: 1 } };
+
+/** One entry for every kind of suggestion core makes, so a new kind does not compile until it has words. */
+const textTable: TextOf = {
+  rule: (row, suggestion) => ({ headline: resultHeadline(suggestion), because: { id: "needsYou.why.rule", values: { who: row.who } }, done: sorted }),
+  sameAsLast: (row, suggestion) => ({ headline: resultHeadline(suggestion), because: { id: "needsYou.why.sameAsLast", values: { who: row.who, date: dayOf(suggestion) } }, done: sorted }),
+  merge: (row, suggestion) => ({
+    headline: { kind: "words", words: { id: "needsYou.suggest.merge", values: { date: { day: suggestion.basis?.date ?? row.transaction.bookingDate } } } },
+    because: { id: "needsYou.why.merge", values: { description: suggestion.basis?.description ?? row.who, date: dayOf(suggestion) } },
+    done: { id: "needsYou.done.merged" },
+  }),
+  contribution: (_row, { contribution }) => {
+    const month = { month: contribution.fundsMonth };
+    const { personName } = contribution;
+    if (personName === null) {
+      return {
+        headline: { kind: "words", words: { id: "needsYou.suggest.contributionAnon" } },
+        because: { id: "needsYou.why.contributionAnon", values: { month } },
+        done: contributionDone(null, contribution.fundsMonth),
+      };
+    }
+    return {
+      headline: { kind: "words", words: { id: "needsYou.suggest.contribution", values: { person: personName } } },
+      because: { id: "needsYou.why.contribution", values: { person: personName, month } },
+      done: contributionDone(personName, contribution.fundsMonth),
+    };
+  },
+};
+
+/** What to say once money in is counted as a payment of an agreement, by accepting the suggestion or by marking it as income. */
+export function contributionDone(personName: string | null, fundsMonth: Month): Words {
+  const month = { month: fundsMonth };
+  return personName === null ? { id: "needsYou.done.contributionAnon", values: { month } } : { id: "needsYou.done.contribution", values: { person: personName, month } };
+}
+
+/** The words for money in marked as income by hand. Only a payment of an agreement has its own words, so this is null for the rest. */
+export function incomeDone(facts: Pick<Facts, "contributionAgreements" | "people">, source: IncomeSource, agreement: AgreementId | null, fundsMonth: Month): Words | null {
+  if (source !== "contribution" || agreement === null) return null;
+  const personId = facts.contributionAgreements.get(agreement)?.personId;
+  return contributionDone(personId === undefined ? null : (facts.people.get(personId)?.name ?? null), fundsMonth);
+}
+
+/** The words for a suggestion on a row. */
+export function suggestionText(row: Pick<NeedsYouRow, "who" | "transaction">, suggestion: RowSuggestion): SuggestionText {
+  return (textTable[suggestion.kind] as (row: Pick<NeedsYouRow, "who" | "transaction">, suggestion: RowSuggestion) => SuggestionText)(row, suggestion);
+}
+
+/** An agreement the family can name as the payer of money in: whose it is, and the months it funds. */
+export interface AgreementOption {
+  readonly agreementId: AgreementId;
+  readonly personName: string;
+  readonly from: Month;
+  readonly to: Month | null;
+  readonly amount: ContributionAgreement["amount"];
+}
+
+/** The agreements that run in `fundsMonth`, with the person's name, in name order. These are the ones a payment for that month can be a payment of. */
+export function agreementOptions(facts: Pick<Facts, "contributionAgreements" | "people">, fundsMonth: Month): readonly AgreementOption[] {
+  return [...facts.contributionAgreements.values()]
+    .filter((agreement) => agreement.from <= fundsMonth && (agreement.to === undefined || fundsMonth <= agreement.to))
+    .map((agreement) => ({ agreementId: agreement.id, personName: facts.people.get(agreement.personId)?.name ?? "", from: agreement.from, to: agreement.to ?? null, amount: agreement.amount }))
+    .sort((a, b) => (a.personName === b.personName ? (a.agreementId < b.agreementId ? -1 : 1) : a.personName < b.personName ? -1 : 1));
+}
+
+/**
+ * Money in marked as income by hand. Only a contribution can name the agreement it pays, so a choice of agreement
+ * on any other source is left out rather than sent for core to refuse.
+ */
+export function incomeCommand(transaction: Pick<Transaction, "id">, fundsMonth: Month, source: IncomeSource, agreement: AgreementId | null): FamilyCommand {
+  const named = source === "contribution" && agreement !== null ? { agreement } : {};
+  return { kind: "setTreatment", transactionId: transaction.id, treatment: { kind: "income", fundsMonth, source, ...named } };
+}
+
 /** One row for each waiting transaction, in the order the figure gives: newest booking date first, then by ID. */
 export function needsYouRows(facts: Facts, items: readonly NeedsYouItem[]): NeedsYouRow[] {
   return items.map((item) => {
     const { transaction } = item;
-    const suggestion = item.suggestion === null ? null : suggestionView(item.suggestion, facts);
+    const suggestion = item.suggestion === null ? null : suggestionView(item.suggestion, facts, transaction);
     const who = transaction.counterparty ?? transaction.description;
     return {
       id: transaction.id,

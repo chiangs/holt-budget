@@ -4,14 +4,29 @@
  * with every treatment from December 2025 on, moves, and a buffer-months setting. `withMore` builds the
  * same household again with extra rows, so a property can compare the figures before and after.
  * `arbitraryFacts` is the same household with every table and every optional field filled in some of the
- * time: account numbers and import rhythms, transaction details, import batches with their rows, and rules.
+ * time: account numbers and import rhythms, transaction details, import batches with their rows, rules,
+ * people, contribution agreements, bucket transfers and the agreement an income names.
  */
 
 import fc from "fast-check";
 import { accountNumber } from "../account-number.ts";
 import { type LocalDate, type Month, addMonths, localDate, month } from "../dates.ts";
-import type { Account, BudgetMonthState, Facts, ImportBatch, ImportRhythm, ImportRow, Rule, RuleOrigin, RuleResult, Transaction } from "../facts.ts";
-import { type AccountId, type JobId, type TransactionId, importBatchId, importRowId, ruleId } from "../ids.ts";
+import type {
+  Account,
+  BucketTransfer,
+  BudgetMonthState,
+  ContributionAgreement,
+  Facts,
+  ImportBatch,
+  ImportRhythm,
+  ImportRow,
+  Person,
+  Rule,
+  RuleOrigin,
+  RuleResult,
+  Transaction,
+} from "../facts.ts";
+import { type AccountId, type AgreementId, type JobId, type TransactionId, agreementId, bucketTransferId, importBatchId, importRowId, personId, ruleId } from "../ids.ts";
 import { type Money, money } from "../money.ts";
 import { type FactsBuilder, amountByMonth, evenOut, factsBuilder, followBills, kr, monthlySaving, setAmount, testId } from "./facts-builder.ts";
 
@@ -204,9 +219,15 @@ const extrasRecipe = fc.record({
   numberBase: fc.integer({ min: 0, max: 99_999_999_000 }),
   accounts: fc.array(fc.record({ hasNumber: fc.boolean(), rhythm: maybe(fc.constantFrom(...rhythms)) }), { minLength: 4, maxLength: 4 }),
   transactions: fc.array(
-    fc.record({ counterparty: maybe(words), transactionDate: maybe(dayIn(-1, 5)), reference: maybe(digits(12)), note: maybe(words), rule: maybe(fc.nat()) }),
+    fc.record({ counterparty: maybe(words), transactionDate: maybe(dayIn(-1, 5)), reference: maybe(digits(12)), note: maybe(words), rule: maybe(fc.nat()), agreement: maybe(fc.nat()) }),
     { maxLength: 40 },
   ),
+  people: fc.array(fc.record({ name: words, child: fc.boolean(), birthMonth: maybe(fc.integer({ min: -240, max: 5 })) }), { maxLength: 4 }),
+  agreements: fc.array(
+    fc.record({ person: fc.nat(), account: fc.nat(), amount: fc.integer({ min: 1, max: 5_000_000 }).map(money), day: fc.integer({ min: 1, max: 28 }), fromIndex: fc.integer({ min: -1, max: 4 }), lastOffset: maybe(fc.nat(6)) }),
+    { maxLength: 3 },
+  ),
+  transfers: fc.array(fc.record({ monthIndex: fc.integer({ min: 0, max: 5 }), from: fc.nat(), to: fc.nat(), amount: fc.integer({ min: 1, max: 5_000_000 }).map(money), reason: words }), { maxLength: 4 }),
   rules: fc.array(
     fc.record({
       counterparty: words,
@@ -277,16 +298,45 @@ function addExtras(facts: Facts, extras: Extras): Facts {
   });
   const ruleIds = [...rules.keys()];
 
+  const people = new Map<Person["id"], Person>();
+  extras.people.forEach((p, i) => {
+    const id = personId(testId(40_000 + i));
+    people.set(id, { id, name: p.name, kind: p.child ? "child" : "adult", ...(p.birthMonth === null ? {} : { birthMonth: monthAt(p.birthMonth) }) });
+  });
+  const adults = [...people.values()].filter((p) => p.kind === "adult");
+  const sharedAccounts = [...facts.accounts.values()].filter((a) => a.scope === "shared");
+  const contributionAgreements = new Map<AgreementId, ContributionAgreement>();
+  extras.agreements.forEach((a, i) => {
+    const person = adults[a.person % Math.max(1, adults.length)];
+    const account = sharedAccounts[a.account % Math.max(1, sharedAccounts.length)];
+    if (person === undefined || account === undefined) return;
+    const id = agreementId(testId(50_000 + i));
+    const from = monthAt(a.fromIndex);
+    contributionAgreements.set(id, { id, personId: person.id, accountId: account.id, amount: a.amount, day: a.day, from, ...(a.lastOffset === null ? {} : { to: addMonths(from, a.lastOffset) }) });
+  });
+  const agreementIds = [...contributionAgreements.keys()];
+
+  const bucketTransfers = new Map<BucketTransfer["id"], BucketTransfer>();
+  extras.transfers.forEach((t, i) => {
+    const from = jobIds[t.from % Math.max(1, jobIds.length)];
+    const to = jobIds[t.to % Math.max(1, jobIds.length)];
+    if (from === undefined || to === undefined || from === to) return;
+    const id = bucketTransferId(testId(60_000 + i));
+    bucketTransfers.set(id, { id, month: monthAt(t.monthIndex), from, to, amount: t.amount, reason: t.reason });
+  });
   const transactions = new Map(
     transactionIds.map((id, i): [TransactionId, Transaction] => {
       const transaction = facts.transactions.get(id) as Transaction;
       const e = extras.transactions[i];
       if (e === undefined) return [id, transaction];
       const rule = e.rule === null || ruleIds.length === 0 ? undefined : ruleIds[e.rule % ruleIds.length];
+      const agreement = e.agreement === null || agreementIds.length === 0 ? undefined : agreementIds[e.agreement % agreementIds.length];
+      const treatment = transaction.treatment.kind === "income" && transaction.treatment.source === "contribution" && agreement !== undefined ? { ...transaction.treatment, agreement } : transaction.treatment;
       return [
         id,
         {
           ...transaction,
+          treatment,
           ...withoutNulls({ counterparty: e.counterparty, transactionDate: e.transactionDate, reference: e.reference, note: e.note }),
           ...(rule === undefined ? {} : { ruleId: rule }),
         },
@@ -344,7 +394,7 @@ function addExtras(facts: Facts, extras: Extras): Facts {
     });
   });
 
-  return { ...facts, accounts, transactions, rules, importBatches, importRows };
+  return { ...facts, accounts, transactions, rules, importBatches, importRows, people, contributionAgreements, bucketTransfers };
 }
 
 /** Facts from `arbitraryHousehold` with account numbers, import rhythms, transaction details, rules, and import batches with their rows added. */

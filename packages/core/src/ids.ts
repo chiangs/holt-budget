@@ -33,6 +33,9 @@ export type ProposalId = Id<"proposal">;
 export type ImportBatchId = Id<"importBatch">;
 export type ImportRowId = Id<"importRow">;
 export type RuleId = Id<"rule">;
+export type PersonId = Id<"person">;
+export type AgreementId = Id<"agreement">;
+export type BucketTransferId = Id<"bucketTransfer">;
 
 export const householdId = idOf("household");
 export const accountId = idOf("account");
@@ -46,3 +49,6 @@ export const proposalId = idOf("proposal");
 export const importBatchId = idOf("importBatch");
 export const importRowId = idOf("importRow");
 export const ruleId = idOf("rule");
+export const personId = idOf("person");
+export const agreementId = idOf("agreement");
+export const bucketTransferId = idOf("bucketTransfer");

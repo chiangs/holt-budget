@@ -4,7 +4,7 @@ import { type ChangeLog, emptyChangeLog, redo, undo } from "../change-log.ts";
 import { type LocalDate, localDate, month } from "../dates.ts";
 import { type Facts, assignmentKey, householdOf, makeSplit } from "../facts.ts";
 import { computeFigures } from "../figures/index.ts";
-import { accountId, enteredValueId, groupId, jobId, moveId, transactionId } from "../ids.ts";
+import { accountId, agreementId, bucketTransferId, enteredValueId, groupId, jobId, moveId, personId, transactionId } from "../ids.ts";
 import type { Patch } from "../patch.ts";
 import { arbitraryHousehold } from "../testing/arbitrary-facts.ts";
 import { arbitraryScript } from "../testing/arbitrary-commands.ts";
@@ -116,6 +116,33 @@ const cases: { readonly [K in CoveredHere]: { readonly command: Extract<Command,
   setNote: {
     command: { kind: "setNote", transactionId: h.transactions.shopping, note: "  Birthday present  " },
     then: (after) => expect(after.transactions.get(h.transactions.shopping)?.note).toBe("Birthday present"),
+  },
+  addPerson: {
+    command: { kind: "addPerson", person: { id: personId(fresh(7)), name: "Sam", kind: "child", birthMonth: month("2021-02") } },
+    then: (after) => expect(after.people.get(personId(fresh(7)))).toEqual({ id: personId(fresh(7)), name: "Sam", kind: "child", birthMonth: month("2021-02") }),
+  },
+  changePerson: {
+    command: { kind: "changePerson", personId: h.people.mia, changes: { name: "Mia Rose", birthMonth: null } },
+    then: (after) => expect(after.people.get(h.people.mia)).toEqual({ id: h.people.mia, name: "Mia Rose", kind: "child" }),
+  },
+  deletePerson: {
+    command: { kind: "deletePerson", personId: h.people.mia },
+    then: (after) => expect(after.people.has(h.people.mia)).toBe(false),
+  },
+  addAgreement: {
+    command: {
+      kind: "addAgreement",
+      agreement: { id: agreementId(fresh(8)), personId: h.people.alex, accountId: h.accounts.savings, amount: kr(3_000), day: 25, from: november },
+    },
+    then: (after) => expect(after.contributionAgreements.get(agreementId(fresh(8)))).toMatchObject({ amount: kr(3_000), day: 25, accountId: h.accounts.savings }),
+  },
+  changeAgreement: {
+    command: { kind: "changeAgreement", agreementId: h.agreements.contribution, changes: { amount: kr(9_500), to: month("2027-03") } },
+    then: (after) => expect(after.contributionAgreements.get(h.agreements.contribution)).toMatchObject({ amount: kr(9_500), to: month("2027-03"), day: 20, from: month("2026-10") }),
+  },
+  moveBucket: {
+    command: { kind: "moveBucket", transfer: { id: bucketTransferId(fresh(9)), month: november, from: h.jobs.buffer, to: h.jobs.holiday, amount: kr(4_100), reason: "Start evening out the holiday" } },
+    then: (after) => expect(after.bucketTransfers.get(bucketTransferId(fresh(9)))).toMatchObject({ from: h.jobs.buffer, to: h.jobs.holiday, amount: kr(4_100) }),
   },
 };
 

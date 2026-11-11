@@ -27,6 +27,13 @@ export const syntheticAccounts = {
   },
   /** The account in the synthetic OFX files. The household's real banks don't offer OFX. */
   ofx: account("Eksempelkonto", "97600060001"),
+  /** The children's savings accounts at Bulder. The household pays into them and doesn't export them, so no file carries rows for them. */
+  children: {
+    eldest: account("Eldest's savings", "97101110011"),
+    second: account("Second's savings", "97101110012"),
+    third: account("Third's savings", "97101110013"),
+    youngest: account("Youngest's savings", "97101110014"),
+  },
   /** Accounts outside the household: an employer, two billers and a housing co-operative. */
   outside: {
     employer: account("Eksempel AS", "97300030001"),

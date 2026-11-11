@@ -4,7 +4,8 @@ import { useIntl } from "react-intl";
 import { formatDay } from "../../i18n/dates.ts";
 import { amountText } from "./amount.ts";
 import controls from "./Controls.module.css";
-import { type NeedsYouRow, type RowAction } from "./needsYou.model.ts";
+import { say } from "./ImportSay.ts";
+import { type NeedsYouRow, type RowAction, suggestionText } from "./needsYou.model.ts";
 import styles from "./NeedsYou.module.css";
 
 const actionLabels: Record<RowAction, string> = {
@@ -50,27 +51,10 @@ export function RowView({ row, currency, selected, menuOpen, noteOpen, busy, liR
     if (noteOpen) setDraft(transaction.note ?? "");
   }, [noteOpen, transaction.note]);
 
-  const job =
-    suggestion === null
-      ? null
-      : suggestion.result === null
-        ? intl.formatMessage({ id: "needsYou.suggest.merge" }, { date: formatDay(suggestion.basis?.date ?? transaction.bookingDate, intl.locale) })
-        : suggestion.result.kind === "job"
-          ? suggestion.result.name
-          : intl.formatMessage({ id: "needsYou.suggest.split" }, { jobs: suggestion.result.jobs });
-
-  const because = (() => {
-    if (suggestion === null) return intl.formatMessage({ id: transaction.counterparty === undefined ? "needsYou.why.noPayee" : "needsYou.why.none" });
-    const basis = suggestion.basis;
-    switch (suggestion.kind) {
-      case "rule":
-        return intl.formatMessage({ id: "needsYou.why.rule" }, { who: row.who });
-      case "sameAsLast":
-        return intl.formatMessage({ id: "needsYou.why.sameAsLast" }, { who: row.who, date: basis === null ? "" : formatDay(basis.date, intl.locale) });
-      case "merge":
-        return intl.formatMessage({ id: "needsYou.why.merge" }, { description: basis?.description ?? row.who, date: basis === null ? "" : formatDay(basis.date, intl.locale) });
-    }
-  })();
+  const text = suggestion === null ? null : suggestionText(row, suggestion);
+  const job = text === null ? null : text.headline.kind === "job" ? text.headline.name : say(intl, currency, text.headline.words);
+  const because =
+    text === null ? intl.formatMessage({ id: transaction.counterparty === undefined ? "needsYou.why.noPayee" : "needsYou.why.none" }) : say(intl, currency, text.because);
 
   const label = intl.formatMessage(
     { id: job === null ? "needsYou.row.label" : "needsYou.row.labelSuggested" },

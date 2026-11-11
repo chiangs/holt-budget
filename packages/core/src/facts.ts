@@ -4,13 +4,29 @@
  * of row, so a change can be described as a list of rows before and after (see `patch.ts`) and undone.
  *
  * What is not here, on purpose: buckets, unassigned money, estimates, balances and monthly moves at the
- * bank. They are figures. People, contribution agreements and recurring series arrive with the
- * milestones that need them. Import batches, import rows and rules arrived with Milestone 3.
+ * bank. They are figures. Recurring series arrive with the
+ * milestones that need them. Import batches, import rows and rules arrived with Milestone 3, and people,
+ * contribution agreements and bucket transfers with Milestone 4.
  */
 
 import type { AccountNumber } from "./account-number.ts";
 import type { LocalDate, Month } from "./dates.ts";
-import type { AccountId, EnteredValueId, GroupId, HouseholdId, Id, ImportBatchId, ImportRowId, JobId, MoveId, RuleId, TransactionId } from "./ids.ts";
+import type {
+  AccountId,
+  AgreementId,
+  BucketTransferId,
+  EnteredValueId,
+  GroupId,
+  HouseholdId,
+  Id,
+  ImportBatchId,
+  ImportRowId,
+  JobId,
+  MoveId,
+  PersonId,
+  RuleId,
+  TransactionId,
+} from "./ids.ts";
 import { type Currency, type Money, MoneyError } from "./money.ts";
 
 // ── Rows ─────────────────────────────────────────────────────────────────────
@@ -144,8 +160,8 @@ export type IncomeSource = "contribution" | "recurring" | "other";
 /** Exactly one treatment per transaction (domain model, "Transaction"). A transfer has no allocations by construction. */
 export type Treatment =
   | { readonly kind: "needsYou" }
-  /** Income funds one month, usually the next (decision 1). */
-  | { readonly kind: "income"; readonly fundsMonth: Month; readonly source: IncomeSource }
+  /** Income funds one month, usually the next (decision 1). `agreement` names the contribution agreement it pays, and only a contribution has one. */
+  | { readonly kind: "income"; readonly fundsMonth: Month; readonly source: IncomeSource; readonly agreement?: AgreementId }
   | { readonly kind: "transfer"; readonly partner: TransactionId | null }
   | Split
   /** Before the plan start. It may carry a job so the estimates can use it. */
@@ -287,6 +303,48 @@ export interface Rule {
   readonly priority: number;
 }
 
+export type PersonKind = "adult" | "child";
+
+/** Someone in the household (domain model, "Person"). A child's birth month feeds the children's timeline. */
+export interface Person {
+  readonly id: PersonId;
+  readonly name: string;
+  readonly kind: PersonKind;
+  readonly birthMonth?: Month;
+}
+
+/**
+ * What an adult pays into a shared account each month (domain model, "Contribution agreement"). The money
+ * is expected on `day` of the month before the month it funds. A change of amount is a new agreement from a
+ * later month, so the history stays.
+ */
+export interface ContributionAgreement {
+  readonly id: AgreementId;
+  readonly personId: PersonId;
+  readonly accountId: AccountId;
+  readonly amount: Money;
+  /** The day of the month the money usually lands, 1 to 28. */
+  readonly day: number;
+  /** The first month it funds. */
+  readonly from: Month;
+  /** The last month it funds. Absent while the agreement runs. */
+  readonly to?: Month;
+}
+
+/**
+ * Money a bucket gives to another bucket in a month (0048). The buckets move by the amount and nothing else
+ * does: a transfer is neither spending nor income, so unassigned money and every balance stay as they were.
+ */
+export interface BucketTransfer {
+  readonly id: BucketTransferId;
+  readonly month: Month;
+  readonly from: JobId;
+  readonly to: JobId;
+  readonly amount: Money;
+  /** Why, in the family's words. Required when the money leaves the buffer. */
+  readonly reason: string;
+}
+
 // ── Tables ───────────────────────────────────────────────────────────────────
 
 /** An assignment is identified by its month and job together. */
@@ -314,6 +372,9 @@ export interface TableTypes {
   readonly importBatches: { readonly key: ImportBatchId; readonly row: ImportBatch };
   readonly importRows: { readonly key: ImportRowId; readonly row: ImportRow };
   readonly rules: { readonly key: RuleId; readonly row: Rule };
+  readonly people: { readonly key: PersonId; readonly row: Person };
+  readonly contributionAgreements: { readonly key: AgreementId; readonly row: ContributionAgreement };
+  readonly bucketTransfers: { readonly key: BucketTransferId; readonly row: BucketTransfer };
 }
 
 export type TableName = keyof TableTypes;
@@ -333,6 +394,9 @@ export const tableNames = [
   "importBatches",
   "importRows",
   "rules",
+  "people",
+  "contributionAgreements",
+  "bucketTransfers",
 ] as const satisfies readonly TableName[];
 
 export type Table<T extends TableName> = ReadonlyMap<KeyOf<T>, RowOf<T>>;
@@ -353,6 +417,9 @@ export function emptyFacts(household: Household): Facts {
     importBatches: new Map(),
     importRows: new Map(),
     rules: new Map(),
+    people: new Map(),
+    contributionAgreements: new Map(),
+    bucketTransfers: new Map(),
   };
 }
 

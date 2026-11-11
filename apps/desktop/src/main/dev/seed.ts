@@ -14,7 +14,7 @@ import { createImports } from "../imports/imports.ts";
 import { openDatabase } from "../storage/database.ts";
 import type { DataKey } from "../storage/keys.ts";
 import { migrate } from "../storage/migrations.ts";
-import { seedHousehold, syntheticBankFiles } from "./household.ts";
+import { seedHousehold, seedSettlement, syntheticBankFiles } from "./household.ts";
 
 /** Not a secret: it protects an invented household. The unlock path uses it when the seed switch is present. */
 export const devPassphrase = "holt-dev-seed passphrase, not a secret";
@@ -79,6 +79,8 @@ export async function seedDevData(folder: string, deps: SeedDeps): Promise<SeedR
         if (result.status !== "applied") throw new Error(`The seed could not import ${file.name}: ${result.status}.`);
         imported += 1;
       }
+      const settled = store.run(seedSettlement(store.facts(), today));
+      if (settled.status !== "applied") throw new Error(`The seed could not settle the contributions and the open month: ${settled.status}.`);
       const samples = join(folder, "sample-imports");
       mkdirSync(samples, { recursive: true });
       for (const file of files) writeFileSync(join(samples, file.name), file.text);

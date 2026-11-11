@@ -29,7 +29,8 @@ test.describe.serial("the app on the synthetic household", () => {
     const { tables } = reply.value.snapshot;
     expect(tables.transactions.length).toBeGreaterThan(50);
     expect(tables.transactions.filter((t) => t.treatment.kind === "needsYou").length).toBeGreaterThan(10);
-    expect(tables.accounts).toHaveLength(6);
+    expect(tables.accounts.filter((a) => a.scope === "shared")).toHaveLength(6);
+    expect(tables.accounts.filter((a) => a.scope === "paidInto")).toHaveLength(4);
     console.log(`seeded launch to ready snapshot: ${launchedIn} ms`);
   });
 

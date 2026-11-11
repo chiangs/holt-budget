@@ -94,6 +94,20 @@ async function rememberFocus() {
 const accountStates = () =>
   page.locator("li[data-state]").evaluateAll((items) => Object.fromEntries(items.map((li) => [li.querySelector("h3")?.textContent ?? "", li.getAttribute("data-state")])));
 
+/**
+ * How many days before today Everyday's newest transaction was booked, and its import rhythm. Everyday is imported weekly
+ * and the synthetic files write its rows on fixed days of the month, so whether it is up to date after an import depends
+ * on the date. The screen has to agree with the facts either way.
+ */
+async function everydayCover(): Promise<{ days: number; rhythm: string | undefined }> {
+  const reply = await bridge();
+  if (!reply.ok || reply.value.kind !== "ready") throw new Error("Expected a ready snapshot");
+  const { tables, today } = reply.value.snapshot;
+  const everyday = tables.accounts.find((a) => a.name === "Everyday");
+  const newest = tables.transactions.filter((t) => t.accountId === everyday?.id).map((t) => t.bookingDate).sort().at(-1) ?? "";
+  return { days: Math.round((Date.parse(today) - Date.parse(newest)) / 86_400_000), rhythm: everyday?.importRhythm };
+}
+
 test.describe.serial("importing a bank file on the synthetic household", () => {
   test.beforeAll(async () => {
     holt = await launchHolt({ seed: true, pickFile: (folder) => join(folder, "sample-imports", importedFile) });
@@ -122,10 +136,11 @@ test.describe.serial("importing a bank file on the synthetic household", () => {
     await holt.setWidth(1440, 1100);
   });
 
-  const before: { counts: Counts; added: Counts; states: Record<string, string | null>; needsYouChip: number; created: number; skipped: number; line: number; balance: string } = {
+  const before: { counts: Counts; added: Counts; states: Record<string, string | null>; everydayDays: number; needsYouChip: number; created: number; skipped: number; line: number; balance: string } = {
     counts: undefined as never,
     added: undefined as never,
     states: {},
+    everydayDays: 0,
     needsYouChip: 0,
     created: 0,
     skipped: 0,
@@ -136,6 +151,7 @@ test.describe.serial("importing a bank file on the synthetic household", () => {
   test("N opens the dialog, which reads the file and shows what it found, with the duplicates it skipped", async () => {
     before.counts = await counts();
     before.states = await accountStates();
+    before.everydayDays = (await everydayCover()).days;
     expect(before.states["Everyday"]).toBe("due");
 
     await pick(importedFile);
@@ -259,12 +275,16 @@ test.describe.serial("importing a bank file on the synthetic household", () => {
     expect(transaction?.treatment).toMatchObject({ kind: "split", allocations: [{ jobId: food?.id, amount: transaction?.amount }] });
   });
 
-  test("closing the result returns focus to Import, and the accounts the file reached are up to date", async () => {
+  test("closing the result returns focus to Import, and the accounts the file reached show the state the facts give", async () => {
     await dialog().getByRole("button", { name: say("import.result.done") }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(importButton()).toBeFocused();
     const states = await accountStates();
-    expect(states["Everyday"]).toBe("upToDate");
+    const cover = await everydayCover();
+    expect(cover.rhythm).toBe("weekly");
+    expect(states["Everyday"]).toBe(cover.days > 7 ? "due" : "upToDate");
+    // The file brings Everyday's newest row forward, so the account is no more overdue than before.
+    expect(cover.days).toBeLessThan(before.everydayDays);
     expect(before.states["Everyday"]).toBe("due");
     const card = (name: string) => page.locator("li[data-state]").filter({ has: page.getByRole("heading", { name, exact: true }) });
     await expect(card("Everyday")).toContainText(/Checked against your bank on \d/);

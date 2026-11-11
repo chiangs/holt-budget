@@ -4,15 +4,16 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { formatDay } from "../../i18n/dates.ts";
 import { amountText } from "./amount.ts";
-import { markIncome, markTransfer, saveNote, sortToJob, splitAcross } from "./commands.model.ts";
+import { markTransfer, saveNote, sortToJob, splitAcross } from "./commands.model.ts";
 import controls from "./Controls.module.css";
 import type { Decisions } from "./decisions.ts";
 import { IncomeDialog } from "./IncomeDialog.tsx";
+import { say as sayWords } from "./ImportSay.ts";
 import { JobPicker } from "./JobPicker.tsx";
 import { pickableJobs } from "./jobs.ts";
 import { pressOf } from "./keys.ts";
 import { rowKey } from "./keys.model.ts";
-import { type NeedsYouRow, type RowAction, acceptAll, moveSelection, needsYouRows, pageSize, reselect, visibleCount } from "./needsYou.model.ts";
+import { type NeedsYouRow, type RowAction, acceptAll, agreementOptions, incomeCommand, incomeDone, moveSelection, needsYouRows, pageSize, reselect, suggestionText, visibleCount } from "./needsYou.model.ts";
 import styles from "./NeedsYou.module.css";
 import { RowView } from "./RowView.tsx";
 import { RuleDialog } from "./RuleDialog.tsx";
@@ -79,7 +80,7 @@ export function NeedsYouTab({ facts, figures, decisions }: NeedsYouTabProps) {
 
   const accept = (row: NeedsYouRow) => {
     if (row.suggestion === null) return;
-    void decide(row.suggestion.command, intl.formatMessage({ id: row.suggestion.kind === "merge" ? "needsYou.done.merged" : "needsYou.done.sorted" }, { count: 1 }));
+    void decide(row.suggestion.command, sayWords(intl, currency, suggestionText(row, row.suggestion).done));
   };
 
   const perform = (row: NeedsYouRow, action: RowAction) => {
@@ -274,11 +275,17 @@ export function NeedsYouTab({ facts, figures, decisions }: NeedsYouTabProps) {
         <IncomeDialog
           transaction={target.transaction}
           subject={subjectOf(target)}
-          onSubmit={(fundsMonth, source) => {
+          agreementsFor={(fundsMonth) => agreementOptions(facts, fundsMonth)}
+          {...(target.suggestion?.contribution === undefined ? {} : { suggested: target.suggestion.contribution })}
+          onSubmit={(fundsMonth, source, agreement) => {
             close();
             const [year, month] = fundsMonth.split("-").map(Number) as [number, number];
             const monthName = intl.formatDate(new Date(Date.UTC(year, month - 1, 1)), { month: "long", year: "numeric", timeZone: "UTC" });
-            void decide(markIncome(target.transaction, fundsMonth, source), intl.formatMessage({ id: "needsYou.done.income" }, { month: monthName }));
+            const words = incomeDone(facts, source, agreement, fundsMonth);
+            void decide(
+              incomeCommand(target.transaction, fundsMonth, source, agreement),
+              words === null ? intl.formatMessage({ id: "needsYou.done.income" }, { month: monthName }) : sayWords(intl, currency, words),
+            );
           }}
           onClose={close}
         />

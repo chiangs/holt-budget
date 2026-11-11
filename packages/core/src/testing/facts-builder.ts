@@ -18,6 +18,7 @@ import type {
   JobStatus,
   KeyOf,
   MoveStatus,
+  PersonKind,
   RowOf,
   SaveUpTarget,
   SpendJob,
@@ -29,17 +30,23 @@ import type {
 import { assignmentKey, makeSplit } from "../facts.ts";
 import {
   type AccountId,
+  type AgreementId,
+  type BucketTransferId,
   type EnteredValueId,
   type GroupId,
   type JobId,
   type MoveId,
+  type PersonId,
   type TransactionId,
   accountId,
+  agreementId,
+  bucketTransferId,
   enteredValueId,
   groupId,
   householdId,
   jobId,
   moveId,
+  personId,
   transactionId,
 } from "../ids.ts";
 import { type Money, currency, fromMajor, money } from "../money.ts";
@@ -108,7 +115,8 @@ export interface FactsBuilder {
   payIntoJob(spec: JobSpec & { readonly monthly: Money; readonly payInto: AccountId }): JobId;
   budgetMonth(m: string, state?: BudgetMonthState): void;
   assign(m: string, job: JobId, amount: Money): void;
-  income(spec: TransactionSpec & { readonly fundsMonth: string; readonly source?: IncomeSource }): TransactionId;
+  /** Income that funds `fundsMonth`. A contribution unless told otherwise, and it names `agreement` only when one is given. */
+  income(spec: TransactionSpec & { readonly fundsMonth: string; readonly source?: IncomeSource; readonly agreement?: AgreementId }): TransactionId;
   /** A transaction split to one job. A positive amount is a refund. */
   spend(spec: TransactionSpec & { readonly jobId: JobId }): TransactionId;
   /** A transaction split across jobs. Its amount is the sum of the allocations. */
@@ -127,6 +135,19 @@ export interface FactsBuilder {
     readonly status?: MoveStatus;
     readonly reason?: string;
   }): MoveId;
+  /** A member of the household. An adult unless told otherwise. */
+  person(spec?: { readonly name?: string; readonly kind?: PersonKind; readonly birthMonth?: string }): PersonId;
+  /** An adult's contribution agreement. It uses the first adult (made on first use), the default account, the 15th and the plan start unless told otherwise. */
+  agreement(spec: {
+    readonly amount: Money;
+    readonly person?: PersonId;
+    readonly accountId?: AccountId;
+    readonly day?: number;
+    readonly from?: string;
+    readonly to?: string;
+  }): AgreementId;
+  /** Bucket money moved from one job to another in a month. The reason is "Test move" unless told otherwise. */
+  bucketTransfer(spec: { readonly month: string; readonly from: JobId; readonly to: JobId; readonly amount: Money; readonly reason?: string }): BucketTransferId;
   enteredValue(spec: {
     readonly kind: EnteredValueKind;
     readonly subject: string;
@@ -168,10 +189,14 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
     importBatches: new Map(),
     importRows: new Map(),
     rules: new Map(),
+    people: new Map(),
+    contributionAgreements: new Map(),
+    bucketTransfers: new Map(),
   };
 
   let firstAccount: AccountId | undefined;
   let firstGroup: GroupId | undefined;
+  let firstAdult: PersonId | undefined;
 
   const account: FactsBuilder["account"] = (spec = {}) => {
     const row: Account = {
@@ -198,6 +223,14 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
     tables.groups.set(row.id, row);
     firstGroup ??= row.id;
     return row.id;
+  };
+
+  const person: FactsBuilder["person"] = (spec = {}) => {
+    const kind = spec.kind ?? "adult";
+    const id = personId(nextId());
+    tables.people.set(id, { id, name: spec.name ?? `Person ${tables.people.size + 1}`, kind, ...(spec.birthMonth === undefined ? {} : { birthMonth: month(spec.birthMonth) }) });
+    if (kind === "adult") firstAdult ??= id;
+    return id;
   };
 
   const jobBase = (spec: JobSpec) => ({
@@ -260,7 +293,13 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
     assign: (m, job, amount) => {
       tables.assignments.set(assignmentKey(month(m), job), { month: month(m), jobId: job, amount });
     },
-    income: (spec) => addTransaction(spec, { kind: "income", fundsMonth: month(spec.fundsMonth), source: spec.source ?? "contribution" }),
+    income: (spec) =>
+      addTransaction(spec, {
+        kind: "income",
+        fundsMonth: month(spec.fundsMonth),
+        source: spec.source ?? "contribution",
+        ...(spec.agreement === undefined ? {} : { agreement: spec.agreement }),
+      }),
     spend: (spec) => addTransaction(spec, makeSplit(spec.amount, [{ jobId: spec.jobId, amount: spec.amount }])),
     split: (spec) => {
       const allocations = spec.allocations.map(([job, amount]) => ({ jobId: job, amount }));
@@ -292,6 +331,25 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
       });
       return id;
     },
+    person,
+    agreement: (spec) => {
+      const id = agreementId(nextId());
+      tables.contributionAgreements.set(id, {
+        id,
+        personId: spec.person ?? firstAdult ?? person({ name: "Adult" }),
+        accountId: spec.accountId ?? defaultAccount(),
+        amount: spec.amount,
+        day: spec.day ?? 15,
+        from: month(spec.from ?? household.planStart),
+        ...(spec.to === undefined ? {} : { to: month(spec.to) }),
+      });
+      return id;
+    },
+    bucketTransfer: (spec) => {
+      const id = bucketTransferId(nextId());
+      tables.bucketTransfers.set(id, { id, month: month(spec.month), from: spec.from, to: spec.to, amount: spec.amount, reason: spec.reason ?? "Test move" });
+      return id;
+    },
     enteredValue: (spec) => {
       const id = enteredValueId(nextId());
       tables.enteredValues.set(id, {
@@ -318,6 +376,9 @@ export function factsBuilder(options: { readonly planStart?: string; readonly ev
       importBatches: new Map(tables.importBatches),
       importRows: new Map(tables.importRows),
       rules: new Map(tables.rules),
+      people: new Map(tables.people),
+      contributionAgreements: new Map(tables.contributionAgreements),
+      bucketTransfers: new Map(tables.bucketTransfers),
     }),
   };
 }

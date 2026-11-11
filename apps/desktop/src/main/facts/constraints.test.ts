@@ -1,18 +1,25 @@
 import {
   type Account,
   type AccountId,
+  type BucketTransfer,
+  type ContributionAgreement,
   type Facts,
   type ImportBatch,
   type JobId,
   type Patch,
+  type Person,
   type Rule,
   type RuleId,
   type Transaction,
   accountId,
   accountNumber,
+  agreementId,
+  bucketTransferId,
   importBatchId,
   localDate,
+  month,
   money,
+  personId,
   ruleId,
   transactionId,
 } from "@holt/core";
@@ -275,5 +282,127 @@ describe("a patch writes its rows in an order that never trips a unique value", 
       expect(reopened.accounts.has(first.id)).toBe(false);
       expect(reopened.accounts.get(second.id)?.number).toBe("12345678903");
     }
+  });
+});
+
+describe("people, contribution agreements and bucket transfers, even if core is bypassed", () => {
+  const prepare = () => {
+    database = testDatabase();
+    const { facts, account } = base();
+    createFactsStore(database.db, facts, storeDeps());
+    const job = [...facts.jobs.keys()][0]!;
+    return { facts, account, job };
+  };
+
+  const insertPerson = (n: number, fields: { kind?: string; birth?: string | null } = {}): string => {
+    const id = testId(11_000 + n);
+    sql().prepare("insert into people (id, name, kind, birth_month) values (?, 'P', ?, ?)").run(id, fields.kind ?? "adult", fields.birth ?? null);
+    return id;
+  };
+  const insertAgreement = (n: number, person: string, account: string, fields: { amount?: number; day?: number; from?: string; to?: string | null } = {}): void => {
+    sql()
+      .prepare("insert into contribution_agreements (id, person_id, account_id, amount, day, from_month, to_month) values (?, ?, ?, ?, ?, ?, ?)")
+      .run(testId(12_000 + n), person, account, fields.amount ?? 900_000, fields.day ?? 20, fields.from ?? "2026-10", fields.to ?? null);
+  };
+  const insertTransfer = (n: number, from: string, to: string, fields: { amount?: number; month?: string } = {}): void => {
+    sql().prepare("insert into bucket_transfers (id, month, from_job, to_job, amount, reason) values (?, ?, ?, ?, ?, '')").run(testId(13_000 + n), fields.month ?? "2026-11", from, to, fields.amount ?? 100);
+  };
+  const insertJob = (n: number, group: string, account: string): string => {
+    const id = testId(10_000 + n);
+    sql()
+      .prepare("insert into jobs (id, name, group_id, status, account_id, essential, opening, kind, role, target) values (?, 'J', ?, 'active', ?, 0, 0, 'saveUp', 'ordinary', '{\"kind\":\"monthly\",\"amount\":1}')")
+      .run(id, group, account);
+    return id;
+  };
+
+  it("keep a person to the two kinds and a birth month to the format of a month", () => {
+    prepare();
+    expect(() => insertPerson(1, { kind: "adult" })).not.toThrow();
+    expect(() => insertPerson(2, { kind: "child", birth: "2018-04" })).not.toThrow();
+    expect(() => insertPerson(3, { kind: "pet" })).toThrow(/CHECK/);
+    expect(() => insertPerson(4, { kind: "child", birth: "2018-4" })).toThrow(/CHECK/);
+    expect(() => insertPerson(5, { kind: "child", birth: "April 2018" })).toThrow(/CHECK/);
+  });
+
+  it("refuse an agreement for a person or an account that isn't there, when the change commits", () => {
+    const { account } = prepare();
+    const person = insertPerson(1);
+    expect(() => insertAgreement(1, testId(99_001), account)).toThrow(/FOREIGN KEY/);
+    expect(() => insertAgreement(2, person, testId(99_002))).toThrow(/FOREIGN KEY/);
+    expect(() => insertAgreement(3, person, account)).not.toThrow();
+  });
+
+  it("keep an agreement's amount above zero, its day from 1 to 28, its months in the format of a month and its end no earlier than its start", () => {
+    const { account } = prepare();
+    const person = insertPerson(1);
+    expect(() => insertAgreement(1, person, account, { day: 1 })).not.toThrow();
+    expect(() => insertAgreement(2, person, account, { day: 28, from: "2026-10", to: "2026-10" })).not.toThrow();
+    for (const [n, fields] of [{ amount: 0 }, { amount: -5 }, { day: 0 }, { day: 29 }, { from: "2026-1" }, { to: "2026-13x" }, { from: "2026-10", to: "2026-09" }].entries()) {
+      expect(() => insertAgreement(10 + n, person, account, fields), JSON.stringify(fields)).toThrow(/CHECK/);
+    }
+  });
+
+  it("refuse a transfer to or from a job that isn't there, when the change commits", () => {
+    const { job } = prepare();
+    expect(() => insertTransfer(1, job, testId(99_003))).toThrow(/FOREIGN KEY/);
+    expect(() => insertTransfer(2, testId(99_004), job)).toThrow(/FOREIGN KEY/);
+  });
+
+  it("refuse a transfer from a job to itself, an amount of zero or less, and a month that isn't one", () => {
+    const { facts, account, job } = prepare();
+    const group = [...facts.groups.keys()][0]!;
+    const other = insertJob(1, group, account);
+    expect(() => insertTransfer(1, job, other)).not.toThrow();
+    expect(() => insertTransfer(2, job, job)).toThrow(/CHECK/);
+    expect(() => insertTransfer(3, job, other, { amount: 0 })).toThrow(/CHECK/);
+    expect(() => insertTransfer(4, job, other, { amount: -1 })).toThrow(/CHECK/);
+    expect(() => insertTransfer(5, job, other, { month: "2026-11-01" })).toThrow(/CHECK/);
+    expect(() => insertTransfer(6, job, other, { month: "Nov" })).toThrow(/CHECK/);
+  });
+
+  it("refuse a second transfer with the same ID", () => {
+    const { facts, account, job } = prepare();
+    const other = insertJob(1, [...facts.groups.keys()][0]!, account);
+    insertTransfer(1, job, other);
+    expect(() => insertTransfer(1, job, other)).toThrow(/UNIQUE|PRIMARY/);
+  });
+
+  it("refuse, when the change commits, a delete of a job a transfer names or a person an agreement names", () => {
+    const { facts, account, job } = prepare();
+    const other = insertJob(1, [...facts.groups.keys()][0]!, account);
+    insertTransfer(1, job, other);
+    expect(() => sql().prepare("delete from jobs where id = ?").run(other)).toThrow(/FOREIGN KEY/);
+    const person = insertPerson(1);
+    insertAgreement(1, person, account);
+    expect(() => sql().prepare("delete from people where id = ?").run(person)).toThrow(/FOREIGN KEY/);
+    expect((sql().prepare("select count(*) as n from people").get() as { n: number }).n).toBe(1);
+  });
+
+  const adult: Person = { id: personId(testId(14_001)), name: "Alex", kind: "adult" };
+  const agreementOf = (account: AccountId): ContributionAgreement => ({ id: agreementId(testId(14_002)), personId: adult.id, accountId: account, amount: money(900_000), day: 20, from: month("2026-10") });
+
+  it("let a patch write an agreement before its person, and a transfer before its job, because the foreign keys are checked at commit", () => {
+    const { facts, account, job } = prepare();
+    const later = { ...facts.jobs.get(job)!, id: testId(14_003) as JobId, name: "Later" };
+    const transfer: BucketTransfer = { id: bucketTransferId(testId(14_004)), month: month("2026-11"), from: job, to: later.id, amount: money(100), reason: "" };
+    const patch: Patch = [
+      { table: "bucketTransfers", key: transfer.id, before: null, after: transfer },
+      { table: "contributionAgreements", key: agreementOf(account).id, before: null, after: agreementOf(account) },
+      { table: "people", key: adult.id, before: null, after: adult },
+      { table: "jobs", key: later.id, before: null, after: later },
+    ];
+    database!.db.transaction(() => writePatch(prepareStatements(database!.db), patch)).immediate();
+    expect(database!.db.pragma("foreign_key_check")).toEqual([]);
+    const reopened = openFactsStore(database!.db, storeDeps())!.facts();
+    expect(reopened.bucketTransfers.get(transfer.id)).toEqual(transfer);
+    expect(reopened.contributionAgreements.get(agreementOf(account).id)).toEqual(agreementOf(account));
+    expect(reopened.people.get(adult.id)).toEqual(adult);
+  });
+
+  it("refuse at commit a patch that leaves an agreement without its person, and keep nothing of it", () => {
+    const { account } = prepare();
+    const patch: Patch = [{ table: "contributionAgreements", key: agreementOf(account).id, before: null, after: agreementOf(account) }];
+    expect(() => database!.db.transaction(() => writePatch(prepareStatements(database!.db), patch)).immediate()).toThrow(/FOREIGN KEY/);
+    expect(openFactsStore(database!.db, storeDeps())!.facts().contributionAgreements.size).toBe(0);
   });
 });

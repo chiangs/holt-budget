@@ -6,7 +6,10 @@
 
 import type { FactsEditor, Patch } from "../patch.ts";
 import type { Violation } from "./check-facts.ts";
+import { bucketTransferMessages } from "./bucket-transfers.messages.ts";
+import { contributionMessages } from "./contributions.messages.ts";
 import { importMessages } from "./imports.messages.ts";
+import { personMessages } from "./people.messages.ts";
 import { ruleMessages } from "./rules.messages.ts";
 
 const baseMessages = {
@@ -44,8 +47,8 @@ const baseMessages = {
   proposalStale: "Your data changed after the app worked out this suggestion, so the app won't apply it. The app will work it out again.",
 } as const satisfies Record<string, string>;
 
-/** Imports and rules keep their own messages in their own files, so they can grow without touching this one. */
-const messages = { ...baseMessages, ...importMessages, ...ruleMessages } as const satisfies Record<string, string>;
+/** Imports, rules, people, contributions and bucket transfers keep their own messages in their own files, so they can grow without touching this one. */
+const messages = { ...baseMessages, ...importMessages, ...ruleMessages, ...personMessages, ...contributionMessages, ...bucketTransferMessages } as const satisfies Record<string, string>;
 
 export type RefusalCode = keyof typeof messages;
 

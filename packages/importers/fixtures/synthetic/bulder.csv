@@ -12,16 +12,24 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-01-09;-45,00;-45,00;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Kafé
 2026-01-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.01.26;;;
 2026-01-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-01-15;-680,49;-680,49;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-01-15;-4420,00;-4420,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-01-15;-738,12;-738,12;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-01-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-01-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-01-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.01.26;;;
+2026-01-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.01.26;;;
+2026-01-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-01-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-01-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-01-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-01-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-01-21;-6291,73;-6291,73;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-01-21;6291,73;6291,73;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-01-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.01.26;;;
 2026-01-22;-35,95;-35,95;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
 2026-01-25;-46,40;-46,40;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-01-27;-137,84;-137,84;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-01-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-02-03;-480,32;-480,32;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-02-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-02-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -35,15 +43,23 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-02-12;-901,74;-901,74;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-02-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.02.26;;;
 2026-02-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-02-15;-765,85;-765,85;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-02-15;-3980,00;-3980,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-02-15;-1525,00;-1525,00;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-02-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-02-19;-682,39;-682,39;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
 2026-02-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-02-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.02.26;;;
+2026-02-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.02.26;;;
+2026-02-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-02-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-02-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-02-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-02-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-02-21;-8296,79;-8296,79;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-02-21;8296,79;8296,79;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-02-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.02.26;;;
 2026-02-26;-890,18;-890,18;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-02-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-03-03;-359,28;-359,28;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
 2026-03-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-03-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -58,15 +74,23 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-03-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.03.26;;;
 2026-03-13;-431,69;-431,69;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
 2026-03-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-03-15;-1040,80;-1040,80;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-03-15;-3300,00;-3300,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-03-15;-559,63;-559,63;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-03-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-03-18;-766,87;-766,87;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
 2026-03-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-03-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.03.26;;;
+2026-03-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.03.26;;;
+2026-03-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-03-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-03-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-03-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-03-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-03-21;-5817,90;-5817,90;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-03-21;5817,90;5817,90;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-03-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.03.26;;;
 2026-03-28;-143,82;-143,82;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
+2026-03-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-04-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-04-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-04-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -78,17 +102,25 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-04-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.04.26;;;
 2026-04-14;-578,48;-578,48;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-04-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-04-15;-535,96;-535,96;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-04-15;-2700,00;-2700,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-04-15;-1112,24;-1112,24;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-04-16;-631,01;-631,01;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-04-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-04-17;-607,35;-607,35;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-04-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-04-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.04.26;;;
+2026-04-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.04.26;;;
+2026-04-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-04-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-04-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-04-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-04-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-04-21;-7630,39;-7630,39;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-04-21;7630,39;7630,39;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-04-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.04.26;;;
 2026-04-22;-914,43;-914,43;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
 2026-04-27;-79,28;-79,28;NOK;;Nærbutikken Fjord;Mat;9710.11.10003;Betaling;Nærbutikken Fjord;;Mat;Dagligvarer
+2026-04-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-05-02;-557,59;-557,59;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-05-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-05-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -101,16 +133,24 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-05-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.05.26;;;
 2026-05-13;-142,81;-142,81;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
 2026-05-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-05-15;-1185,39;-1185,39;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-05-15;-2194,00;-2194,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-05-15;-1649,89;-1649,89;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-05-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-05-18;-856,67;-856,67;NOK;;FJORDMAT 1132;Mat;9710.11.10003;Betaling;FJORDMAT 1132;;Mat;Dagligvarer
 2026-05-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-05-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.05.26;;;
+2026-05-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.05.26;;;
+2026-05-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-05-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-05-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-05-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-05-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-05-21;-6733,25;-6733,25;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-05-21;6733,25;6733,25;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-05-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.05.26;;;
 2026-05-23;-666,32;-666,32;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-05-26;-614,00;-614,00;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-05-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-06-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-06-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-06-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -123,16 +163,24 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-06-09;-45,00;-45,00;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Kafé
 2026-06-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.06.26;;;
 2026-06-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-06-15;-614,25;-614,25;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-06-15;-1870,00;-1870,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-06-15;-526,69;-526,69;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-06-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-06-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-06-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.06.26;;;
+2026-06-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.06.26;;;
+2026-06-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-06-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-06-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-06-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-06-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-06-21;-7440,96;-7440,96;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-06-21;7440,96;7440,96;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-06-21;-158,02;-158,02;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-06-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.06.26;;;
 2026-06-24;-856,49;-856,49;NOK;;FJORDMAT 1132;Mat;9710.11.10003;Betaling;FJORDMAT 1132;;Mat;Dagligvarer
 2026-06-24;-742,82;-742,82;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
+2026-06-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-07-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-07-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-07-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -147,16 +195,24 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-07-11;-51,66;-4,40;EUR;;Café Exemple;BRUKSKONTO;9710.11.10001;Betaling;Café Exemple;;;
 2026-07-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.07.26;;;
 2026-07-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-07-15;-1765,81;-1765,81;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-07-15;-1820,00;-1820,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-07-15;-1113,39;-1113,39;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-07-15;-707,67;-707,67;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-07-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-07-18;-673,67;-673,67;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
 2026-07-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-07-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.07.26;;;
+2026-07-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.07.26;;;
+2026-07-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-07-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-07-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-07-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-07-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-07-21;-8847,96;-8847,96;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-07-21;8847,96;8847,96;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-07-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.07.26;;;
 2026-07-27;-84,33;-84,33;NOK;;FJORDMAT 1132;Mat;9710.11.10003;Betaling;FJORDMAT 1132;;Mat;Dagligvarer
+2026-07-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-08-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-08-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-08-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -168,17 +224,25 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-08-14;-778,29;-778,29;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
 2026-08-14;-925,78;-925,78;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-08-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-08-15;-525,76;-525,76;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-08-15;-2760,00;-2760,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-08-15;-901,34;-901,34;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-08-16;-624,44;-624,44;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-08-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-08-19;-177,88;-177,88;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-08-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-08-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.08.26;;;
+2026-08-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.08.26;;;
+2026-08-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-08-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-08-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-08-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-08-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-08-21;-5233,77;-5233,77;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-08-21;5233,77;5233,77;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
+2026-08-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.08.26;;;
 2026-08-24;-826,97;-826,97;NOK;;FJORDMAT 1132;Mat;9710.11.10003;Betaling;FJORDMAT 1132;;Mat;Dagligvarer
 2026-08-28;-746,55;-746,55;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
+2026-08-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-09-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-09-03;20,00;20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
 2026-09-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;
@@ -189,18 +253,26 @@ Dato;Beløp;Originalt Beløp;Original Valuta;Til konto;Til kontonummer;Fra konto
 2026-09-12;250,00;250,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Eksempel Venn Betalt: 12.09.26;;;
 2026-09-14;-287,77;-287,77;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-09-14;-180,00;-180,00;NOK;;Eksempel Venn - Vipps;BRUKSKONTO;9710.11.10001;Betaling;Eksempel Venn - Vipps;;;
-2026-09-15;-457,56;-457,56;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
+2026-09-15;-2910,00;-2910,00;NOK;;9740.40.40001;Regninger;9710.11.10002;Avtalegiro;Fjordstrøm Energi;0012345678903;Bolig;Strøm
 2026-09-15;-472,66;-472,66;NOK;;9740.40.40002;Regninger;9710.11.10002;Efaktura;Nettbredd Bredbånd;0098765432105;Bolig;Strøm
 2026-09-15;-726,66;-726,66;NOK;;Apoteket Sentrum;Mat;9710.11.10003;Betaling;Apoteket Sentrum;;Mat;Dagligvarer
 2026-09-16;0,00;0,00;NOK;;9750.50.50001;BRUKSKONTO;9710.11.10001;Efaktura;Eksempel Borettslag;;;
 2026-09-17;-508,08;-508,08;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-09-17;-679,05;-679,05;NOK;;Kaffebaren Torget;Mat;9710.11.10003;Betaling;Kaffebaren Torget;;Mat;Dagligvarer
 2026-09-20;42500,00;42500,00;NOK;BRUKSKONTO;9710.11.10001;;9730.00.30001;Inntekt;Lønn Eksempel AS;;Inntekter;Lønn
+2026-09-20;32000,00;32000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Stephen Betalt: 20.09.26;;;
+2026-09-20;20000,00;20000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 20.09.26;;;
+2026-09-20;-500,00;-500,00;NOK;;9710.11.10011;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Eldest;;;
+2026-09-20;-500,00;-500,00;NOK;;9710.11.10012;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Second;;;
+2026-09-20;-500,00;-500,00;NOK;;9710.11.10013;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Third;;;
+2026-09-20;-500,00;-500,00;NOK;;9710.11.10014;BRUKSKONTO;9710.11.10001;Overføring;Barnesparing Youngest;;;
 2026-09-20;-9412,00;-9412,00;NOK;;9720.00.20001;Regninger;9710.11.10002;Betaling;9720.00.20001;;;
 2026-09-21;-8722,10;-8722,10;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-09-21;8722,10;8722,10;NOK;Mat;9710.11.10003;BRUKSKONTO;9710.11.10001;Overføring;Overførsel;;;
 2026-09-21;-867,42;-867,42;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-09-21;-638,31;-638,31;NOK;;Bokhandel Strand;Mat;9710.11.10003;Betaling;Bokhandel Strand;;Mat;Dagligvarer
+2026-09-22;8000,00;8000,00;NOK;BRUKSKONTO;9710.11.10001;;;Betaling;Fra: Partner Betalt: 22.09.26;;;
+2026-09-28;-29,00;-29,00;NOK;;;BRUKSKONTO;9710.11.10001;Gebyr;Kontogebyr;;;
 2026-10-01;-774,14;-774,14;NOK;;Torgkafeen - Vipps;Mat;9710.11.10003;Betaling;Torgkafeen - Vipps;;Mat;Dagligvarer
 2026-10-02;-407,72;-407,72;NOK;;Byggvare Nord;Mat;9710.11.10003;Betaling;Byggvare Nord;;Mat;Dagligvarer
 2026-10-03;-20,00;-20,00;NOK;Ferie;9710.11.10004;BRUKSKONTO;9710.11.10001;Overføring;Mikrospar til Ferie;;;

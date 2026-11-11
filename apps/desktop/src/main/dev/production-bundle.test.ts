@@ -28,7 +28,7 @@ function bundleOf(mode: "production" | "development" | "e2e"): string {
 }
 
 /** What exists only to run the app on invented data. */
-const seedMarkers = ["holt-dev-seed", devPassphrase, "HOLT_RESEED", "sample-imports", "Nærbutikken Fjord", "97101110001"];
+const seedMarkers = ["holt-dev-seed", devPassphrase, "HOLT_RESEED", "sample-imports", "Nærbutikken Fjord", "97101110001", "Barnesparing", "Konfirmasjon", "Christmas and gifts"];
 const pickerMarker = "HOLT_E2E_PICK_FILE";
 
 describe("what the shipped app holds", () => {

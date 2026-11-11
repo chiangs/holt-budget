@@ -3,7 +3,16 @@ import { join } from "node:path";
 import { type StatementRow, daysBetween, localDate } from "@holt/core";
 import { describe, expect, it } from "vitest";
 import { type ParsedStatement, recogniseFormat } from "./index.ts";
-import { dotted, syntheticAccounts, syntheticFixtureOptions, syntheticOfx, syntheticStatements } from "./synthetic.ts";
+import {
+  dotted,
+  syntheticAccounts,
+  syntheticChildSaving,
+  syntheticContributions,
+  syntheticElectricityBills,
+  syntheticFixtureOptions,
+  syntheticOfx,
+  syntheticStatements,
+} from "./synthetic.ts";
 
 const fixtures = join(import.meta.dirname, "..", "fixtures", "synthetic");
 const options = syntheticFixtureOptions;
@@ -54,7 +63,7 @@ describe("the synthetic statements", () => {
 
   it("use only the household's accounts and the invented outside ones", () => {
     const household = new Set<string>([...Object.values(syntheticAccounts.bulder), ...Object.values(syntheticAccounts.sparebank1)].map((a) => a.number));
-    const outside = new Set<string>(Object.values(syntheticAccounts.outside).map((a) => a.number));
+    const outside = new Set<string>([...Object.values(syntheticAccounts.outside), ...Object.values(syntheticAccounts.children)].map((a) => a.number));
     for (const f of statements.files) {
       for (const r of parse(f.text).rows) {
         expect(household.has(r.account), `${f.name} line ${r.line}`).toBe(true);
@@ -78,11 +87,11 @@ describe("the synthetic statements", () => {
     expect(march(narrow.files[0]!.text)).toEqual(march(wide.files[0]!.text));
   });
 
-  it("still make files when the range is a single day: pay day and the loan payment, and the payment arriving at SpareBank 1", () => {
+  it("still make files when the range is a single day: pay day, the contributions and the children's savings, the loan payment, and the payment arriving at SpareBank 1", () => {
     const day = syntheticStatements({ from: localDate("2026-03-20"), to: localDate("2026-03-20"), seed: 1 });
     expect(day.files.map((f) => [f.name, parse(f.text).rows.length])).toEqual([
       ["bulder.csv", 0],
-      ["bulder-later.csv", 2],
+      ["bulder-later.csv", 8],
       ["sparebank1-loan-payments.csv", 1],
       ["sparebank1-deposit.csv", 0],
     ]);
@@ -148,6 +157,72 @@ describe("the hazards in the Bulder files", () => {
     const olderLast = older.at(-1)!.bookingDate;
     const repeated = [...counts(newer.filter((r) => r.bookingDate <= olderLast))].filter(([, n]) => n > 1);
     expect(repeated.length).toBeGreaterThan(0);
+  });
+});
+
+describe("what the household's year holds", () => {
+  const older = rows("bulder.csv");
+  const newer = rows("bulder-later.csv");
+  const merged = [...older, ...newer.filter((r) => r.bookingDate > older.at(-1)!.bookingDate)];
+  const month = (m: string) => merged.filter((r) => r.bookingDate.startsWith(m));
+  const months = Array.from({ length: 10 }, (_, i) => `2026-${String(i + 1).padStart(2, "0")}`);
+
+  it("has an electricity bill on the 15th of each month, shaped like the Plan mockup: 28,800 kroner from January to October", () => {
+    const bills = months.map((m) => month(m).filter((r) => r.description === "Fjordstrøm Energi"));
+    for (const [i, bill] of bills.entries()) {
+      expect(bill, months[i]).toHaveLength(1);
+      expect(bill[0]).toMatchObject({ bookingDate: `${months[i]}-15`, amount: -syntheticElectricityBills[i]! * 100, account: syntheticAccounts.bulder.bills.number });
+    }
+    expect(bills.reduce((sum, [bill]) => sum - bill!.amount, 0)).toBe(2_880_000);
+  });
+
+  it("has the winter dear and the summer cheap, and 36,300 kroner for the twelve months from November", () => {
+    const [jan, feb, , , , jun, jul, , , , nov, dec] = syntheticElectricityBills;
+    expect(Math.min(jan, feb, nov, dec)).toBeGreaterThan(Math.max(jun, jul) * 1.5);
+    expect(syntheticElectricityBills.reduce((sum, kroner) => sum + kroner, 0)).toBe(36_300);
+  });
+
+  it("has each adult's contribution on the 20th, the second adult's in two parts, into the everyday account", () => {
+    for (const m of months) {
+      for (const { name, parts } of syntheticContributions) {
+        const paid = month(m).filter((r) => r.description.startsWith(`Fra: ${name} `));
+        expect(paid.map((r) => [r.bookingDate.slice(8), r.amount]), `${name} ${m}`).toEqual(parts.map((p) => [String(p.day), p.kroner * 100]));
+        for (const r of paid) expect(r.account).toBe(syntheticAccounts.bulder.everyday.number);
+        expect(paid[0]?.counterparty).toBe(name);
+      }
+    }
+    expect(syntheticContributions.map(({ parts }) => parts.reduce((sum, p) => sum + p.kroner, 0))).toEqual([32_000, 28_000]);
+  });
+
+  it("has a payment into each child's savings account on the 20th", () => {
+    for (const m of months) {
+      const paid = month(m).filter((r) => r.description.startsWith("Barnesparing "));
+      expect(paid.map((r) => r.description)).toEqual(["Barnesparing Eldest", "Barnesparing Second", "Barnesparing Third", "Barnesparing Youngest"]);
+      expect(paid.map((r) => r.counterpartAccount)).toEqual(Object.values(syntheticAccounts.children).map((a) => a.number));
+      for (const r of paid) expect([r.bookingDate, r.amount, r.account]).toEqual([`${m}-20`, -syntheticChildSaving * 100, syntheticAccounts.bulder.everyday.number]);
+    }
+  });
+});
+
+describe("where the older Bulder file ends", () => {
+  const lastDays = ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31", "2026-06-30", "2026-07-31", "2026-08-31", "2026-09-30", "2026-10-31", "2026-11-30", "2026-12-31"];
+
+  it("is the day it is told to, with the newer file starting two weeks before", () => {
+    const { files } = syntheticStatements({ ...options, olderEnd: localDate("2026-10-22") });
+    const [older, newer] = [parse(files[0]!.text).rows, parse(files[1]!.text).rows];
+    expect(older.at(-1)?.bookingDate).toBe("2026-10-22");
+    expect(newer[0]?.bookingDate).toBe("2026-10-09");
+  });
+
+  it("can be the 22nd, so the adults' payments on the 20th and 22nd are in it, and the newer file still has a row the older lacks, whatever the month", () => {
+    for (const to of lastDays) {
+      const olderEnd = localDate(`${to.slice(0, 7)}-22`);
+      const { files } = syntheticStatements({ from: localDate("2026-01-01"), to: localDate(to), seed: options.seed, olderEnd });
+      const [older, newer] = [parse(files[0]!.text).rows, parse(files[1]!.text).rows];
+      const paid = older.filter((r) => r.bookingDate.startsWith(to.slice(0, 7)) && r.description.startsWith("Fra: Partner "));
+      expect(paid.map((r) => r.bookingDate.slice(8)), to).toEqual(["20", "22"]);
+      expect(newer.some((r) => r.bookingDate > olderEnd), to).toBe(true);
+    }
   });
 });
 

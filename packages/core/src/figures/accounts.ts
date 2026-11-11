@@ -7,6 +7,7 @@ import type { LocalDate, Month } from "../dates.ts";
 import type { Account, Facts, Move } from "../facts.ts";
 import type { AccountId, JobId } from "../ids.ts";
 import { type Money, money } from "../money.ts";
+import type { ExpectedIncomeMonth } from "./contributions.ts";
 import { type LatestEnteredValues, latestValue } from "./entered-values.ts";
 import type { PlanFigures } from "./months.ts";
 import type { TransactionIndex } from "./transactions.ts";
@@ -20,7 +21,11 @@ export type AccountBalance =
    */
   | { readonly kind: "depositsSince"; readonly amount: Money; readonly base: Money; readonly baseDate: LocalDate; readonly deposits: Money };
 
-/** One account's monthly move at the bank: the month's assignments for jobs whose money sits there, less the income that lands there. */
+/**
+ * One account's monthly move at the bank: the month's assignments for jobs whose money sits there, less the
+ * money that lands there. That is the income that has arrived and the contributions still expected (0048), so
+ * before payday the move is not the whole month.
+ */
 export type MonthlyMove =
   | { readonly kind: "moveIn"; readonly amount: Money }
   /** More lands in the account than its jobs are assigned: money to move out. */
@@ -79,6 +84,7 @@ export function accountFigures(
   index: TransactionIndex,
   latest: LatestEnteredValues,
   current: Month,
+  expected: readonly ExpectedIncomeMonth[],
 ): ReadonlyMap<AccountId, AccountFigures> {
   const buckets = new Map<AccountId, BucketInAccount[]>();
   for (const { job, bucket } of plan.jobs.values()) {
@@ -99,12 +105,22 @@ export function accountFigures(
     }
   }
 
+  const expectedByAccount = new Map<AccountId, Map<Month, number>>();
+  for (const { month, contributions } of expected) {
+    for (const { accountId, stillExpected } of contributions) {
+      const row = expectedByAccount.get(accountId) ?? new Map<Month, number>();
+      row.set(month, (row.get(month) ?? 0) + stillExpected);
+      expectedByAccount.set(accountId, row);
+    }
+  }
+
   const figures = new Map<AccountId, AccountFigures>();
   for (const account of facts.accounts.values()) {
     const assigned = assignedByAccount.get(account.id);
     const income = index.incomeByAccount.get(account.id);
+    const coming = expectedByAccount.get(account.id);
     const monthlyMoves = new Map<Month, MonthlyMove>(
-      [...plan.months.keys()].map((m) => [m, moveOf((assigned?.get(m) ?? 0) - (income?.get(m) ?? 0))]),
+      [...plan.months.keys()].map((m) => [m, moveOf((assigned?.get(m) ?? 0) - (income?.get(m) ?? 0) - (coming?.get(m) ?? 0))]),
     );
 
     const balance = balanceOf(account, index, latest);

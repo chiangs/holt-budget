@@ -11,6 +11,7 @@ import type { AccountId, JobId } from "../ids.ts";
 import { type Money, money } from "../money.ts";
 import { type AccountFigures, accountFigures } from "./accounts.ts";
 import { type BufferFigures, bufferFigures } from "./buffer.ts";
+import { expectedIncome } from "./contributions.ts";
 import { type StaleEnteredValue, latestEnteredValues, staleEnteredValues } from "./entered-values.ts";
 import { type EstimateFunction, estimatesFor } from "./estimates.ts";
 import { type ImportStatusFigures, importStatuses } from "./import-status.ts";
@@ -21,6 +22,8 @@ import { indexTransactions } from "./transactions.ts";
 
 export type { AccountBalance, AccountFigures, BucketInAccount, MonthlyMove, Remainder } from "./accounts.ts";
 export type { BufferFigures, Runway } from "./buffer.ts";
+export type { ContributionState, ContributionStatus, ExpectedIncomeMonth, MoneyInMonth } from "./contributions.ts";
+export { contributionStatuses, expectedIncome, graceDays, moneyIn } from "./contributions.ts";
 export type { StaleEnteredValue } from "./entered-values.ts";
 export type { EstimateFunction } from "./estimates.ts";
 export type { ImportState, ImportStatus, ImportStatusFigures, LastImport } from "./import-status.ts";
@@ -83,7 +86,7 @@ export function computeFigures(facts: Facts, asOf: LocalDate, options: FiguresOp
     current,
     months: plan.months,
     jobs: plan.jobs,
-    accounts: accountFigures(facts, plan, index, latest, current),
+    accounts: accountFigures(facts, plan, index, latest, current, expectedIncome(facts, asOf, horizonMonths)),
     buffer: bufferFigures(facts, plan, current, latest),
     nextMonthsMoney: { month: next, amount: index.income.get(next) ?? money(0) },
     staleEnteredValues: staleEnteredValues(latest, asOf),

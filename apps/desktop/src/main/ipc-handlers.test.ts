@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { tableNames } from "@holt/core";
 import { UnstorableChangeError } from "./facts/index.ts";
 import { type HandlerDeps, createHandlers } from "./ipc-handlers.ts";
 import { registerHandlers } from "./ipc-dispatch.ts";
@@ -43,8 +44,9 @@ describe("the facts snapshot", () => {
     const call = page();
     const reply = await call("holt:facts-snapshot");
     expect(reply.value).toMatchObject({ kind: "ready", snapshot: { revision: 0, today: "2026-11-10", head: { undo: null, redo: null } } });
-    expect(reply.value.snapshot.tables.accounts).toHaveLength(6);
-    expect(reply.value.snapshot.tables.jobs).toHaveLength(40);
+    const facts = rig.facts();
+    for (const name of tableNames) expect(reply.value.snapshot.tables[name], name).toHaveLength(facts[name].size);
+    for (const name of ["accounts", "jobs", "people", "contributionAgreements", "bucketTransfers"] as const) expect(facts[name].size, name).toBeGreaterThan(0);
   });
 });
 

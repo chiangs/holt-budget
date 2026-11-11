@@ -5,13 +5,17 @@ import {
   type Transaction,
   type TransactionId,
   accountNumber,
+  agreementId,
+  bucketTransferId,
   enteredValueId,
   groupId,
   localDate,
   makeSplit,
   maxStoredBatchCommands,
   money,
+  month,
   moveId,
+  personId,
   proposalId,
   rowsEqual,
   tableNames,
@@ -112,6 +116,69 @@ describe("P1: facts survive being stored", () => {
     const reopened = openFactsStore(db.reopen(), storeDeps())!;
     expect(differences(reopened.facts(), facts)).toEqual([]);
     expect(rowsEqual(tablesOf(reopened.facts()).groups, tablesOf(facts).groups)).toBe(true);
+  });
+});
+
+describe("P1: the rows of Milestone 4 survive being stored", () => {
+  it("keeps awkward text, the first and the last usual day, an agreement that ends in its first month, the largest transfer and an income that names its agreement", () => {
+    const awkward = "Ærlig, Øl & Åse \"quoted\" 'single'; drop table x; -- \\ \n\t emoji \u{1F4B8} {\"agreement\":1}";
+    const b = factsBuilder({ planStart: "2026-10" });
+    const everyday = b.account({ name: "Everyday" });
+    b.group();
+    const buffer = b.buffer({ monthly: kr(500) });
+    const holiday = b.saveUpJob({ target: { kind: "monthly", amount: kr(100) } });
+    b.budgetMonth("2026-10");
+    const adult = b.person({ name: awkward });
+    b.person({ name: "", kind: "child", birthMonth: "2018-04" });
+    const first = b.agreement({ person: adult, accountId: everyday, amount: money(Number.MAX_SAFE_INTEGER), day: 1, from: "2026-10", to: "2026-10" });
+    b.agreement({ person: adult, accountId: everyday, amount: money(1), day: 28, from: "2026-11" });
+    b.income({ date: "2026-10-05", amount: kr(9_000), fundsMonth: "2026-11", accountId: everyday, agreement: first });
+    b.bucketTransfer({ month: "2026-10", from: buffer, to: holiday, amount: money(Number.MAX_SAFE_INTEGER), reason: awkward });
+    b.bucketTransfer({ month: "2026-10", from: holiday, to: buffer, amount: money(1), reason: "" });
+    const facts = b.facts();
+    const db = open();
+    createFactsStore(db.db, facts, storeDeps());
+    const reopened = openFactsStore(db.reopen(), storeDeps())!;
+    expect(differences(reopened.facts(), facts)).toEqual([]);
+    expect(tablesOf(reopened.facts()).bucketTransfers).toHaveLength(2);
+    expect([...reopened.facts().transactions.values()].map((t) => t.treatment)).toContainEqual({ kind: "income", fundsMonth: "2026-11", source: "contribution", agreement: first });
+    expect(Object.hasOwn(reopened.facts().people.get(adult)!, "birthMonth")).toBe(false);
+  });
+
+  it("applies the new commands through the store, undoes them and redoes them from the stored record", () => {
+    const b = factsBuilder({ planStart: "2026-10" });
+    const everyday = b.account({ name: "Everyday" });
+    b.group();
+    const buffer = b.buffer({ monthly: kr(500), opening: kr(10_000) });
+    const holiday = b.saveUpJob({ target: { kind: "monthly", amount: kr(100) } });
+    b.budgetMonth("2026-10");
+    const base = b.facts();
+    const db = open();
+    const store = createFactsStore(db.db, base, storeDeps("2026-10-15"));
+    const person = personId(testId(950_001));
+    const agreement = agreementId(testId(950_002));
+    const transfer = bucketTransferId(testId(950_003));
+    const commands: Command[] = [
+      { kind: "addPerson", person: { id: person, name: "Alex", kind: "adult" } },
+      { kind: "addAgreement", agreement: { id: agreement, personId: person, accountId: everyday, amount: kr(9_000), day: 20, from: month("2026-10") } },
+      { kind: "changeAgreement", agreementId: agreement, changes: { to: month("2027-09") } },
+      { kind: "moveBucket", transfer: { id: transfer, month: month("2026-10"), from: buffer, to: holiday, amount: kr(4_100), reason: "Start evening out" } },
+    ];
+    const stages = [base];
+    for (const command of commands) {
+      expect(store.run(command).status).toBe("applied");
+      stages.push(store.facts());
+    }
+    expect(store.facts().bucketTransfers.get(transfer)?.amount).toBe(kr(4_100));
+    for (let i = commands.length - 1; i >= 0; i--) {
+      expect(store.step("undo").status).toBe("applied");
+      expect(differences(openFactsStore(db.db, storeDeps())!.facts(), stages[i]!)).toEqual([]);
+    }
+    for (let i = 1; i <= commands.length; i++) {
+      expect(openFactsStore(db.reopen(), storeDeps("2026-10-15"))!.step("redo").status).toBe("applied");
+      expect(differences(openFactsStore(db.db, storeDeps())!.facts(), stages[i]!)).toEqual([]);
+    }
+    expect(db.db.pragma("foreign_key_check")).toEqual([]);
   });
 });
 

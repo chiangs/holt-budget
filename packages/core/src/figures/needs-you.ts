@@ -9,12 +9,13 @@ import type { ImportCommand } from "../commands/imports.ts";
 import type { TransactionCommand } from "../commands/transactions.ts";
 import type { LocalDate } from "../dates.ts";
 import type { Facts, Transaction } from "../facts.ts";
-import type { RuleId, TransactionId } from "../ids.ts";
+import type { AgreementId, RuleId, TransactionId } from "../ids.ts";
 import { waitingTransactions } from "../import/matching.ts";
 import { nearMatches } from "../import/near-matches.ts";
 import { transferCandidates } from "../import/transfers.ts";
 import { ruleResolver, treatmentOfRule } from "../rules/resolve.ts";
 import { sameAsLastTime } from "../rules/same-as-last-time.ts";
+import { matchContributions } from "./contributions.ts";
 
 type SetTreatment = Extract<TransactionCommand, { readonly kind: "setTreatment" }>;
 type Merge = Extract<ImportCommand, { readonly kind: "mergeTransactions" }>;
@@ -24,6 +25,8 @@ export type NeedsYouSuggestion =
   | { readonly kind: "rule"; readonly ruleId: RuleId; readonly command: SetTreatment }
   /** An earlier transaction looks like the same payment booked a day apart. Accepting it drops this one and keeps that one. */
   | { readonly kind: "merge"; readonly command: Merge }
+  /** Money in that looks like a person's payment under a contribution agreement. Accepting it links the payment to the agreement and sets the month it funds. */
+  | { readonly kind: "contribution"; readonly agreementId: AgreementId; readonly personName?: string; readonly command: SetTreatment }
   /** The treatment of the latest earlier transaction from the same counterparty, scaled to this amount. */
   | { readonly kind: "sameAsLast"; readonly from: TransactionId; readonly command: SetTreatment };
 
@@ -63,6 +66,7 @@ export function needsYouItems(facts: Facts): readonly NeedsYouItem[] {
   const waiting = newestFirst(held);
   const near = nearMatches(facts, held);
   const candidates = transferCandidates(facts, "waiting");
+  const contributions = matchContributions(facts, held);
   const last = sameAsLastTime(facts, held);
   const ruleFor = ruleResolver(facts.rules.values());
   const dropped = new Set<TransactionId>();
@@ -79,6 +83,13 @@ export function needsYouItems(facts: Facts): readonly NeedsYouItem[] {
       dropped.add(transaction.id);
       kept.add(keep);
       return { transaction, suggestion: { kind: "merge", command: { kind: "mergeTransactions", keep, drop: transaction.id } }, transferCandidates: transferTo };
+    }
+    const paid = contributions.get(transaction.id);
+    if (paid !== undefined) {
+      const personName = facts.people.get(paid.agreement.personId)?.name;
+      const treatment = { kind: "income", fundsMonth: paid.fundsMonth, source: "contribution", agreement: paid.agreement.id } as const;
+      const suggestion = { kind: "contribution", agreementId: paid.agreement.id, ...(personName === undefined ? {} : { personName }), command: setTreatment(transaction, treatment) } as const;
+      return { transaction, suggestion, transferCandidates: transferTo };
     }
     const same = last.get(transaction.id);
     const suggestion = same === undefined ? null : ({ kind: "sameAsLast", from: same.from, command: setTreatment(transaction, same.treatment) } as const);

@@ -3,7 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { _electron as electron, type ElectronApplication, type Page } from "@playwright/test";
 
-const mainEntry = join(import.meta.dirname, "../out/main/index.js");
+/** `HOLT_E2E_OUT` points a run at its own build folder, so two runs never share `out/`. */
+const mainEntry = join(process.env["HOLT_E2E_OUT"] ?? join(import.meta.dirname, "../out"), "main/index.js");
 
 export interface Preferences {
   colorScheme?: "light" | "dark";

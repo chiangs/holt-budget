@@ -19,6 +19,8 @@
   min-width: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid currentColor;
   font-family: var(--font-data); font-size: 11px; line-height: 18px; text-align: center; opacity: 0.75;
 }
+/* On an accent fill the hint is the ink itself. At 75% it measured 4.28:1 in the dark themes, under the 4.5:1 that small text needs. */
+.primary .key { opacity: 1; }
 
 .field {
   min-height: 40px; padding: 0 var(--space-3); border-radius: var(--radius-md);

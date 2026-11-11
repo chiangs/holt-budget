@@ -47,6 +47,9 @@ export function tablesOf(facts: Facts): Tables {
     importBatches: rowsByKey<"importBatches">(facts.importBatches),
     importRows: rowsByKey<"importRows">(facts.importRows),
     rules: rowsByKey<"rules">(facts.rules),
+    people: rowsByKey<"people">(facts.people),
+    contributionAgreements: rowsByKey<"contributionAgreements">(facts.contributionAgreements),
+    bucketTransfers: rowsByKey<"bucketTransfers">(facts.bucketTransfers),
   };
 }
 
@@ -65,5 +68,8 @@ export function factsOf(tables: Tables): Facts {
     importBatches: mapOfRows("importBatches", tables.importBatches),
     importRows: mapOfRows("importRows", tables.importRows),
     rules: mapOfRows("rules", tables.rules),
+    people: mapOfRows("people", tables.people),
+    contributionAgreements: mapOfRows("contributionAgreements", tables.contributionAgreements),
+    bucketTransfers: mapOfRows("bucketTransfers", tables.bucketTransfers),
   };
 }
